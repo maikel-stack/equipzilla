@@ -1,0 +1,671 @@
+{
+  "name": "A03 · Lead Qualifier Bot · Equipzilla",
+  "nodes": [
+    {
+      "id": "node-webhook",
+      "name": "WhatsApp Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-lead",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-extract",
+      "name": "Extraer datos mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const body = $input.first().json.body;\nconst entry = body.entry?.[0];\nconst value = entry?.changes?.[0]?.value;\nconst message = value?.messages?.[0];\n\nif ($input.first().json.query?.['hub.challenge']) {\n  return [{ json: {\n    isVerification: true,\n    challenge: $input.first().json.query['hub.challenge']\n  }}];\n}\n\nif (!message) throw new Error('No message found in webhook payload');\n\nconst phone = message.from;\nconst messageText = message.text?.body || '';\nconst messageId = message.id;\nconst name = value?.contacts?.[0]?.profile?.name || 'Lead';\n\nreturn [{ json: {\n  isVerification: false,\n  phone,\n  name,\n  messageText,\n  messageId,\n  conversationId: `conv_${phone}`,\n  timestamp: message.timestamp\n} }];"
+      }
+    },
+    {
+      "id": "node-switch-verify",
+      "name": "¿Verificación o mensaje?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        680,
+        300
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.isVerification }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "verificacion"
+            }
+          ]
+        },
+        "fallbackOutput": "extra"
+      }
+    },
+    {
+      "id": "node-verify-response",
+      "name": "Responder verificación Meta",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        900,
+        160
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.challenge }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "node-history",
+      "name": "Recuperar historial",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        380
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const conversationId = $input.first().json.conversationId;\nconst allData = $getWorkflowStaticData('global');\n\nlet history = allData[conversationId] || {\n  conversationId,\n  phone: $input.first().json.phone,\n  name: $input.first().json.name,\n  status: 'IN_PROGRESS',\n  turnsCount: 0,\n  startedAt: new Date().toISOString(),\n  messages: []\n};\n\nhistory.messages.push({\n  role: 'user',\n  content: $input.first().json.messageText\n});\nhistory.turnsCount++;\nhistory.lastMessageAt = new Date().toISOString();\n\nif (history.turnsCount > 12) {\n  history.status = 'MAX_TURNS_REACHED';\n}\n\nallData[conversationId] = history;\n\nreturn [{ json: { ...history, inputData: $input.first().json } }];"
+      }
+    },
+    {
+      "id": "node-claude",
+      "name": "Llamada a Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        380
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $('⚙️ Configuración').item.json.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 800,\n  \"temperature\": 0.3,\n  \"system\": \"Eres el asistente de cualificación de leads de Equipzilla, un marketplace B2B de maquinaria industrial. Tu única función es calificar leads de forma eficiente y profesional.\\n\\nOBJETIVO: Recoger 5 datos clave mediante una conversación natural y clasificar al lead como Caliente, Tibio o Frío.\\n\\nDATOS A RECOGER (en este orden):\\n1. Tipo de maquinaria necesaria (lifting, material handling, generación, limpieza, construcción)\\n2. Duración estimada del alquiler (días / semanas / meses)\\n3. Localización donde se necesita la máquina (provincia o ciudad)\\n4. Urgencia (¿cuándo la necesitan? fecha aproximada)\\n5. Presupuesto aproximado (si no lo tienen, marcar como desconocido)\\n\\nREGLAS DE CONVERSACIÓN:\\n- Haz UNA pregunta a la vez. Nunca hagas dos preguntas en el mismo mensaje.\\n- Confirma brevemente cada respuesta antes de pasar a la siguiente pregunta.\\n- Usa un tono profesional pero directo. Sin emojis excesivos.\\n- Si el lead ya dio algún dato en su primer mensaje, úsalo y no lo repitas.\\n- Máximo 2 intentos por pregunta. Si no responde, marca como desconocido.\\n- Nunca discutas precios específicos ni disponibilidad.\\n\\nCLASIFICACIÓN:\\n- CALIENTE: Urgencia < 7 días + presupuesto definido o señal de compra clara\\n- TIBIO: Necesidad clara pero fecha futura o presupuesto sin definir\\n- FRÍO: Información escasa, no urgente o señales de solo exploración\\n\\nCUANDO TENGAS LOS 4 DATOS MÍNIMOS (tipo, duración, localización, urgencia), devuelve ÚNICAMENTE este JSON sin texto adicional:\\n{\\n  \\\"clasificacion\\\": \\\"CALIENTE|TIBIO|FRIO\\\",\\n  \\\"tipo_maquina\\\": \\\"string\\\",\\n  \\\"duracion\\\": \\\"string\\\",\\n  \\\"localizacion\\\": \\\"string\\\",\\n  \\\"urgencia\\\": \\\"string\\\",\\n  \\\"presupuesto\\\": \\\"string|desconocido\\\",\\n  \\\"mensaje_cierre\\\": \\\"Mensaje personalizado para enviar al lead\\\",\\n  \\\"notas_internas\\\": \\\"Observaciones relevantes para el equipo\\\"\\n}\",\n  \"messages\": {{ JSON.stringify($json.messages) }}\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-switch-type",
+      "name": "¿Conversación o cualificado?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1340,
+        380
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.content[0].text.trim().startsWith('{') }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "json_final"
+            }
+          ]
+        },
+        "fallbackOutput": "extra"
+      }
+    },
+    {
+      "id": "node-send-whatsapp",
+      "name": "Enviar respuesta WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1560,
+        240
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v18.0/{{ {{ $('⚙️ Configuración').item.json.WHATSAPP_PHONE_NUMBER_ID }} }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ {{ $('⚙️ Configuración').item.json.WHATSAPP_ACCESS_TOKEN }} }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{ $('Recuperar historial').item.json.phone }}\",\n  \"type\": \"text\",\n  \"text\": { \"body\": \"{{ $json.content[0].text }}\" }\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-save-assistant",
+      "name": "Guardar respuesta asistente",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        240
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const conversationId = $('Recuperar historial').item.json.conversationId;\nconst allData = $getWorkflowStaticData('global');\nconst assistantText = $('Llamada a Claude API').item.json.content[0].text;\n\nif (allData[conversationId]) {\n  allData[conversationId].messages.push({\n    role: 'assistant',\n    content: assistantText\n  });\n}\n\nreturn [{ json: { ok: true, conversationId } }];"
+      }
+    },
+    {
+      "id": "node-parse-json",
+      "name": "Parsear JSON cualificación",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        500
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const responseText = $json.content[0].text.trim();\nlet qualificationData;\n\ntry {\n  const clean = responseText.replace(/```json|\\n```|```/g, '').trim();\n  qualificationData = JSON.parse(clean);\n} catch(e) {\n  return [{ json: { type: 'conversation', text: responseText } }];\n}\n\nconst historyData = $('Recuperar historial').item.json;\n\nreturn [{ json: {\n  type: 'qualified',\n  phone: historyData.phone,\n  name: historyData.name,\n  conversationId: historyData.conversationId,\n  turnsCount: historyData.turnsCount,\n  qualifiedAt: new Date().toISOString(),\n  ...qualificationData\n} }];"
+      }
+    },
+    {
+      "id": "node-pipeline-contact",
+      "name": "Crear contacto Pipeline CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        500
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.pipedrive.com/v1/persons?api_token={{ {{ $('⚙️ Configuración').item.json.PIPELINE_API_KEY }} }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"{{ $json.name }}\",\n  \"phone\": [{ \"value\": \"{{ $json.phone }}\", \"label\": \"mobile\", \"primary\": true }],\n  \"label\": \"{{ $json.clasificacion }}\",\n  \"visible_to\": \"3\"\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-pipeline-deal",
+      "name": "Crear deal Pipeline CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        500
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.pipedrive.com/v1/deals?api_token={{ {{ $('⚙️ Configuración').item.json.PIPELINE_API_KEY }} }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"{{ $('Parsear JSON cualificación').item.json.tipo_maquina }} · {{ $('Parsear JSON cualificación').item.json.localizacion }}\",\n  \"person_id\": {{ $json.data.id }},\n  \"status\": \"open\",\n  \"visible_to\": \"3\"\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-router",
+      "name": "Router clasificación",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        2220,
+        500
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Parsear JSON cualificación').item.json.clasificacion }}",
+                    "rightValue": "CALIENTE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CALIENTE"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Parsear JSON cualificación').item.json.clasificacion }}",
+                    "rightValue": "TIBIO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TIBIO"
+            }
+          ]
+        },
+        "fallbackOutput": "extra"
+      }
+    },
+    {
+      "id": "node-notify-hot",
+      "name": "Notificar equipo CALIENTE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2440,
+        360
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v18.0/{{ {{ $('⚙️ Configuración').item.json.WHATSAPP_PHONE_NUMBER_ID }} }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ {{ $('⚙️ Configuración').item.json.WHATSAPP_ACCESS_TOKEN }} }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{ {{ $('⚙️ Configuración').item.json.TEAM_WHATSAPP_NUMBER }} }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"LEAD CALIENTE\\n\\nNombre: {{ $('Parsear JSON cualificación').item.json.name }}\\nTeléfono: {{ $('Parsear JSON cualificación').item.json.phone }}\\nMáquina: {{ $('Parsear JSON cualificación').item.json.tipo_maquina }}\\nDuración: {{ $('Parsear JSON cualificación').item.json.duracion }}\\nLocalización: {{ $('Parsear JSON cualificación').item.json.localizacion }}\\nUrgencia: {{ $('Parsear JSON cualificación').item.json.urgencia }}\\nPresupuesto: {{ $('Parsear JSON cualificación').item.json.presupuesto }}\\n\\nNotas: {{ $('Parsear JSON cualificación').item.json.notas_internas }}\"\n  }\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-close-hot",
+      "name": "Mensaje cierre lead CALIENTE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2440,
+        500
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v18.0/{{ {{ $('⚙️ Configuración').item.json.WHATSAPP_PHONE_NUMBER_ID }} }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ {{ $('⚙️ Configuración').item.json.WHATSAPP_ACCESS_TOKEN }} }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{ $('Parsear JSON cualificación').item.json.phone }}\",\n  \"type\": \"text\",\n  \"text\": { \"body\": \"{{ $('Parsear JSON cualificación').item.json.mensaje_cierre }}\" }\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-tibio",
+      "name": "Registrar TIBIO para A05",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2440,
+        620
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $('Parsear JSON cualificación').item.json;\nconsole.log(`Lead TIBIO registrado: ${data.phone} - ${data.tipo_maquina}`);\nreturn [{ json: { status: 'tibio_registered', phone: data.phone } }];"
+      }
+    },
+    {
+      "id": "node-frio-brevo",
+      "name": "Añadir a nurturing Brevo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2440,
+        740
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/contacts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ {{ $('⚙️ Configuración').item.json.BREVO_API_KEY }} }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"noemail_{{ $('Parsear JSON cualificación').item.json.phone }}@equipzilla.placeholder\",\n  \"attributes\": {\n    \"FIRSTNAME\": \"{{ $('Parsear JSON cualificación').item.json.name }}\",\n    \"SMS\": \"+{{ $('Parsear JSON cualificación').item.json.phone }}\",\n    \"TIPO_MAQUINA\": \"{{ $('Parsear JSON cualificación').item.json.tipo_maquina }}\",\n    \"LEAD_STATUS\": \"FRIO\"\n  },\n  \"listIds\": [3],\n  \"updateEnabled\": true\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-config",
+      "name": "⚙️ Configuración",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1010,
+        380
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": true,
+        "fields": {
+          "values": [
+            {
+              "name": "ANTHROPIC_API_KEY",
+              "type": "stringValue",
+              "string": "PON_AQUI_TU_ANTHROPIC_API_KEY"
+            },
+            {
+              "name": "WHATSAPP_ACCESS_TOKEN",
+              "type": "stringValue",
+              "string": "PON_AQUI_TU_WHATSAPP_ACCESS_TOKEN"
+            },
+            {
+              "name": "WHATSAPP_PHONE_NUMBER_ID",
+              "type": "stringValue",
+              "string": "PON_AQUI_TU_PHONE_NUMBER_ID"
+            },
+            {
+              "name": "PIPELINE_API_KEY",
+              "type": "stringValue",
+              "string": "PON_AQUI_TU_PIPEDRIVE_API_KEY"
+            },
+            {
+              "name": "BREVO_API_KEY",
+              "type": "stringValue",
+              "string": "PON_AQUI_TU_BREVO_API_KEY"
+            },
+            {
+              "name": "TEAM_WHATSAPP_NUMBER",
+              "type": "stringValue",
+              "string": "34600000000"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "WhatsApp Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extraer datos mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer datos mensaje": {
+      "main": [
+        [
+          {
+            "node": "¿Verificación o mensaje?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Verificación o mensaje?": {
+      "main": [
+        [
+          {
+            "node": "Responder verificación Meta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Recuperar historial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recuperar historial": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Llamada a Claude API": {
+      "main": [
+        [
+          {
+            "node": "¿Conversación o cualificado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Conversación o cualificado?": {
+      "main": [
+        [
+          {
+            "node": "Enviar respuesta WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parsear JSON cualificación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar respuesta WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Guardar respuesta asistente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear JSON cualificación": {
+      "main": [
+        [
+          {
+            "node": "Crear contacto Pipeline CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear contacto Pipeline CRM": {
+      "main": [
+        [
+          {
+            "node": "Crear deal Pipeline CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear deal Pipeline CRM": {
+      "main": [
+        [
+          {
+            "node": "Router clasificación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router clasificación": {
+      "main": [
+        [
+          {
+            "node": "Notificar equipo CALIENTE",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mensaje cierre lead CALIENTE",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registrar TIBIO para A05",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Añadir a nurturing Brevo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚙️ Configuración": {
+      "main": [
+        [
+          {
+            "node": "Llamada a Claude API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-03-25T11:37:05.739Z",
+      "createdAt": "2026-03-25T11:37:05.739Z",
+      "role": "workflow:owner",
+      "workflowId": "yRQN9YxZWT1C3X46",
+      "projectId": "bmfBaoWnBzH9Ne8E",
+      "project": {
+        "updatedAt": "2026-03-25T11:06:09.169Z",
+        "createdAt": "2026-03-25T11:06:03.209Z",
+        "id": "bmfBaoWnBzH9Ne8E",
+        "name": "Maikel Echevarria Franconetti <maikel@equipzilla.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      }
+    }
+  ],
+  "activeVersion": null
+}
