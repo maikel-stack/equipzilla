@@ -1,0 +1,326 @@
+{
+  "name": "A02 · GSC SEO Workflow · Equipzilla",
+  "nodes": [
+    {
+      "id": "node-cron-trigger",
+      "name": "Cron Semanal",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-config",
+      "name": "⚙️ Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "fields": {
+          "values": [
+            { "name": "GSC_ACCESS_TOKEN", "type": "stringValue", "string": "TU_GSC_ACCESS_TOKEN" },
+            { "name": "GSC_SITE_URL", "type": "stringValue", "string": "https://equipzilla.com/" },
+            { "name": "ANTHROPIC_API_KEY", "type": "stringValue", "string": "TU_ANTHROPIC_API_KEY" },
+            { "name": "DISCORD_WEBHOOK_URL", "type": "stringValue", "string": "https://discord.com/api/webhooks/TU_WEBHOOK_DISCORD" },
+            { "name": "NOTION_API_KEY", "type": "stringValue", "string": "TU_NOTION_API_KEY" },
+            { "name": "NOTION_DATABASE_ID", "type": "stringValue", "string": "TU_NOTION_DATABASE_ID" },
+            { "name": "CATEGORIAS", "type": "stringValue", "string": "excavadoras,manipuladores telescópicos,generadores eléctricos,plataformas elevadoras,compactadoras" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-gsc-fetch",
+      "name": "GSC · Fetch Queries 5 Categorías",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($('⚙️ Config').item.json.GSC_SITE_URL) }}/searchAnalytics/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $('⚙️ Config').item.json.GSC_ACCESS_TOKEN }}" },
+            { "name": "Content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"startDate\": \"{{ $now.minus({days: 7}).toFormat('yyyy-MM-dd') }}\",\n  \"endDate\": \"{{ $now.minus({days: 1}).toFormat('yyyy-MM-dd') }}\",\n  \"dimensions\": [\"query\", \"page\"],\n  \"type\": \"web\",\n  \"rowLimit\": 500,\n  \"dimensionFilterGroups\": [{\n    \"groupType\": \"and\",\n    \"filters\": [{\n      \"dimension\": \"query\",\n      \"operator\": \"includingRegex\",\n      \"expression\": \"{{ $('⚙️ Config').item.json.CATEGORIAS.split(',').join('|') }}\"\n    }]\n  }]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-gsc-previous",
+      "name": "GSC · Semana Anterior (Comparar)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 520],
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($('⚙️ Config').item.json.GSC_SITE_URL) }}/searchAnalytics/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $('⚙️ Config').item.json.GSC_ACCESS_TOKEN }}" },
+            { "name": "Content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"startDate\": \"{{ $now.minus({days: 14}).toFormat('yyyy-MM-dd') }}\",\n  \"endDate\": \"{{ $now.minus({days: 8}).toFormat('yyyy-MM-dd') }}\",\n  \"dimensions\": [\"query\", \"page\"],\n  \"type\": \"web\",\n  \"rowLimit\": 500,\n  \"dimensionFilterGroups\": [{\n    \"groupType\": \"and\",\n    \"filters\": [{\n      \"dimension\": \"query\",\n      \"operator\": \"includingRegex\",\n      \"expression\": \"{{ $('⚙️ Config').item.json.CATEGORIAS.split(',').join('|') }}\"\n    }]\n  }]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-filter-transaccional",
+      "name": "Filtrar Keywords Transaccionales",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Filtrar solo keywords con intención transaccional de alquiler\nconst rows = $('GSC · Fetch Queries 5 Categorías').first().json.rows || [];\nconst previousRows = $('GSC · Semana Anterior (Comparar)').first().json.rows || [];\n\n// Palabras clave que indican intención de alquiler/transacción\nconst transaccionalPatterns = [\n  'alquil', 'rent', 'arrendam', 'precio', 'tarifa', 'coste',\n  'contratar', 'presupuesto', 'cuanto cuesta', 'donde alquilar',\n  'mejor', 'comparar', 'barato', 'económico', 'oferta',\n  'cerca de', 'en madrid', 'en barcelona', 'en sevilla',\n  'por días', 'por semana', 'por mes', 'mensual', 'diario',\n  'con operador', 'sin operador'\n];\n\nconst filtered = rows.filter(row => {\n  const query = (row.keys?.[0] || '').toLowerCase();\n  return transaccionalPatterns.some(p => query.includes(p));\n}).map(row => {\n  const query = row.keys?.[0] || '';\n  const page = row.keys?.[1] || '';\n  \n  // Buscar datos de la semana anterior para esta query\n  const prev = previousRows.find(p => \n    (p.keys?.[0] || '') === query && (p.keys?.[1] || '') === page\n  );\n  \n  const posActual = row.position || 0;\n  const posAnterior = prev ? (prev.position || 0) : null;\n  const cambio = posAnterior !== null ? posAnterior - posActual : null;\n  \n  return {\n    query,\n    page,\n    clicks: row.clicks || 0,\n    impressions: row.impressions || 0,\n    ctr: ((row.ctr || 0) * 100).toFixed(2) + '%',\n    posicion_actual: posActual.toFixed(1),\n    posicion_anterior: posAnterior ? posAnterior.toFixed(1) : 'N/A',\n    cambio_posicion: cambio !== null ? cambio.toFixed(1) : 'Nueva',\n    tendencia: cambio === null ? '🆕' : cambio > 0 ? '📈' : cambio < 0 ? '📉' : '➡️'\n  };\n});\n\n// Ordenar por impresiones (mayor potencial)\nfiltered.sort((a, b) => b.impressions - a.impressions);\n\nreturn [{ json: { \n  total_queries: filtered.length,\n  keywords: filtered,\n  fecha_analisis: $now.toFormat('dd/MM/yyyy')\n} }];"
+      }
+    },
+    {
+      "id": "node-detectar-caidas",
+      "name": "Detectar Caídas de Posición",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $input.first().json;\nconst keywords = data.keywords || [];\n\n// Keywords que han caído 3+ posiciones\nconst caidas = keywords.filter(kw => {\n  const cambio = parseFloat(kw.cambio_posicion);\n  return !isNaN(cambio) && cambio < -2;\n}).sort((a, b) => parseFloat(a.cambio_posicion) - parseFloat(b.cambio_posicion));\n\n// Keywords con oportunidad (posición 5-20 con impresiones altas)\nconst oportunidades = keywords.filter(kw => {\n  const pos = parseFloat(kw.posicion_actual);\n  return pos >= 5 && pos <= 20 && kw.impressions >= 50;\n}).sort((a, b) => b.impressions - a.impressions);\n\n// Detectar canibalización: misma query en múltiples páginas\nconst queryPages = {};\nkeywords.forEach(kw => {\n  if (!queryPages[kw.query]) queryPages[kw.query] = [];\n  queryPages[kw.query].push({ page: kw.page, posicion: kw.posicion_actual });\n});\n\nconst canibalizaciones = Object.entries(queryPages)\n  .filter(([_, pages]) => pages.length > 1)\n  .map(([query, pages]) => ({ query, paginas_compitiendo: pages }));\n\nreturn [{ json: {\n  ...data,\n  caidas,\n  total_caidas: caidas.length,\n  oportunidades,\n  total_oportunidades: oportunidades.length,\n  canibalizaciones,\n  total_canibalizaciones: canibalizaciones.length\n} }];"
+      }
+    },
+    {
+      "id": "node-claude-analisis",
+      "name": "Claude · Análisis de Oportunidades",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $('⚙️ Config').item.json.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 2000,\n  \"temperature\": 0.3,\n  \"system\": \"Eres el analista SEO de Equipzilla, un marketplace B2B de alquiler de maquinaria industrial en España.\\n\\nAnaliza las keywords de Google Search Console y prioriza oportunidades.\\n\\nCRITERIOS DE PRIORIZACIÓN:\\n1. Keywords con alto volumen de impresiones y posición 5-20 (quick wins)\\n2. Keywords transaccionales con intención de alquiler clara\\n3. Keywords donde hemos caído posiciones (recuperación urgente)\\n4. Keywords de cola larga específicas (menos competencia)\\n5. Keywords de categorías con mayor margen (manipuladores, generadores)\\n\\nDevuelve ÚNICAMENTE este JSON:\\n{\\n  \\\"resumen_ejecutivo\\\": \\\"3-5 frases del estado SEO semanal\\\",\\n  \\\"top_10_prioridades\\\": [\\n    {\\n      \\\"keyword\\\": \\\"texto\\\",\\n      \\\"posicion_actual\\\": número,\\n      \\\"impresiones\\\": número,\\n      \\\"accion\\\": \\\"CREAR_CONTENIDO|OPTIMIZAR_EXISTENTE|RECUPERAR_POSICION\\\",\\n      \\\"tipo_contenido_sugerido\\\": \\\"FICHA|COMPARATIVA|GUIA|CATEGORIA\\\",\\n      \\\"prioridad\\\": \\\"ALTA|MEDIA|BAJA\\\",\\n      \\\"razon\\\": \\\"por qué priorizar esta keyword\\\"\\n    }\\n  ],\\n  \\\"alertas\\\": [\\\"lista de alertas importantes\\\"],\\n  \\\"tendencia_general\\\": \\\"MEJORANDO|ESTABLE|EMPEORANDO\\\"\\n}\",\n  \"messages\": [{\n    \"role\": \"user\",\n    \"content\": \"Analiza estos datos SEO de Equipzilla (semana del {{ $json.fecha_analisis }}):\\n\\nTOTAL KEYWORDS TRANSACCIONALES: {{ $json.total_queries }}\\n\\nCAÍDAS DE POSICIÓN ({{ $json.total_caidas }}):\\n{{ JSON.stringify($json.caidas.slice(0, 20), null, 2) }}\\n\\nOPORTUNIDADES QUICK-WIN ({{ $json.total_oportunidades }}):\\n{{ JSON.stringify($json.oportunidades.slice(0, 20), null, 2) }}\\n\\nCANIBALIZACIONES DETECTADAS ({{ $json.total_canibalizaciones }}):\\n{{ JSON.stringify($json.canibalizaciones, null, 2) }}\\n\\nTOP 30 KEYWORDS POR IMPRESIONES:\\n{{ JSON.stringify($json.keywords.slice(0, 30), null, 2) }}\"\n  }]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-parse-analisis",
+      "name": "Parsear Análisis SEO",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const responseText = $json.content[0].text.trim();\nlet analisis;\n\ntry {\n  const clean = responseText.replace(/```json|\\n```|```/g, '').trim();\n  analisis = JSON.parse(clean);\n} catch(e) {\n  analisis = {\n    resumen_ejecutivo: 'Error al parsear el análisis de Claude.',\n    top_10_prioridades: [],\n    alertas: ['Error en análisis automático - revisar manualmente'],\n    tendencia_general: 'DESCONOCIDA'\n  };\n}\n\nconst prevData = $('Detectar Caídas de Posición').item.json;\n\nreturn [{ json: { ...prevData, analisis } }];"
+      }
+    },
+    {
+      "id": "node-claude-contenido",
+      "name": "Claude · Generar Contenido SEO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $('⚙️ Config').item.json.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4000,\n  \"temperature\": 0.4,\n  \"system\": \"Eres el redactor SEO experto de Equipzilla, un marketplace B2B de alquiler de maquinaria industrial en España.\\n\\nGenera contenido SEO optimizado para las keywords prioritarias.\\n\\nREGLAS DE CONTENIDO:\\n- Tono profesional B2B pero accesible\\n- Incluir CTAs de alquiler (solicitar presupuesto, ver catálogo)\\n- Mencionar ventajas de Equipzilla: sin inversión inicial, mantenimiento incluido, entrega rápida\\n- Datos técnicos reales de maquinaria\\n- Optimizar para intención transaccional de alquiler\\n\\nPara cada keyword prioritaria, genera este JSON:\\n{\\n  \\\"contenidos\\\": [\\n    {\\n      \\\"keyword_objetivo\\\": \\\"texto\\\",\\n      \\\"tipo\\\": \\\"FICHA|COMPARATIVA|GUIA|CATEGORIA\\\",\\n      \\\"titulo_h1\\\": \\\"título optimizado SEO\\\",\\n      \\\"meta_title\\\": \\\"max 60 chars con keyword\\\",\\n      \\\"meta_description\\\": \\\"max 155 chars con CTA\\\",\\n      \\\"estructura\\\": {\\n        \\\"h2\\\": [\\\"subtítulos principales\\\"],\\n        \\\"h3\\\": [\\\"subtítulos secundarios por cada H2\\\"]\\n      },\\n      \\\"intro\\\": \\\"párrafo introductorio 2-3 frases\\\",\\n      \\\"contenido_principal\\\": \\\"contenido del cuerpo 300-500 palabras\\\",\\n      \\\"schema_type\\\": \\\"Product|FAQPage|Article|ItemList\\\",\\n      \\\"schema_json_ld\\\": \\\"schema markup completo\\\"\\n    }\\n  ]\\n}\",\n  \"messages\": [{\n    \"role\": \"user\",\n    \"content\": \"Genera contenido SEO para las TOP 5 keywords prioritarias de Equipzilla:\\n\\n{{ JSON.stringify($json.analisis.top_10_prioridades.slice(0, 5), null, 2) }}\\n\\nContexto del análisis:\\n{{ $json.analisis.resumen_ejecutivo }}\\n\\nGenera fichas de producto, comparativas o páginas de categoría según el tipo sugerido para cada keyword.\"\n  }]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-parse-contenido",
+      "name": "Parsear Contenido SEO",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const responseText = $json.content[0].text.trim();\nlet contenido;\n\ntry {\n  const clean = responseText.replace(/```json|\\n```|```/g, '').trim();\n  contenido = JSON.parse(clean);\n} catch(e) {\n  contenido = {\n    contenidos: [{\n      keyword_objetivo: 'Error',\n      tipo: 'N/A',\n      titulo_h1: 'Error al generar contenido',\n      meta_title: '',\n      meta_description: '',\n      estructura: { h2: [], h3: [] },\n      intro: 'Error en generación automática.',\n      contenido_principal: '',\n      schema_type: '',\n      schema_json_ld: ''\n    }]\n  };\n}\n\nconst prevData = $('Parsear Análisis SEO').item.json;\n\nreturn [{ json: { ...prevData, contenido_seo: contenido } }];"
+      }
+    },
+    {
+      "id": "node-notion-save",
+      "name": "Guardar en Notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2220, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $('⚙️ Config').item.json.NOTION_API_KEY }}" },
+            { "name": "Notion-Version", "value": "2022-06-28" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"parent\": { \"database_id\": \"{{ $('⚙️ Config').item.json.NOTION_DATABASE_ID }}\" },\n  \"properties\": {\n    \"Título\": {\n      \"title\": [{ \"text\": { \"content\": \"SEO Report · {{ $json.fecha_analisis }}\" } }]\n    },\n    \"Estado\": {\n      \"select\": { \"name\": \"Pendiente revisión\" }\n    },\n    \"Tendencia\": {\n      \"select\": { \"name\": \"{{ $json.analisis.tendencia_general }}\" }\n    },\n    \"Keywords Analizadas\": {\n      \"number\": {{ $json.total_queries }}\n    },\n    \"Caídas Detectadas\": {\n      \"number\": {{ $json.total_caidas }}\n    },\n    \"Canibalizaciones\": {\n      \"number\": {{ $json.total_canibalizaciones }}\n    }\n  },\n  \"children\": [\n    {\n      \"object\": \"block\",\n      \"type\": \"heading_2\",\n      \"heading_2\": { \"rich_text\": [{ \"text\": { \"content\": \"Resumen Ejecutivo\" } }] }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"paragraph\",\n      \"paragraph\": { \"rich_text\": [{ \"text\": { \"content\": \"{{ $json.analisis.resumen_ejecutivo }}\" } }] }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"heading_2\",\n      \"heading_2\": { \"rich_text\": [{ \"text\": { \"content\": \"Top Prioridades SEO\" } }] }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"paragraph\",\n      \"paragraph\": { \"rich_text\": [{ \"text\": { \"content\": \"{{ JSON.stringify($json.analisis.top_10_prioridades, null, 2).substring(0, 1900) }}\" } }] }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"heading_2\",\n      \"heading_2\": { \"rich_text\": [{ \"text\": { \"content\": \"Contenido SEO Generado\" } }] }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"paragraph\",\n      \"paragraph\": { \"rich_text\": [{ \"text\": { \"content\": \"{{ JSON.stringify($json.contenido_seo.contenidos.map(c => ({ keyword: c.keyword_objetivo, h1: c.titulo_h1, tipo: c.tipo, meta: c.meta_description })), null, 2).substring(0, 1900) }}\" } }] }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"heading_2\",\n      \"heading_2\": { \"rich_text\": [{ \"text\": { \"content\": \"Alertas\" } }] }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"paragraph\",\n      \"paragraph\": { \"rich_text\": [{ \"text\": { \"content\": \"{{ ($json.analisis.alertas || []).join('\\\\n') }}\" } }] }\n    }\n  ]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-alerta-canibalizacion",
+      "name": "Alerta Canibalización",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2440, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $('Parsear Contenido SEO').item.json;\nconst canibalizaciones = data.canibalizaciones || [];\n\nlet alertaTexto = '';\nif (canibalizaciones.length > 0) {\n  alertaTexto = '⚠️ **ALERTA DE CANIBALIZACIÓN**\\n\\n';\n  canibalizaciones.forEach((c, i) => {\n    alertaTexto += `**${i + 1}. \"${c.query}\"** → ${c.paginas_compitiendo.length} páginas compitiendo:\\n`;\n    c.paginas_compitiendo.forEach(p => {\n      alertaTexto += `   - ${p.page} (pos: ${p.posicion})\\n`;\n    });\n    alertaTexto += '\\n';\n  });\n  alertaTexto += '🎯 **Acción recomendada:** Consolidar contenido, implementar canonical tags o redirigir la página más débil.';\n} else {\n  alertaTexto = '✅ No se detectaron canibalizaciones esta semana.';\n}\n\nreturn [{ json: {\n  ...data,\n  alerta_canibalizacion: alertaTexto,\n  hay_canibalizacion: canibalizaciones.length > 0\n} }];"
+      }
+    },
+    {
+      "id": "node-discord-resumen",
+      "name": "Discord · Resumen Semanal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2660, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Config').item.json.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"username\": \"Equipzilla SEO Bot\",\n  \"embeds\": [\n    {\n      \"title\": \"📊 Informe SEO Semanal · {{ $json.fecha_analisis }}\",\n      \"description\": \"{{ $json.analisis.resumen_ejecutivo }}\",\n      \"color\": {{ $json.analisis.tendencia_general === 'MEJORANDO' ? 3066993 : $json.analisis.tendencia_general === 'EMPEORANDO' ? 15158332 : 16776960 }},\n      \"fields\": [\n        { \"name\": \"🔑 Keywords Analizadas\", \"value\": \"{{ $json.total_queries }}\", \"inline\": true },\n        { \"name\": \"📈 Tendencia\", \"value\": \"{{ $json.analisis.tendencia_general }}\", \"inline\": true },\n        { \"name\": \"📉 Caídas\", \"value\": \"{{ $json.total_caidas }}\", \"inline\": true },\n        { \"name\": \"🎯 Oportunidades\", \"value\": \"{{ $json.total_oportunidades }}\", \"inline\": true },\n        { \"name\": \"⚠️ Canibalizaciones\", \"value\": \"{{ $json.total_canibalizaciones }}\", \"inline\": true },\n        { \"name\": \"📝 Contenidos Generados\", \"value\": \"{{ ($json.contenido_seo.contenidos || []).length }}\", \"inline\": true },\n        { \"name\": \"\\u200B\", \"value\": \"**Top 3 Prioridades:**\", \"inline\": false },\n        { \"name\": \"1️⃣\", \"value\": \"{{ $json.analisis.top_10_prioridades[0] ? $json.analisis.top_10_prioridades[0].keyword + ' (pos ' + $json.analisis.top_10_prioridades[0].posicion_actual + ') → ' + $json.analisis.top_10_prioridades[0].accion : 'N/A' }}\", \"inline\": false },\n        { \"name\": \"2️⃣\", \"value\": \"{{ $json.analisis.top_10_prioridades[1] ? $json.analisis.top_10_prioridades[1].keyword + ' (pos ' + $json.analisis.top_10_prioridades[1].posicion_actual + ') → ' + $json.analisis.top_10_prioridades[1].accion : 'N/A' }}\", \"inline\": false },\n        { \"name\": \"3️⃣\", \"value\": \"{{ $json.analisis.top_10_prioridades[2] ? $json.analisis.top_10_prioridades[2].keyword + ' (pos ' + $json.analisis.top_10_prioridades[2].posicion_actual + ') → ' + $json.analisis.top_10_prioridades[2].accion : 'N/A' }}\", \"inline\": false }\n      ],\n      \"footer\": { \"text\": \"Equipzilla SEO Bot · Workflow A02\" },\n      \"timestamp\": \"{{ $now.toISO() }}\"\n    }\n  ]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-discord-canibalizacion",
+      "name": "Discord · Alerta Canibalización",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2660, 420],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Config').item.json.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"username\": \"Equipzilla SEO Bot\",\n  \"embeds\": [{\n    \"title\": \"⚠️ Alerta de Canibalización SEO\",\n    \"description\": \"{{ $json.alerta_canibalizacion.substring(0, 2000) }}\",\n    \"color\": 15105570,\n    \"footer\": { \"text\": \"Equipzilla SEO Bot · Workflow A02\" },\n    \"timestamp\": \"{{ $now.toISO() }}\"\n  }]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-switch-canibalizacion",
+      "name": "¿Hay canibalización?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2440, 520],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [{ "leftValue": "={{ $json.hay_canibalizacion }}", "rightValue": true, "operator": { "type": "boolean", "operation": "equals" } }],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SI"
+            }
+          ]
+        },
+        "fallbackOutput": "extra"
+      }
+    }
+  ],
+  "connections": {
+    "Cron Semanal": {
+      "main": [[{ "node": "⚙️ Config", "type": "main", "index": 0 }]]
+    },
+    "⚙️ Config": {
+      "main": [
+        [
+          { "node": "GSC · Fetch Queries 5 Categorías", "type": "main", "index": 0 },
+          { "node": "GSC · Semana Anterior (Comparar)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "GSC · Fetch Queries 5 Categorías": {
+      "main": [[{ "node": "Filtrar Keywords Transaccionales", "type": "main", "index": 0 }]]
+    },
+    "GSC · Semana Anterior (Comparar)": {
+      "main": [[{ "node": "Filtrar Keywords Transaccionales", "type": "main", "index": 0 }]]
+    },
+    "Filtrar Keywords Transaccionales": {
+      "main": [[{ "node": "Detectar Caídas de Posición", "type": "main", "index": 0 }]]
+    },
+    "Detectar Caídas de Posición": {
+      "main": [[{ "node": "Claude · Análisis de Oportunidades", "type": "main", "index": 0 }]]
+    },
+    "Claude · Análisis de Oportunidades": {
+      "main": [[{ "node": "Parsear Análisis SEO", "type": "main", "index": 0 }]]
+    },
+    "Parsear Análisis SEO": {
+      "main": [[{ "node": "Claude · Generar Contenido SEO", "type": "main", "index": 0 }]]
+    },
+    "Claude · Generar Contenido SEO": {
+      "main": [[{ "node": "Parsear Contenido SEO", "type": "main", "index": 0 }]]
+    },
+    "Parsear Contenido SEO": {
+      "main": [[{ "node": "Guardar en Notion", "type": "main", "index": 0 }]]
+    },
+    "Guardar en Notion": {
+      "main": [[{ "node": "Alerta Canibalización", "type": "main", "index": 0 }]]
+    },
+    "Alerta Canibalización": {
+      "main": [
+        [
+          { "node": "Discord · Resumen Semanal", "type": "main", "index": 0 },
+          { "node": "¿Hay canibalización?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "¿Hay canibalización?": {
+      "main": [
+        [{ "node": "Discord · Alerta Canibalización", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  }
+}
