@@ -1,5 +1,11 @@
 {
+  "updatedAt": "2026-03-26T14:50:40.749Z",
+  "createdAt": "2026-03-26T14:50:40.749Z",
+  "id": "dsizYBkRpiSlRin1",
   "name": "A03 · Gestor Respuestas WhatsApp · Equipzilla",
+  "description": null,
+  "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "id": "r1",
@@ -468,6 +474,518 @@
     "executionOrder": "v1",
     "saveManualExecutions": true,
     "callerPolicy": "workflowsFromSameOwner",
-    "errorWorkflow": ""
+    "errorWorkflow": "",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "a33b2249-8668-4253-87b3-72edb0cf9ff8",
+  "activeVersionId": "a33b2249-8668-4253-87b3-72edb0cf9ff8",
+  "versionCounter": 5,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-03-26T14:50:40.751Z",
+      "createdAt": "2026-03-26T14:50:40.751Z",
+      "role": "workflow:owner",
+      "workflowId": "dsizYBkRpiSlRin1",
+      "projectId": "bmfBaoWnBzH9Ne8E",
+      "project": {
+        "updatedAt": "2026-03-25T11:06:09.169Z",
+        "createdAt": "2026-03-25T11:06:03.209Z",
+        "id": "bmfBaoWnBzH9Ne8E",
+        "name": "Maikel Echevarria Franconetti <maikel@equipzilla.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-03-26T14:50:40.786Z",
+    "createdAt": "2026-03-26T14:50:40.786Z",
+    "versionId": "a33b2249-8668-4253-87b3-72edb0cf9ff8",
+    "workflowId": "dsizYBkRpiSlRin1",
+    "nodes": [
+      {
+        "id": "r1",
+        "name": "Webhook Respuesta WhatsApp",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          200,
+          300
+        ],
+        "webhookId": "c3d4e5f6-a7b8-9012-cdef-123456789003",
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "whatsapp-reply",
+          "responseMode": "responseNode",
+          "options": {}
+        }
+      },
+      {
+        "id": "r1resp",
+        "name": "Webhook Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          200,
+          480
+        ],
+        "parameters": {
+          "respondWith": "text",
+          "responseBody": "OK"
+        }
+      },
+      {
+        "id": "r2",
+        "name": "Parsear respuesta",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          420,
+          300
+        ],
+        "parameters": {
+          "language": "javaScript",
+          "jsCode": "// respond.io webhook payload formats vary - handle multiple\nconst body = $input.first().json.body || $input.first().json;\n\nlet phone = '';\nlet messageText = '';\nlet contactName = '';\n\n// Format 1: contact.phone + message.text\nif (body.contact?.phone) {\n  phone = body.contact.phone;\n  contactName = body.contact.name || '';\n}\nif (body.message?.text) {\n  messageText = body.message.text;\n} else if (body.message?.content) {\n  messageText = body.message.content;\n}\n\n// Format 2: from.phone (some versions)\nif (!phone && body.from?.phone) phone = body.from.phone;\nif (!messageText && body.text) messageText = body.text;\n\n// Normalize phone\nif (phone && !phone.startsWith('+')) {\n  phone = '+34' + phone.replace(/\\s/g, '');\n}\n\nconst msgLower = (messageText || '').toLowerCase().trim();\nconst isYes = /^(si|sí|yes|acepto|ok|confirmo|dale|perfecto|de acuerdo|claro|genial)/.test(msgLower);\nconst isNo = /^(no|cancel|rechaz|no acepto|no me interesa|paso)/.test(msgLower);\nconst response = isYes ? 'YES' : isNo ? 'NO' : 'OTHER';\n\nreturn [{\n  json: {\n    phone,\n    contactName,\n    messageText,\n    response,\n    rawBody: body\n  }\n}];"
+        }
+      },
+      {
+        "id": "r3",
+        "name": "Buscar persona Pipedrive",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          640,
+          300
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "=https://api.pipedrive.com/v1/persons/search?term={{ encodeURIComponent($json.phone) }}&fields=phone&limit=5&api_token=PIPEDRIVE_API_TOKEN",
+          "options": {}
+        }
+      },
+      {
+        "id": "r4",
+        "name": "Extraer persona",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          860,
+          300
+        ],
+        "parameters": {
+          "language": "javaScript",
+          "jsCode": "const phone = $('Parsear respuesta').item.json.phone;\n\n// Search in persons by phone from Pipedrive response\nconst data = $json.data || [];\nif (!data || data.length === 0) {\n  return [{ json: { error: 'No person found for phone ' + phone, phone, dealId: null } }];\n}\n\n// Take first person with open deals\nconst person = data[0];\nconst personId = person.id;\n\nreturn [{ json: { \n  personId,\n  personName: person.name,\n  phone,\n  response: $('Parsear respuesta').item.json.response,\n  messageText: $('Parsear respuesta').item.json.messageText\n}}];"
+        }
+      },
+      {
+        "id": "r5",
+        "name": "Obtener deals de persona",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1080,
+          300
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "=https://api.pipedrive.com/v1/persons/{{ $json.personId }}/deals?status=open&limit=10&api_token=PIPEDRIVE_API_TOKEN",
+          "options": {}
+        }
+      },
+      {
+        "id": "r6",
+        "name": "Identificar deal activo",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1300,
+          300
+        ],
+        "parameters": {
+          "language": "javaScript",
+          "jsCode": "const deals = $json.data || [];\nconst response = $('Parsear respuesta').item.json.response;\nconst phone = $('Parsear respuesta').item.json.phone;\n\nif (!deals || deals.length === 0) {\n  return [{ json: { error: 'No deals found', dealId: null, response, phone } }];\n}\n\n// Find deal in stage 37 (Oferta enviada) or most recent open deal\nconst inStage37 = deals.filter(d => d.stage_id === 37 && d.status === 'open');\nconst deal = inStage37.length > 0 ? inStage37[0] : deals.find(d => d.status === 'open') || deals[0];\n\nreturn [{\n  json: {\n    dealId: String(deal.id),\n    dealTitle: deal.title,\n    stageId: deal.stage_id,\n    pipelineId: deal.pipeline_id,\n    response,\n    phone,\n    personName: $('Buscar persona Pipedrive').item.json.personName\n  }\n}];"
+        }
+      },
+      {
+        "id": "r7",
+        "name": "¿SÍ o NO?",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3,
+        "position": [
+          1520,
+          300
+        ],
+        "parameters": {
+          "mode": "rules",
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.response }}",
+                      "rightValue": "YES",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "SI"
+              },
+              {
+                "conditions": {
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.response }}",
+                      "rightValue": "NO",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "NO"
+              }
+            ]
+          },
+          "fallbackOutput": "extra"
+        }
+      },
+      {
+        "id": "r8",
+        "name": "Mover a Oferta Aceptada",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1740,
+          140
+        ],
+        "parameters": {
+          "method": "PUT",
+          "url": "=https://api.pipedrive.com/v1/deals/{{ $json.dealId }}?api_token=PIPEDRIVE_API_TOKEN",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\"stage_id\":38,\"pipeline_id\":6}",
+          "options": {}
+        }
+      },
+      {
+        "id": "r9",
+        "name": "Nota: Cliente aceptó",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1960,
+          140
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.pipedrive.com/v1/notes?api_token=PIPEDRIVE_API_TOKEN",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\"deal_id\":{{ $('Identificar deal activo').item.json.dealId }},\"content\":\"✅ CLIENTE ACEPTÓ PRESUPUESTO\\n\\nRespuesta WhatsApp: '{{ $('Identificar deal activo').item.json.response }}'\\nMensaje: '{{ $('Parsear respuesta').item.json.messageText }}'\\nTeléfono: {{ $('Parsear respuesta').item.json.phone }}\\n\\nDeal movido a: Oferta Aceptada (etapa 38)\\n---\\nEquipzilla Bot\"}",
+          "options": {}
+        }
+      },
+      {
+        "id": "r10",
+        "name": "WhatsApp confirmación",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2180,
+          140
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "=https://app.respond.io/api/v1/contact/phone:{{ encodeURIComponent($('Identificar deal activo').item.json.phone) }}/message",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer RESPOND_IO_API_KEY"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\"message\":{\"type\":\"text\",\"text\":\"¡Perfecto! ✅ Presupuesto confirmado. Nuestro equipo se pondrá en contacto contigo en breve para coordinar los detalles del alquiler.\\n\\nGracias por confiar en Equipzilla 🏗️\"}}",
+          "options": {}
+        }
+      },
+      {
+        "id": "r11",
+        "name": "Mover a Seguimiento",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1740,
+          300
+        ],
+        "parameters": {
+          "method": "PUT",
+          "url": "=https://api.pipedrive.com/v1/deals/{{ $json.dealId }}?api_token=PIPEDRIVE_API_TOKEN",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\"stage_id\":27,\"pipeline_id\":5}",
+          "options": {}
+        }
+      },
+      {
+        "id": "r12",
+        "name": "Crear tarea seguimiento",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1960,
+          300
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.pipedrive.com/v1/activities?api_token=PIPEDRIVE_API_TOKEN",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\"subject\":\"📞 Seguimiento: cliente rechazó presupuesto WhatsApp\",\"type\":\"call\",\"deal_id\":{{ $('Identificar deal activo').item.json.dealId }},\"note\":\"El cliente respondió NO al presupuesto automático por WhatsApp.\\nMensaje: '{{ $('Parsear respuesta').item.json.messageText }}'\\nLlamar para entender objeciones y renegociar.\",\"done\":0}",
+          "options": {}
+        }
+      },
+      {
+        "id": "r13",
+        "name": "WhatsApp: ok seguiremos",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2180,
+          300
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "=https://app.respond.io/api/v1/contact/phone:{{ encodeURIComponent($('Identificar deal activo').item.json.phone) }}/message",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer RESPOND_IO_API_KEY"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\"message\":{\"type\":\"text\",\"text\":\"Entendido, ¡sin problema! 😊\\n\\nUno de nuestros gestores se pondrá en contacto contigo para ver si podemos ajustar mejor la propuesta a tus necesidades.\\n\\nGracias por tu respuesta 🙏 - Equipzilla\"}}",
+          "options": {}
+        }
+      },
+      {
+        "id": "r14",
+        "name": "WhatsApp: aclaración",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1740,
+          460
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "=https://app.respond.io/api/v1/contact/phone:{{ encodeURIComponent($json.phone) }}/message",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer RESPOND_IO_API_KEY"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\"message\":{\"type\":\"text\",\"text\":\"Hola! Para confirmar el presupuesto, responde simplemente:\\n\\n✅ *SÍ* - para confirmar y proceder\\n❌ *NO* - si no te interesa\\n\\nGracias 🙏 - Equipzilla\"}}",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook Respuesta WhatsApp": {
+        "main": [
+          [
+            {
+              "node": "Webhook Response",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Parsear respuesta",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parsear respuesta": {
+        "main": [
+          [
+            {
+              "node": "Buscar persona Pipedrive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Buscar persona Pipedrive": {
+        "main": [
+          [
+            {
+              "node": "Extraer persona",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extraer persona": {
+        "main": [
+          [
+            {
+              "node": "Obtener deals de persona",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Obtener deals de persona": {
+        "main": [
+          [
+            {
+              "node": "Identificar deal activo",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Identificar deal activo": {
+        "main": [
+          [
+            {
+              "node": "¿SÍ o NO?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "¿SÍ o NO?": {
+        "main": [
+          [
+            {
+              "node": "Mover a Oferta Aceptada",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Mover a Seguimiento",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "WhatsApp: aclaración",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Mover a Oferta Aceptada": {
+        "main": [
+          [
+            {
+              "node": "Nota: Cliente aceptó",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Nota: Cliente aceptó": {
+        "main": [
+          [
+            {
+              "node": "WhatsApp confirmación",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Mover a Seguimiento": {
+        "main": [
+          [
+            {
+              "node": "Crear tarea seguimiento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Crear tarea seguimiento": {
+        "main": [
+          [
+            {
+              "node": "WhatsApp: ok seguiremos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Maikel Echevarria Franconetti",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-03-26T14:50:49.299Z",
+        "id": 5,
+        "workflowId": "dsizYBkRpiSlRin1",
+        "versionId": "a33b2249-8668-4253-87b3-72edb0cf9ff8",
+        "event": "activated",
+        "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      }
+    ]
   }
 }

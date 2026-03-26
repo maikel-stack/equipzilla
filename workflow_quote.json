@@ -1,5 +1,11 @@
 {
+  "updatedAt": "2026-03-26T15:04:03.617Z",
+  "createdAt": "2026-03-26T14:50:33.553Z",
+  "id": "axdargrbpFiIMHwt",
   "name": "A03 · Auto Presupuesto · Equipzilla",
+  "description": null,
+  "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "id": "n1",
@@ -47,12 +53,26 @@
       }
     },
     {
+      "id": "n_prep",
+      "name": "Preparar payload Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        300
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const d = $json;\n\nconst systemPrompt = `Eres el sistema de presupuestación automática de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en España.\n\nTARIFA GAM 2026 (€/día sin IVA) - Multiplicadores: P1=84%, P2=69%, P3=63%, P4=54%\n\nREGLAS:\n- Alquiler < 7 días → tarifa P3\n- Alquiler ≥ 7 días → tarifa P4\n\nEXTRAS OBLIGATORIOS:\n- Seguro: 15% sobre subtotal (tarifa × días)\n- Ecofee: 15€ fijo\n- Cargo baterías: 10€ SOLO si máquina eléctrica\n\nPLATAFORMAS TIJERA ELÉCTRICA [eléctrica=true]:\nTijera eléctrica 8m | P3=33.39 | P4=28.62\nTijera eléctrica 10m | P3=46.62 | P4=39.96\nTijera eléctrica 12m | P3=50.40 | P4=43.20\nTijera eléctrica 14m | P3=82.53 | P4=70.74\nTijera eléctrica 16m | P3=116.55 | P4=99.90\nTijera eléctrica 20m | P3=221.76 | P4=190.08\nTijera eléctrica TT 15m | P3=124.74 | P4=106.92\nTijera eléctrica TT 18m | P3=146.79 | P4=125.82\n\nPLATAFORMAS TIJERA DIÉSEL [eléctrica=false]:\nTijera diésel 10m | P3=55.44 | P4=47.52\nTijera diésel 12m | P3=62.37 | P4=53.46\nTijera diésel 14m | P3=81.27 | P4=69.66\nTijera diésel 15m | P3=83.16 | P4=71.28\nTijera diésel 18m | P3=97.02 | P4=83.16\nTijera diésel >=22m | CONSULTAR\n\nPLATAFORMAS ARTICULADAS ELÉCTRICAS/HÍBRIDAS [eléctrica=true]:\nArticulada eléctrica 12m | P3=77.49 | P4=66.42\nArticulada eléctrica 15m | P3=93.24 | P4=79.92\nArticulada eléctrica/híbrida 16m | P3=98.91 | P4=84.78\nArticulada eléctrica/híbrida 20m | P3=187.74 | P4=160.92\nArticulada eléctrica TT 18m | P3=157.50 | P4=135.00\n\nPLATAFORMAS ARTICULADAS DIÉSEL [eléctrica=false]:\nArticulada diésel 12m | P3=75.60 | P4=64.80\nArticulada diésel 16m | P3=81.90 | P4=70.20\nArticulada diésel 18m | P3=105.84 | P4=90.72\nArticulada diésel 20m | P3=121.59 | P4=104.22\nArticulada diésel 26m | P3=194.04 | P4=166.32\nArticulada diésel >=32m | CONSULTAR\n\nPLATAFORMAS TELESCÓPICAS DIÉSEL [eléctrica=false]:\nTelescópica diésel 20m | P3=122.22 | P4=104.76\nTelescópica diésel 28m | P3=206.01 | P4=176.58\nTelescópica diésel >=38m | CONSULTAR\n\nPLATAFORMAS UNIPERSONALES ELÉCTRICAS [eléctrica=true]:\nUnipersonal 5m | P3=43.47 | P4=37.26\nUnipersonal 6m | P3=45.99 | P4=39.42\nUnipersonal 8m | P3=47.25 | P4=40.50\nUnipersonal 10m | P3=81.27 | P4=69.66\nUnipersonal 12m | P3=92.61 | P4=79.38\n\nGRUPOS ELECTRÓGENOS DIÉSEL [eléctrica=false]:\nGrupo 20kVA | P3=28.35 | P4=24.30\nGrupo 30kVA | P3=30.24 | P4=25.92\nGrupo 40kVA | P3=33.39 | P4=28.62\nGrupo 45/50kVA | P3=36.54 | P4=31.32\nGrupo 60kVA | P3=45.99 | P4=39.42\nGrupo 100kVA | P3=54.81 | P4=46.98\nGrupo 135kVA | P3=64.89 | P4=55.62\nGrupo 150kVA | P3=72.45 | P4=62.10\nGrupo 200kVA | P3=91.35 | P4=78.30\nGrupo 250kVA | P3=113.40 | P4=97.20\nGrupo 300kVA | P3=144.90 | P4=124.20\nGrupo 350kVA | P3=170.73 | P4=146.34\nGrupo 400kVA | P3=183.96 | P4=157.68\n\nCARRETILLAS FRONTAL DIÉSEL [eléctrica=false]:\nCarretilla diésel 1.8-2t | P3=53.55 | P4=45.90\nCarretilla diésel 2.5t | P3=57.96 | P4=49.68\nCarretilla diésel 3-3.2t | P3=72.45 | P4=62.10\nCarretilla diésel 3.5t | P3=74.97 | P4=64.26\nCarretilla diésel 4t | P3=91.35 | P4=78.30\nCarretilla diésel 4.5-5t | P3=100.17 | P4=85.86\nCarretilla diésel 7t | P3=155.61 | P4=133.38\nCarretilla diésel >7.5t | CONSULTAR\n\nCARRETILLAS FRONTAL ELÉCTRICA [eléctrica=true]:\nCarretilla eléctrica 1.5-1.6t | P3=50.40 | P4=43.20\nCarretilla eléctrica 1.8t | P3=53.55 | P4=45.90\nCarretilla eléctrica 2t | P3=57.96 | P4=49.68\nCarretilla eléctrica 2.5t | P3=67.41 | P4=57.78\nCarretilla eléctrica 3t | P3=76.23 | P4=65.34\nCarretilla eléctrica 3.5t | P3=95.13 | P4=81.54\nCarretilla eléctrica 4t | P3=114.66 | P4=98.28\nCarretilla eléctrica 5t | P3=127.26 | P4=109.08\nCarretilla eléctrica 5.5t | P3=170.10 | P4=145.80\n\nCARRETILLAS GLP [eléctrica=false]:\nGLP 2.5t | P3=77.49 | P4=66.42\nGLP 3t | P3=79.38 | P4=68.04\nGLP 3.5t | P3=81.90 | P4=70.20\n\nMANIPULADORES TELESCÓPICOS [eléctrica=false]:\nManipulador TL 14m/4000kg | P3=160.02 | P4=137.16\nManipulador TL 15m/5500kg | P3=216.09 | P4=185.22\nManipulador TL 17m/4000kg | P3=175.14 | P4=150.12\nManipulador TL 17m/5000kg | P3=185.22 | P4=158.76\nManipulador TL 18m/4000kg | P3=185.22 | P4=158.76\nManipulador TL 19m/4500kg | P3=197.19 | P4=169.02\nManipulador TL 19m/5500kg | P3=223.65 | P4=191.70\n\nCARRETILLAS TT 4x4 [eléctrica=false]:\nTT 4x4 2-2.5t | P3=76.86 | P4=65.88\nTT 4x4 3t | P3=86.94 | P4=74.52\n\nTRANSPALETAS ELÉCTRICAS [eléctrica=true]:\nTranspaleta eléctrica 1.4t | P3=21.42 | P4=18.36\nTranspaleta eléctrica 2t | P3=26.46 | P4=22.68\n\nTRANSPALETAS MANUALES [eléctrica=false]:\nTranspaleta manual | P3=10.08 | P4=8.64\n\nMINIEXCAVADORAS [eléctrica=false]:\nMiniexcavadora 3t | P3=126.63 | P4=108.54\nMiniexcavadora 5t | P3=163.80 | P4=140.40\nMiniexcavadora 6t | P3=171.36 | P4=146.88\nMiniexcavadora 9t | P3=206.64 | P4=177.12\n\nMINICARGADORAS [eléctrica=false]:\nMinicargadora 2.5t | P3=69.93 | P4=59.94\n\nCÁLCULO PASO A PASO:\n1. Identifica la máquina más similar\n2. Determina si es eléctrica\n3. días < 7 → P3, días >= 7 → P4\n4. base = tarifa_diaria × días\n5. seguro = base × 0.15 (redondear 2 decimales)\n6. ecofee = 15\n7. bateria = 10 si eléctrica, 0 si no\n8. total = base + seguro + ecofee + bateria\n9. can_quote = (total < 1000) Y (precio no es CONSULTAR)\n\nDevuelve ÚNICAMENTE este JSON sin markdown:\n{\"can_quote\":true,\"reason_no_quote\":null,\"machine_name\":\"nombre\",\"is_electric\":true,\"pricing_tier\":\"P3\",\"daily_rate\":46.62,\"days\":2,\"base_cost\":93.24,\"insurance\":13.99,\"ecofee\":15,\"battery_charge\":10,\"total\":132.23,\"whatsapp_text\":\"mensaje completo en español\"}`;\n\nconst userMsg = `Calcula presupuesto para este deal:\n\nCliente: ${d.personName}\nEmpresa: ${d.razonSocial || d.orgName || 'N/A'}\nMáquina solicitada: ${d.assetType || 'No especificada'}\nPeso/capacidad: ${d.assetWeight || 'N/A'}\nMotor/tipo: ${d.assetEngine || 'N/A'}\nFecha inicio: ${d.dateStart || 'N/A'}\nFecha fin: ${d.dateFinish || 'N/A'}\nDías: ${d.duracionDias || 'N/A'}\nLocalización: ${d.workLocation || 'N/A'}\nTeléfono: ${d.phone || 'Sin teléfono'}`;\n\nreturn [{\n  json: {\n    ...d,\n    _claudePayload: {\n      model: \"claude-sonnet-4-20250514\",\n      max_tokens: 1500,\n      temperature: 0,\n      system: systemPrompt,\n      messages: [{ role: \"user\", content: userMsg }]\n    }\n  }\n}];"
+      }
+    },
+    {
       "id": "n3",
       "name": "Claude · Calcular Presupuesto",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        640,
+        860,
         300
       ],
       "parameters": {
@@ -77,7 +97,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\"model\": \"claude-sonnet-4-20250514\", \"max_tokens\": 1500, \"temperature\": 0, \"system\": \"Eres el sistema de presupuestación automática de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en España.\\n\\nTARIFA GAM 2026 (€/día sin IVA)\\nMultiplicadores sobre PVP: P1=84%, P2=69%, P3=63%, P4=54%\\n\\nREGLAS DE APLICACIÓN:\\n- Alquiler < 5 días → usar tarifa P3\\n- Alquiler 5-6 días → usar tarifa P3\\n- Alquiler ≥ 7 días → usar tarifa P4\\n\\nEXTRAS OBLIGATORIOS (NO incluidos en tarifa base):\\n- Seguro: 15% sobre subtotal (tarifa × días)\\n- Ecofee: 15€ (fijo por alquiler)\\n- Cargo de baterías: 10€ SOLO si la máquina es eléctrica\\n\\nPLATAFORMAS TIJERA ELÉCTRICA [eléctrica]:\\nTijera eléctrica 8m | P3=33.39 | P4=28.62\\nTijera eléctrica 10m | P3=46.62 | P4=39.96\\nTijera eléctrica 12m | P3=50.40 | P4=43.20\\nTijera eléctrica 14m | P3=82.53 | P4=70.74\\nTijera eléctrica 16m | P3=116.55 | P4=99.90\\nTijera eléctrica 20m | P3=221.76 | P4=190.08\\nTijera eléctrica TT 15m | P3=124.74 | P4=106.92\\nTijera eléctrica TT 18m | P3=146.79 | P4=125.82\\n\\nPLATAFORMAS TIJERA DIÉSEL [diesel]:\\nTijera diésel 10m | P3=55.44 | P4=47.52\\nTijera diésel 12m | P3=62.37 | P4=53.46\\nTijera diésel 14m | P3=81.27 | P4=69.66\\nTijera diésel 15m | P3=83.16 | P4=71.28\\nTijera diésel 18m | P3=97.02 | P4=83.16\\nTijera diésel >=22m | CONSULTAR\\n\\nPLATAFORMAS ARTICULADAS ELÉCTRICAS/HÍBRIDAS [eléctrica]:\\nArticulada eléctrica 12m | P3=77.49 | P4=66.42\\nArticulada eléctrica 15m | P3=93.24 | P4=79.92\\nArticulada eléctrica/híbrida 16m | P3=98.91 | P4=84.78\\nArticulada eléctrica/híbrida 20m | P3=187.74 | P4=160.92\\nArticulada eléctrica TT 18m | P3=157.50 | P4=135.00\\n\\nPLATAFORMAS ARTICULADAS DIÉSEL [diesel]:\\nArticulada diésel 12m | P3=75.60 | P4=64.80\\nArticulada diésel 16m | P3=81.90 | P4=70.20\\nArticulada diésel 18m | P3=105.84 | P4=90.72\\nArticulada diésel 20m | P3=121.59 | P4=104.22\\nArticulada diésel 26m | P3=194.04 | P4=166.32\\nArticulada diésel >=32m | CONSULTAR\\n\\nPLATAFORMAS TELESCÓPICAS DIÉSEL [diesel]:\\nTelescópica diésel 20m | P3=122.22 | P4=104.76\\nTelescópica diésel 28m | P3=206.01 | P4=176.58\\nTelescópica diésel >=38m | CONSULTAR\\n\\nPLATAFORMAS UNIPERSONALES ELÉCTRICAS [eléctrica]:\\nUnipersonal 5m | P3=43.47 | P4=37.26\\nUnipersonal 6m | P3=45.99 | P4=39.42\\nUnipersonal 8m | P3=47.25 | P4=40.50\\nUnipersonal 10m | P3=81.27 | P4=69.66\\nUnipersonal 12m | P3=92.61 | P4=79.38\\n\\nGRUPOS ELECTRÓGENOS DIÉSEL [diesel]:\\nGrupo 20kVA | P3=28.35 | P4=24.30\\nGrupo 30kVA | P3=30.24 | P4=25.92\\nGrupo 40kVA | P3=33.39 | P4=28.62\\nGrupo 45/50kVA | P3=36.54 | P4=31.32\\nGrupo 60kVA | P3=45.99 | P4=39.42\\nGrupo 100kVA | P3=54.81 | P4=46.98\\nGrupo 135kVA | P3=64.89 | P4=55.62\\nGrupo 150kVA | P3=72.45 | P4=62.10\\nGrupo 200kVA | P3=91.35 | P4=78.30\\nGrupo 250kVA | P3=113.40 | P4=97.20\\nGrupo 300kVA | P3=144.90 | P4=124.20\\nGrupo 350kVA | P3=170.73 | P4=146.34\\nGrupo 400kVA | P3=183.96 | P4=157.68\\n\\nCARRETILLAS FRONTAL DIÉSEL [diesel]:\\nCarretilla diésel 1.8-2t | P3=53.55 | P4=45.90\\nCarretilla diésel 2.5t | P3=57.96 | P4=49.68\\nCarretilla diésel 3-3.2t | P3=72.45 | P4=62.10\\nCarretilla diésel 3.5t | P3=74.97 | P4=64.26\\nCarretilla diésel 4t | P3=91.35 | P4=78.30\\nCarretilla diésel 4.5-5t | P3=100.17 | P4=85.86\\nCarretilla diésel 7t | P3=155.61 | P4=133.38\\nCarretilla diésel >7.5t | CONSULTAR\\n\\nCARRETILLAS FRONTAL ELÉCTRICA [eléctrica]:\\nCarretilla eléctrica 1.5-1.6t | P3=50.40 | P4=43.20\\nCarretilla eléctrica 1.8t | P3=53.55 | P4=45.90\\nCarretilla eléctrica 2t | P3=57.96 | P4=49.68\\nCarretilla eléctrica 2.5t | P3=67.41 | P4=57.78\\nCarretilla eléctrica 3t | P3=76.23 | P4=65.34\\nCarretilla eléctrica 3.5t | P3=95.13 | P4=81.54\\nCarretilla eléctrica 4t | P3=114.66 | P4=98.28\\nCarretilla eléctrica 5t | P3=127.26 | P4=109.08\\nCarretilla eléctrica 5.5t | P3=170.10 | P4=145.80\\n\\nCARRETILLAS FRONTAL GLP [glp - no es eléctrica]:\\nGLP 2.5t | P3=77.49 | P4=66.42\\nGLP 3t | P3=79.38 | P4=68.04\\nGLP 3.5t | P3=81.90 | P4=70.20\\n\\nMANIPULADORES TELESCÓPICOS [diesel]:\\nManipulador TL 14m 4000kg | P3=160.02 | P4=137.16\\nManipulador TL 15m 5500kg | P3=216.09 | P4=185.22\\nManipulador TL 17m 4000kg | P3=175.14 | P4=150.12\\nManipulador TL 17m 5000kg | P3=185.22 | P4=158.76\\nManipulador TL 18m 4000kg | P3=185.22 | P4=158.76\\nManipulador TL 19m 4500kg | P3=197.19 | P4=169.02\\nManipulador TL 19m 5500kg | P3=223.65 | P4=191.70\\n\\nCARRETILLAS TT 4x4 [diesel]:\\nTT 4x4 2-2.5t | P3=76.86 | P4=65.88\\nTT 4x4 3t | P3=86.94 | P4=74.52\\n\\nTRANSPALETAS ELÉCTRICAS [eléctrica]:\\nTranspaleta eléctrica 1.4t | P3=21.42 | P4=18.36\\nTranspaleta eléctrica 2t | P3=26.46 | P4=22.68\\n\\nTRANSPALETAS MANUALES [manual - no eléctrica]:\\nTranspaleta manual | P3=10.08 | P4=8.64\\n\\nMINIEXCAVADORAS [diesel]:\\nMiniexcavadora 3t | P3=126.63 | P4=108.54\\nMiniexcavadora 5t | P3=163.80 | P4=140.40\\nMiniexcavadora 6t | P3=171.36 | P4=146.88\\nMiniexcavadora 9t | P3=206.64 | P4=177.12\\n\\nMINICARGADORAS [diesel]:\\nMinicargadora 2.5t | P3=69.93 | P4=59.94\\n\\nCÁLCULO (paso a paso):\\n1. Identifica la máquina más similar en la tarifa\\n2. Determina si es eléctrica (relevante para cargo de batería)\\n3. Calcula días entre dateStart y dateFinish\\n4. Selecciona tarifa: días<7 → P3, días>=7 → P4\\n5. base = tarifa_diaria × días\\n6. seguro = base × 0.15 (redondear a 2 decimales)\\n7. ecofee = 15\\n8. bateria = 10 si eléctrica, 0 si no\\n9. total = base + seguro + ecofee + bateria\\n10. Si total < 1000 Y precio no es CONSULTAR → can_quote=true\\n\\nFORMATO MENSAJE WHATSAPP:\\n- Saludo personalizado con nombre del cliente\\n- Resumen claro de la máquina y fechas\\n- Desglose detallado con emojis\\n- Total destacado\\n- Instrucción clara: responder SÍ o NO\\n- Nota que el precio es sin IVA\\n- Firma Equipzilla\\n\\nDevuelve ÚNICAMENTE este JSON (sin markdown, sin texto extra):\\n{\\\"can_quote\\\":true/false,\\\"reason_no_quote\\\":null,\\\"machine_name\\\":\\\"nombre\\\",\\\"is_electric\\\":true/false,\\\"pricing_tier\\\":\\\"P3\\\",\\\"daily_rate\\\":0.00,\\\"days\\\":0,\\\"base_cost\\\":0.00,\\\"insurance\\\":0.00,\\\"ecofee\\\":15,\\\"battery_charge\\\":0,\\\"total\\\":0.00,\\\"whatsapp_text\\\":\\\"mensaje completo\\\"}\", \"messages\": [{\"role\": \"user\", \"content\": \"Calcula presupuesto para este deal:\\n\\nCliente: {{ $json.personName }}\\nEmpresa: {{ $json.razonSocial || $json.orgName || 'N/A' }}\\nMáquina solicitada: {{ $json.assetType }}\\nPeso/capacidad: {{ $json.assetWeight || 'N/A' }}\\nTipo motor: {{ $json.assetEngine || 'N/A' }}\\nFecha inicio: {{ $json.dateStart }}\\nFecha fin: {{ $json.dateFinish }}\\nDías calculados: {{ $json.duracionDias || 'N/A' }}\\nLocalización: {{ $json.workLocation || 'N/A' }}\\nTeléfono: {{ $json.phone || 'Sin teléfono' }}\"}]}",
+        "jsonBody": "={{ $json._claudePayload }}",
         "options": {}
       }
     },
@@ -87,12 +107,12 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        860,
+        1080,
         300
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const raw = $json.content?.[0]?.text || '{}';\nlet q;\ntry {\n  const cleaned = raw.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\n  q = JSON.parse(cleaned);\n} catch(e) {\n  q = { can_quote: false, reason_no_quote: 'Error parsing Claude response: ' + e.message };\n}\n\nconst prev = $('Extraer datos del deal').item.json;\nreturn [{\n  json: {\n    ...prev,\n    quote: q\n  }\n}];"
+        "jsCode": "const raw = $json.content?.[0]?.text || '{}';\nlet q;\ntry {\n  const cleaned = raw.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\n  q = JSON.parse(cleaned);\n} catch(e) {\n  q = { can_quote: false, reason_no_quote: 'Error parsing: ' + e.message };\n}\n\nconst prev = $('Preparar payload Claude').item.json;\nreturn [{\n  json: {\n    ...prev,\n    _claudePayload: undefined,\n    quote: q\n  }\n}];"
       }
     },
     {
@@ -101,7 +121,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1080,
+        1300,
         300
       ],
       "parameters": {
@@ -147,12 +167,12 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1300,
+        1520,
         180
       ],
       "parameters": {
         "method": "POST",
-        "url": "=https://app.respond.io/api/v1/contact/phone:{{ encodeURIComponent($json.phone) }}/message",
+        "url": "=https://app.respond.io/api/v1/contact/phone:{{ $json.phone }}/message",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -170,7 +190,8 @@
         "specifyBody": "json",
         "jsonBody": "={\"message\":{\"type\":\"text\",\"text\":{{ JSON.stringify($json.quote.whatsapp_text) }}}}",
         "options": {}
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "id": "n7",
@@ -178,7 +199,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1520,
+        1740,
         180
       ],
       "parameters": {
@@ -196,7 +217,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1740,
+        1960,
         180
       ],
       "parameters": {
@@ -214,7 +235,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1300,
+        1520,
         420
       ],
       "parameters": {
@@ -222,7 +243,7 @@
         "url": "https://api.pipedrive.com/v1/notes?api_token=PIPEDRIVE_API_TOKEN",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\"deal_id\":{{ $json.dealId }},\"content\":\"ℹ️ AUTO PRESUPUESTO: No generado\\nMotivo: {{ $json.quote.reason_no_quote || ($json.quote.total >= 1000 ? 'Importe >= 1000€ (total calculado: ' + $json.quote.total + '€)' : !$json.phone ? 'Sin teléfono registrado' : 'Datos insuficientes') }}\\n---\\nEquipzilla Bot\"}",
+        "jsonBody": "={\"deal_id\":{{ $json.dealId || 0 }},\"content\":\"ℹ️ AUTO PRESUPUESTO: No generado\\nMotivo: {{ $json.quote?.reason_no_quote || ($json.quote?.total >= 1000 ? 'Importe ≥ 1000€ (calculado: ' + $json.quote?.total + '€)' : !$json.phone ? 'Sin teléfono' : 'Datos insuficientes') }}\\n---\\nEquipzilla Bot\"}",
         "options": {}
       }
     }
@@ -248,7 +269,7 @@
       "main": [
         [
           {
-            "node": "Claude · Calcular Presupuesto",
+            "node": "Preparar payload Claude",
             "type": "main",
             "index": 0
           }
@@ -316,12 +337,439 @@
           }
         ]
       ]
+    },
+    "Preparar payload Claude": {
+      "main": [
+        [
+          {
+            "node": "Claude · Calcular Presupuesto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1",
     "saveManualExecutions": true,
     "callerPolicy": "workflowsFromSameOwner",
-    "errorWorkflow": ""
+    "errorWorkflow": "",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+  "activeVersionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+  "versionCounter": 20,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-03-26T14:50:33.557Z",
+      "createdAt": "2026-03-26T14:50:33.557Z",
+      "role": "workflow:owner",
+      "workflowId": "axdargrbpFiIMHwt",
+      "projectId": "bmfBaoWnBzH9Ne8E",
+      "project": {
+        "updatedAt": "2026-03-25T11:06:09.169Z",
+        "createdAt": "2026-03-25T11:06:03.209Z",
+        "id": "bmfBaoWnBzH9Ne8E",
+        "name": "Maikel Echevarria Franconetti <maikel@equipzilla.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-03-26T15:04:03.620Z",
+    "createdAt": "2026-03-26T15:04:03.620Z",
+    "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+    "workflowId": "axdargrbpFiIMHwt",
+    "nodes": [
+      {
+        "id": "n1",
+        "name": "Pipedrive Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          200,
+          300
+        ],
+        "webhookId": "b2c3d4e5-f6a7-8901-bcde-f12345678902",
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "pipedrive-quote",
+          "responseMode": "responseNode",
+          "options": {}
+        }
+      },
+      {
+        "id": "n1r",
+        "name": "Webhook Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          200,
+          500
+        ],
+        "parameters": {
+          "respondWith": "text",
+          "responseBody": "OK"
+        }
+      },
+      {
+        "id": "n2",
+        "name": "Extraer datos del deal",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          420,
+          300
+        ],
+        "parameters": {
+          "language": "javaScript",
+          "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst deal = body.current || body;\n\nconst dateStart = deal.dateStart || deal.date_start || '';\nconst dateFinish = deal.dateFinish || deal.date_finish || '';\n\nlet duracionDias = null;\nif (dateStart && dateFinish) {\n  const d = Math.ceil((new Date(dateFinish) - new Date(dateStart)) / 86400000);\n  duracionDias = d > 0 ? d : 1;\n}\n\n// Phone from person\nlet phone = '';\nif (deal.person_id && deal.person_id.phone) {\n  const phones = Array.isArray(deal.person_id.phone) ? deal.person_id.phone : [deal.person_id.phone];\n  phone = (phones.find(p => p.primary) || phones[0] || {}).value || '';\n}\n\n// Clean phone: ensure starts with +\nif (phone && !phone.startsWith('+')) {\n  phone = '+34' + phone.replace(/\\s/g, '');\n}\n\nconst personName = deal.person_id?.name || deal.person_name || 'Cliente';\nconst orgName = deal.org_id?.name || deal.org_name || '';\n\nreturn [{\n  json: {\n    dealId: String(deal.id || ''),\n    pipelineId: deal.pipeline_id || deal.active_flag ? 6 : 0,\n    stageId: deal.stage_id || 0,\n    title: deal.title || '',\n    personName,\n    orgName,\n    phone,\n    assetType: deal.assetType || deal['Tipo de Activo'] || '',\n    assetWeight: deal.assetWeight || '',\n    assetEngine: (deal.assetEngine || deal['Motor'] || '').toLowerCase(),\n    dateStart,\n    dateFinish,\n    duracionDias,\n    workLocation: deal.workLocation || deal['Dirección del trabajo'] || '',\n    razonSocial: deal.razonSocial || deal['Razón Social'] || orgName,\n    dealValue: deal.value || 0\n  }\n}];"
+        }
+      },
+      {
+        "id": "n_prep",
+        "name": "Preparar payload Claude",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          640,
+          300
+        ],
+        "parameters": {
+          "language": "javaScript",
+          "jsCode": "const d = $json;\n\nconst systemPrompt = `Eres el sistema de presupuestación automática de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en España.\n\nTARIFA GAM 2026 (€/día sin IVA) - Multiplicadores: P1=84%, P2=69%, P3=63%, P4=54%\n\nREGLAS:\n- Alquiler < 7 días → tarifa P3\n- Alquiler ≥ 7 días → tarifa P4\n\nEXTRAS OBLIGATORIOS:\n- Seguro: 15% sobre subtotal (tarifa × días)\n- Ecofee: 15€ fijo\n- Cargo baterías: 10€ SOLO si máquina eléctrica\n\nPLATAFORMAS TIJERA ELÉCTRICA [eléctrica=true]:\nTijera eléctrica 8m | P3=33.39 | P4=28.62\nTijera eléctrica 10m | P3=46.62 | P4=39.96\nTijera eléctrica 12m | P3=50.40 | P4=43.20\nTijera eléctrica 14m | P3=82.53 | P4=70.74\nTijera eléctrica 16m | P3=116.55 | P4=99.90\nTijera eléctrica 20m | P3=221.76 | P4=190.08\nTijera eléctrica TT 15m | P3=124.74 | P4=106.92\nTijera eléctrica TT 18m | P3=146.79 | P4=125.82\n\nPLATAFORMAS TIJERA DIÉSEL [eléctrica=false]:\nTijera diésel 10m | P3=55.44 | P4=47.52\nTijera diésel 12m | P3=62.37 | P4=53.46\nTijera diésel 14m | P3=81.27 | P4=69.66\nTijera diésel 15m | P3=83.16 | P4=71.28\nTijera diésel 18m | P3=97.02 | P4=83.16\nTijera diésel >=22m | CONSULTAR\n\nPLATAFORMAS ARTICULADAS ELÉCTRICAS/HÍBRIDAS [eléctrica=true]:\nArticulada eléctrica 12m | P3=77.49 | P4=66.42\nArticulada eléctrica 15m | P3=93.24 | P4=79.92\nArticulada eléctrica/híbrida 16m | P3=98.91 | P4=84.78\nArticulada eléctrica/híbrida 20m | P3=187.74 | P4=160.92\nArticulada eléctrica TT 18m | P3=157.50 | P4=135.00\n\nPLATAFORMAS ARTICULADAS DIÉSEL [eléctrica=false]:\nArticulada diésel 12m | P3=75.60 | P4=64.80\nArticulada diésel 16m | P3=81.90 | P4=70.20\nArticulada diésel 18m | P3=105.84 | P4=90.72\nArticulada diésel 20m | P3=121.59 | P4=104.22\nArticulada diésel 26m | P3=194.04 | P4=166.32\nArticulada diésel >=32m | CONSULTAR\n\nPLATAFORMAS TELESCÓPICAS DIÉSEL [eléctrica=false]:\nTelescópica diésel 20m | P3=122.22 | P4=104.76\nTelescópica diésel 28m | P3=206.01 | P4=176.58\nTelescópica diésel >=38m | CONSULTAR\n\nPLATAFORMAS UNIPERSONALES ELÉCTRICAS [eléctrica=true]:\nUnipersonal 5m | P3=43.47 | P4=37.26\nUnipersonal 6m | P3=45.99 | P4=39.42\nUnipersonal 8m | P3=47.25 | P4=40.50\nUnipersonal 10m | P3=81.27 | P4=69.66\nUnipersonal 12m | P3=92.61 | P4=79.38\n\nGRUPOS ELECTRÓGENOS DIÉSEL [eléctrica=false]:\nGrupo 20kVA | P3=28.35 | P4=24.30\nGrupo 30kVA | P3=30.24 | P4=25.92\nGrupo 40kVA | P3=33.39 | P4=28.62\nGrupo 45/50kVA | P3=36.54 | P4=31.32\nGrupo 60kVA | P3=45.99 | P4=39.42\nGrupo 100kVA | P3=54.81 | P4=46.98\nGrupo 135kVA | P3=64.89 | P4=55.62\nGrupo 150kVA | P3=72.45 | P4=62.10\nGrupo 200kVA | P3=91.35 | P4=78.30\nGrupo 250kVA | P3=113.40 | P4=97.20\nGrupo 300kVA | P3=144.90 | P4=124.20\nGrupo 350kVA | P3=170.73 | P4=146.34\nGrupo 400kVA | P3=183.96 | P4=157.68\n\nCARRETILLAS FRONTAL DIÉSEL [eléctrica=false]:\nCarretilla diésel 1.8-2t | P3=53.55 | P4=45.90\nCarretilla diésel 2.5t | P3=57.96 | P4=49.68\nCarretilla diésel 3-3.2t | P3=72.45 | P4=62.10\nCarretilla diésel 3.5t | P3=74.97 | P4=64.26\nCarretilla diésel 4t | P3=91.35 | P4=78.30\nCarretilla diésel 4.5-5t | P3=100.17 | P4=85.86\nCarretilla diésel 7t | P3=155.61 | P4=133.38\nCarretilla diésel >7.5t | CONSULTAR\n\nCARRETILLAS FRONTAL ELÉCTRICA [eléctrica=true]:\nCarretilla eléctrica 1.5-1.6t | P3=50.40 | P4=43.20\nCarretilla eléctrica 1.8t | P3=53.55 | P4=45.90\nCarretilla eléctrica 2t | P3=57.96 | P4=49.68\nCarretilla eléctrica 2.5t | P3=67.41 | P4=57.78\nCarretilla eléctrica 3t | P3=76.23 | P4=65.34\nCarretilla eléctrica 3.5t | P3=95.13 | P4=81.54\nCarretilla eléctrica 4t | P3=114.66 | P4=98.28\nCarretilla eléctrica 5t | P3=127.26 | P4=109.08\nCarretilla eléctrica 5.5t | P3=170.10 | P4=145.80\n\nCARRETILLAS GLP [eléctrica=false]:\nGLP 2.5t | P3=77.49 | P4=66.42\nGLP 3t | P3=79.38 | P4=68.04\nGLP 3.5t | P3=81.90 | P4=70.20\n\nMANIPULADORES TELESCÓPICOS [eléctrica=false]:\nManipulador TL 14m/4000kg | P3=160.02 | P4=137.16\nManipulador TL 15m/5500kg | P3=216.09 | P4=185.22\nManipulador TL 17m/4000kg | P3=175.14 | P4=150.12\nManipulador TL 17m/5000kg | P3=185.22 | P4=158.76\nManipulador TL 18m/4000kg | P3=185.22 | P4=158.76\nManipulador TL 19m/4500kg | P3=197.19 | P4=169.02\nManipulador TL 19m/5500kg | P3=223.65 | P4=191.70\n\nCARRETILLAS TT 4x4 [eléctrica=false]:\nTT 4x4 2-2.5t | P3=76.86 | P4=65.88\nTT 4x4 3t | P3=86.94 | P4=74.52\n\nTRANSPALETAS ELÉCTRICAS [eléctrica=true]:\nTranspaleta eléctrica 1.4t | P3=21.42 | P4=18.36\nTranspaleta eléctrica 2t | P3=26.46 | P4=22.68\n\nTRANSPALETAS MANUALES [eléctrica=false]:\nTranspaleta manual | P3=10.08 | P4=8.64\n\nMINIEXCAVADORAS [eléctrica=false]:\nMiniexcavadora 3t | P3=126.63 | P4=108.54\nMiniexcavadora 5t | P3=163.80 | P4=140.40\nMiniexcavadora 6t | P3=171.36 | P4=146.88\nMiniexcavadora 9t | P3=206.64 | P4=177.12\n\nMINICARGADORAS [eléctrica=false]:\nMinicargadora 2.5t | P3=69.93 | P4=59.94\n\nCÁLCULO PASO A PASO:\n1. Identifica la máquina más similar\n2. Determina si es eléctrica\n3. días < 7 → P3, días >= 7 → P4\n4. base = tarifa_diaria × días\n5. seguro = base × 0.15 (redondear 2 decimales)\n6. ecofee = 15\n7. bateria = 10 si eléctrica, 0 si no\n8. total = base + seguro + ecofee + bateria\n9. can_quote = (total < 1000) Y (precio no es CONSULTAR)\n\nDevuelve ÚNICAMENTE este JSON sin markdown:\n{\"can_quote\":true,\"reason_no_quote\":null,\"machine_name\":\"nombre\",\"is_electric\":true,\"pricing_tier\":\"P3\",\"daily_rate\":46.62,\"days\":2,\"base_cost\":93.24,\"insurance\":13.99,\"ecofee\":15,\"battery_charge\":10,\"total\":132.23,\"whatsapp_text\":\"mensaje completo en español\"}`;\n\nconst userMsg = `Calcula presupuesto para este deal:\n\nCliente: ${d.personName}\nEmpresa: ${d.razonSocial || d.orgName || 'N/A'}\nMáquina solicitada: ${d.assetType || 'No especificada'}\nPeso/capacidad: ${d.assetWeight || 'N/A'}\nMotor/tipo: ${d.assetEngine || 'N/A'}\nFecha inicio: ${d.dateStart || 'N/A'}\nFecha fin: ${d.dateFinish || 'N/A'}\nDías: ${d.duracionDias || 'N/A'}\nLocalización: ${d.workLocation || 'N/A'}\nTeléfono: ${d.phone || 'Sin teléfono'}`;\n\nreturn [{\n  json: {\n    ...d,\n    _claudePayload: {\n      model: \"claude-sonnet-4-20250514\",\n      max_tokens: 1500,\n      temperature: 0,\n      system: systemPrompt,\n      messages: [{ role: \"user\", content: userMsg }]\n    }\n  }\n}];"
+        }
+      },
+      {
+        "id": "n3",
+        "name": "Claude · Calcular Presupuesto",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          860,
+          300
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.anthropic.com/v1/messages",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "x-api-key",
+                "value": "ANTHROPIC_API_KEY"
+              },
+              {
+                "name": "anthropic-version",
+                "value": "2023-06-01"
+              },
+              {
+                "name": "content-type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json._claudePayload }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "n4",
+        "name": "Parsear presupuesto",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1080,
+          300
+        ],
+        "parameters": {
+          "language": "javaScript",
+          "jsCode": "const raw = $json.content?.[0]?.text || '{}';\nlet q;\ntry {\n  const cleaned = raw.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\n  q = JSON.parse(cleaned);\n} catch(e) {\n  q = { can_quote: false, reason_no_quote: 'Error parsing: ' + e.message };\n}\n\nconst prev = $('Preparar payload Claude').item.json;\nreturn [{\n  json: {\n    ...prev,\n    _claudePayload: undefined,\n    quote: q\n  }\n}];"
+        }
+      },
+      {
+        "id": "n5",
+        "name": "¿Auto presupuesto posible?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          1300,
+          300
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": false,
+              "leftValue": "",
+              "typeValidation": "loose"
+            },
+            "conditions": [
+              {
+                "leftValue": "={{ $json.quote.can_quote }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "equals"
+                }
+              },
+              {
+                "leftValue": "={{ $json.quote.total }}",
+                "rightValue": 1000,
+                "operator": {
+                  "type": "number",
+                  "operation": "lt"
+                }
+              },
+              {
+                "leftValue": "={{ $json.phone }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        }
+      },
+      {
+        "id": "n6",
+        "name": "Enviar WhatsApp Oferta",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1520,
+          180
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "=https://app.respond.io/api/v1/contact/phone:{{ $json.phone }}/message",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer RESPOND_IO_API_KEY"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\"message\":{\"type\":\"text\",\"text\":{{ JSON.stringify($json.quote.whatsapp_text) }}}}",
+          "options": {}
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "n7",
+        "name": "Añadir nota presupuesto Pipedrive",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1740,
+          180
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.pipedrive.com/v1/notes?api_token=PIPEDRIVE_API_TOKEN",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\"deal_id\":{{ $('Parsear presupuesto').item.json.dealId }},\"content\":\"🤖 PRESUPUESTO AUTOMÁTICO ENVIADO\\n\\n🏗️ Máquina: {{ $('Parsear presupuesto').item.json.quote.machine_name }}\\n💰 Tarifa {{ $('Parsear presupuesto').item.json.quote.pricing_tier }}: {{ $('Parsear presupuesto').item.json.quote.daily_rate }}€/día × {{ $('Parsear presupuesto').item.json.quote.days }} días\\n\\n📊 DESGLOSE:\\n• Base: {{ $('Parsear presupuesto').item.json.quote.base_cost }}€\\n• Seguro (15%): {{ $('Parsear presupuesto').item.json.quote.insurance }}€\\n• Ecofee: 15€\\n• Cargo batería: {{ $('Parsear presupuesto').item.json.quote.battery_charge }}€\\n\\n✅ TOTAL: {{ $('Parsear presupuesto').item.json.quote.total }}€ (sin IVA)\\n\\n📱 WhatsApp enviado a: {{ $('Parsear presupuesto').item.json.phone }}\\n🏷️ [EQUIPZILLA_QUOTE] deal={{ $('Parsear presupuesto').item.json.dealId }}\\n---\\nGenerado automáticamente · Equipzilla Bot\"}",
+          "options": {}
+        }
+      },
+      {
+        "id": "n8",
+        "name": "Mover a Oferta enviada",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1960,
+          180
+        ],
+        "parameters": {
+          "method": "PUT",
+          "url": "=https://api.pipedrive.com/v1/deals/{{ $('Parsear presupuesto').item.json.dealId }}?api_token=PIPEDRIVE_API_TOKEN",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\"stage_id\":37,\"pipeline_id\":6}",
+          "options": {}
+        }
+      },
+      {
+        "id": "n9",
+        "name": "Nota: no auto presupuesto",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1520,
+          420
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.pipedrive.com/v1/notes?api_token=PIPEDRIVE_API_TOKEN",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\"deal_id\":{{ $json.dealId || 0 }},\"content\":\"ℹ️ AUTO PRESUPUESTO: No generado\\nMotivo: {{ $json.quote?.reason_no_quote || ($json.quote?.total >= 1000 ? 'Importe ≥ 1000€ (calculado: ' + $json.quote?.total + '€)' : !$json.phone ? 'Sin teléfono' : 'Datos insuficientes') }}\\n---\\nEquipzilla Bot\"}",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Pipedrive Webhook": {
+        "main": [
+          [
+            {
+              "node": "Webhook Response",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Extraer datos del deal",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extraer datos del deal": {
+        "main": [
+          [
+            {
+              "node": "Preparar payload Claude",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Claude · Calcular Presupuesto": {
+        "main": [
+          [
+            {
+              "node": "Parsear presupuesto",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parsear presupuesto": {
+        "main": [
+          [
+            {
+              "node": "¿Auto presupuesto posible?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "¿Auto presupuesto posible?": {
+        "main": [
+          [
+            {
+              "node": "Enviar WhatsApp Oferta",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Nota: no auto presupuesto",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Enviar WhatsApp Oferta": {
+        "main": [
+          [
+            {
+              "node": "Añadir nota presupuesto Pipedrive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Añadir nota presupuesto Pipedrive": {
+        "main": [
+          [
+            {
+              "node": "Mover a Oferta enviada",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Preparar payload Claude": {
+        "main": [
+          [
+            {
+              "node": "Claude · Calcular Presupuesto",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Maikel Echevarria Franconetti",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-03-26T15:04:03.908Z",
+        "id": 15,
+        "workflowId": "axdargrbpFiIMHwt",
+        "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+        "event": "activated",
+        "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      },
+      {
+        "createdAt": "2026-03-26T15:04:18.728Z",
+        "id": 17,
+        "workflowId": "axdargrbpFiIMHwt",
+        "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+        "event": "activated",
+        "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      },
+      {
+        "createdAt": "2026-03-26T15:04:03.779Z",
+        "id": 14,
+        "workflowId": "axdargrbpFiIMHwt",
+        "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+        "event": "deactivated",
+        "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      },
+      {
+        "createdAt": "2026-03-26T15:04:18.589Z",
+        "id": 16,
+        "workflowId": "axdargrbpFiIMHwt",
+        "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+        "event": "deactivated",
+        "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      }
+    ]
   }
 }
