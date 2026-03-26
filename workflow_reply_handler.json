@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-26T14:50:40.749Z",
+  "updatedAt": "2026-03-26T17:18:46.299Z",
   "createdAt": "2026-03-26T14:50:40.749Z",
   "id": "dsizYBkRpiSlRin1",
   "name": "A03 · Gestor Respuestas WhatsApp · Equipzilla",
@@ -209,7 +209,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "=https://app.respond.io/api/v1/contact/phone:{{ encodeURIComponent($('Identificar deal activo').item.json.phone) }}/message",
+        "url": "=https://api.respond.io/v2/contact/phone:{{ encodeURIComponent($('Identificar deal activo').item.json.phone) }}/message",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -276,7 +276,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "=https://app.respond.io/api/v1/contact/phone:{{ encodeURIComponent($('Identificar deal activo').item.json.phone) }}/message",
+        "url": "=https://api.respond.io/v2/contact/phone:{{ encodeURIComponent($('Identificar deal activo').item.json.phone) }}/message",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -307,7 +307,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "=https://app.respond.io/api/v1/contact/phone:{{ encodeURIComponent($json.phone) }}/message",
+        "url": "=https://api.respond.io/v2/contact/phone:{{ encodeURIComponent($json.phone) }}/message",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -480,9 +480,9 @@
   "staticData": null,
   "meta": null,
   "pinData": null,
-  "versionId": "a33b2249-8668-4253-87b3-72edb0cf9ff8",
-  "activeVersionId": "a33b2249-8668-4253-87b3-72edb0cf9ff8",
-  "versionCounter": 5,
+  "versionId": "1a50a080-5b65-4b09-9e70-89312f101dfd",
+  "activeVersionId": "1a50a080-5b65-4b09-9e70-89312f101dfd",
+  "versionCounter": 25,
   "triggerCount": 1,
   "shared": [
     {
@@ -505,9 +505,9 @@
   ],
   "tags": [],
   "activeVersion": {
-    "updatedAt": "2026-03-26T14:50:40.786Z",
-    "createdAt": "2026-03-26T14:50:40.786Z",
-    "versionId": "a33b2249-8668-4253-87b3-72edb0cf9ff8",
+    "updatedAt": "2026-03-26T17:18:46.301Z",
+    "createdAt": "2026-03-26T17:18:46.301Z",
+    "versionId": "1a50a080-5b65-4b09-9e70-89312f101dfd",
     "workflowId": "dsizYBkRpiSlRin1",
     "nodes": [
       {
@@ -712,7 +712,7 @@
         ],
         "parameters": {
           "method": "POST",
-          "url": "=https://app.respond.io/api/v1/contact/phone:{{ encodeURIComponent($('Identificar deal activo').item.json.phone) }}/message",
+          "url": "=https://api.respond.io/v2/contact/phone:{{ encodeURIComponent($('Identificar deal activo').item.json.phone) }}/message",
           "sendHeaders": true,
           "headerParameters": {
             "parameters": [
@@ -779,7 +779,7 @@
         ],
         "parameters": {
           "method": "POST",
-          "url": "=https://app.respond.io/api/v1/contact/phone:{{ encodeURIComponent($('Identificar deal activo').item.json.phone) }}/message",
+          "url": "=https://api.respond.io/v2/contact/phone:{{ encodeURIComponent($('Identificar deal activo').item.json.phone) }}/message",
           "sendHeaders": true,
           "headerParameters": {
             "parameters": [
@@ -810,7 +810,7 @@
         ],
         "parameters": {
           "method": "POST",
-          "url": "=https://app.respond.io/api/v1/contact/phone:{{ encodeURIComponent($json.phone) }}/message",
+          "url": "=https://api.respond.io/v2/contact/phone:{{ encodeURIComponent($json.phone) }}/message",
           "sendHeaders": true,
           "headerParameters": {
             "parameters": [
@@ -979,11 +979,35 @@
     "autosaved": false,
     "workflowPublishHistory": [
       {
-        "createdAt": "2026-03-26T14:50:49.299Z",
-        "id": 5,
+        "createdAt": "2026-03-26T17:18:46.631Z",
+        "id": 21,
         "workflowId": "dsizYBkRpiSlRin1",
-        "versionId": "a33b2249-8668-4253-87b3-72edb0cf9ff8",
+        "versionId": "1a50a080-5b65-4b09-9e70-89312f101dfd",
         "event": "activated",
+        "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      },
+      {
+        "createdAt": "2026-03-26T17:18:54.502Z",
+        "id": 25,
+        "workflowId": "dsizYBkRpiSlRin1",
+        "versionId": "1a50a080-5b65-4b09-9e70-89312f101dfd",
+        "event": "activated",
+        "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      },
+      {
+        "createdAt": "2026-03-26T17:18:46.459Z",
+        "id": 20,
+        "workflowId": "dsizYBkRpiSlRin1",
+        "versionId": "1a50a080-5b65-4b09-9e70-89312f101dfd",
+        "event": "deactivated",
+        "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
+      },
+      {
+        "createdAt": "2026-03-26T17:18:54.367Z",
+        "id": 24,
+        "workflowId": "dsizYBkRpiSlRin1",
+        "versionId": "1a50a080-5b65-4b09-9e70-89312f101dfd",
+        "event": "deactivated",
         "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
       }
     ]

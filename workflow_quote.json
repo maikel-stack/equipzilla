@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-26T15:04:03.617Z",
+  "updatedAt": "2026-03-26T17:18:45.204Z",
   "createdAt": "2026-03-26T14:50:33.553Z",
   "id": "axdargrbpFiIMHwt",
   "name": "A03 · Auto Presupuesto · Equipzilla",
@@ -172,7 +172,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "=https://app.respond.io/api/v1/contact/phone:{{ $json.phone }}/message",
+        "url": "=https://api.respond.io/v2/contact/phone:{{ $json.phone }}/message",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -360,9 +360,9 @@
   "staticData": null,
   "meta": null,
   "pinData": null,
-  "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
-  "activeVersionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
-  "versionCounter": 20,
+  "versionId": "58dcc801-697a-436e-8600-0b09f90c1718",
+  "activeVersionId": "58dcc801-697a-436e-8600-0b09f90c1718",
+  "versionCounter": 40,
   "triggerCount": 1,
   "shared": [
     {
@@ -385,9 +385,9 @@
   ],
   "tags": [],
   "activeVersion": {
-    "updatedAt": "2026-03-26T15:04:03.620Z",
-    "createdAt": "2026-03-26T15:04:03.620Z",
-    "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+    "updatedAt": "2026-03-26T17:18:45.206Z",
+    "createdAt": "2026-03-26T17:18:45.206Z",
+    "versionId": "58dcc801-697a-436e-8600-0b09f90c1718",
     "workflowId": "axdargrbpFiIMHwt",
     "nodes": [
       {
@@ -555,7 +555,7 @@
         ],
         "parameters": {
           "method": "POST",
-          "url": "=https://app.respond.io/api/v1/contact/phone:{{ $json.phone }}/message",
+          "url": "=https://api.respond.io/v2/contact/phone:{{ $json.phone }}/message",
           "sendHeaders": true,
           "headerParameters": {
             "parameters": [
@@ -739,34 +739,34 @@
     "autosaved": false,
     "workflowPublishHistory": [
       {
-        "createdAt": "2026-03-26T15:04:03.908Z",
-        "id": 15,
+        "createdAt": "2026-03-26T17:18:45.539Z",
+        "id": 19,
         "workflowId": "axdargrbpFiIMHwt",
-        "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+        "versionId": "58dcc801-697a-436e-8600-0b09f90c1718",
         "event": "activated",
         "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
       },
       {
-        "createdAt": "2026-03-26T15:04:18.728Z",
-        "id": 17,
+        "createdAt": "2026-03-26T17:18:53.774Z",
+        "id": 23,
         "workflowId": "axdargrbpFiIMHwt",
-        "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+        "versionId": "58dcc801-697a-436e-8600-0b09f90c1718",
         "event": "activated",
         "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
       },
       {
-        "createdAt": "2026-03-26T15:04:03.779Z",
-        "id": 14,
+        "createdAt": "2026-03-26T17:18:45.365Z",
+        "id": 18,
         "workflowId": "axdargrbpFiIMHwt",
-        "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+        "versionId": "58dcc801-697a-436e-8600-0b09f90c1718",
         "event": "deactivated",
         "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
       },
       {
-        "createdAt": "2026-03-26T15:04:18.589Z",
-        "id": 16,
+        "createdAt": "2026-03-26T17:18:53.645Z",
+        "id": 22,
         "workflowId": "axdargrbpFiIMHwt",
-        "versionId": "5deecab9-d697-4618-9d54-6e82a98a47a1",
+        "versionId": "58dcc801-697a-436e-8600-0b09f90c1718",
         "event": "deactivated",
         "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
       }
