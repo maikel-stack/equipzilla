@@ -1,0 +1,356 @@
+{
+  "name": "A02 · SEO Content Agent · Equipzilla",
+  "nodes": [
+    {
+      "id": "node-cron",
+      "name": "Cron Semanal (Lunes 8:00)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-config",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "fields": {
+          "values": [
+            { "name": "ANTHROPIC_API_KEY", "type": "stringValue", "string": "ANTHROPIC_API_KEY_REDACTED" },
+            { "name": "GSC_ACCESS_TOKEN", "type": "stringValue", "string": "GSC_ACCESS_TOKEN_REDACTED" },
+            { "name": "GSC_SITE_URL", "type": "stringValue", "string": "sc-domain:equipzilla.com" },
+            { "name": "NOTION_API_KEY", "type": "stringValue", "string": "NOTION_API_KEY_REDACTED" },
+            { "name": "NOTION_DATABASE_ID", "type": "stringValue", "string": "NOTION_DB_ID_REDACTED" },
+            { "name": "DISCORD_WEBHOOK_URL", "type": "stringValue", "string": "DISCORD_WEBHOOK_URL_REDACTED" },
+            {
+              "name": "CATEGORIAS",
+              "type": "stringValue",
+              "string": "alquiler carretillas elevadoras,alquiler plataformas elevadoras,alquiler manipuladores telescopicos,alquiler generadores electricos,alquiler maquinaria limpieza industrial"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-split-categorias",
+      "name": "Split Categorias",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const categorias = $json.CATEGORIAS.split(',').map(c => c.trim());\nconst today = new Date();\nconst endDate = today.toISOString().split('T')[0];\nconst startDate = new Date(today.getTime() - 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];\n\nreturn categorias.map(cat => ({\n  json: {\n    categoria: cat,\n    startDate,\n    endDate,\n    config: {\n      ANTHROPIC_API_KEY: $json.ANTHROPIC_API_KEY,\n      GSC_ACCESS_TOKEN: $json.GSC_ACCESS_TOKEN,\n      GSC_SITE_URL: $json.GSC_SITE_URL,\n      NOTION_API_KEY: $json.NOTION_API_KEY,\n      NOTION_DATABASE_ID: $json.NOTION_DATABASE_ID,\n      DISCORD_WEBHOOK_URL: $json.DISCORD_WEBHOOK_URL\n    }\n  }\n}));"
+      }
+    },
+    {
+      "id": "node-gsc-fetch",
+      "name": "Google Search Console API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($json.config.GSC_SITE_URL) }}/searchAnalytics/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $json.config.GSC_ACCESS_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"startDate\": \"{{ $json.startDate }}\",\n  \"endDate\": \"{{ $json.endDate }}\",\n  \"dimensions\": [\"query\", \"page\"],\n  \"dimensionFilterGroups\": [{\n    \"filters\": [{\n      \"dimension\": \"query\",\n      \"operator\": \"contains\",\n      \"expression\": \"{{ $json.categoria.split(' ').slice(1).join(' ') }}\"\n    }]\n  }],\n  \"rowLimit\": 100,\n  \"startRow\": 0\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-filtrar-transaccional",
+      "name": "Filtrar Keywords Transaccionales",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const rows = $json.rows || [];\nconst categoria = $('Split Categorias').item.json.categoria;\nconst config = $('Split Categorias').item.json.config;\n\n// Palabras clave transaccionales (intención de alquiler/compra)\nconst intentKeywords = [\n  'alquiler', 'alquilar', 'rentar', 'renting',\n  'precio', 'presupuesto', 'coste', 'tarifa',\n  'cerca', 'madrid', 'barcelona', 'valencia', 'sevilla', 'bilbao',\n  'empresa', 'obra', 'industrial',\n  'mejor', 'comparativa', 'vs',\n  'donde', 'como', 'cual'\n];\n\nconst transaccionales = rows\n  .filter(row => {\n    const query = row.keys[0].toLowerCase();\n    return intentKeywords.some(kw => query.includes(kw));\n  })\n  .map(row => ({\n    query: row.keys[0],\n    page: row.keys[1],\n    clicks: row.clicks,\n    impressions: row.impressions,\n    ctr: (row.ctr * 100).toFixed(2),\n    position: row.position.toFixed(1)\n  }))\n  .sort((a, b) => b.impressions - a.impressions);\n\n// Detectar posibles canibalizaciones (misma query en multiples paginas)\nconst queryPages = {};\ntransaccionales.forEach(r => {\n  if (!queryPages[r.query]) queryPages[r.query] = [];\n  queryPages[r.query].push(r.page);\n});\nconst canibalizaciones = Object.entries(queryPages)\n  .filter(([q, pages]) => pages.length > 1)\n  .map(([query, pages]) => ({ query, pages, count: pages.length }));\n\n// Keywords con posicion entre 5-20 (oportunidad de mejora)\nconst oportunidades = transaccionales.filter(r => {\n  const pos = parseFloat(r.position);\n  return pos >= 5 && pos <= 20;\n}).slice(0, 20);\n\n// Keywords que caen (posicion > 10 con muchas impresiones)\nconst alertas = transaccionales.filter(r => {\n  const pos = parseFloat(r.position);\n  return pos > 10 && r.impressions > 50;\n});\n\nreturn [{ json: {\n  categoria,\n  totalKeywords: transaccionales.length,\n  transaccionales: transaccionales.slice(0, 30),\n  oportunidades,\n  canibalizaciones,\n  alertas,\n  config\n} }];"
+      }
+    },
+    {
+      "id": "node-claude-analisis",
+      "name": "Claude - Analisis Oportunidades SEO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $json.config.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 2000,\n  \"temperature\": 0.3,\n  \"system\": \"Eres el SEO Content Strategist de Equipzilla, un marketplace B2B de alquiler de maquinaria industrial en Espana.\\n\\nTu funcion es analizar datos de Google Search Console y decidir que contenido crear o mejorar para captar trafico transaccional (usuarios que quieren alquilar maquinaria).\\n\\nCATEGORIAS DEL MARKETPLACE:\\n1. Carretillas elevadoras (electricas, diesel, retractiles, contrapesadas)\\n2. Plataformas elevadoras (tijera, articuladas, telescopicas, sobre camion)\\n3. Manipuladores telescopicos (rotativos, fijos, compactos)\\n4. Generadores electricos (diesel, gas, insonorizados, de emergencia)\\n5. Maquinaria de limpieza industrial (fregadoras, barredoras, hidrolimpiadoras)\\n\\nTIPOS DE CONTENIDO A PROPONER:\\n- FICHA_PRODUCTO: Pagina de categoria/subcategoria optimizada\\n- COMPARATIVA: Articulo comparando opciones (ej. diesel vs electrica)\\n- GUIA: Guia practica de seleccion o uso\\n- LANDING_LOCAL: Landing para ciudad/region especifica\\n- FAQ: Pagina de preguntas frecuentes\\n\\nDevuelve UNICAMENTE este JSON:\\n{\\n  \\\"categoria\\\": \\\"string\\\",\\n  \\\"resumen_ejecutivo\\\": \\\"3-4 frases del estado SEO de esta categoria\\\",\\n  \\\"contenidos_propuestos\\\": [\\n    {\\n      \\\"prioridad\\\": 1,\\n      \\\"tipo\\\": \\\"FICHA_PRODUCTO|COMPARATIVA|GUIA|LANDING_LOCAL|FAQ\\\",\\n      \\\"titulo_propuesto\\\": \\\"string\\\",\\n      \\\"keyword_principal\\\": \\\"string\\\",\\n      \\\"keywords_secundarias\\\": [\\\"array\\\"],\\n      \\\"url_sugerida\\\": \\\"/ruta-propuesta\\\",\\n      \\\"volumen_estimado\\\": \\\"ALTO|MEDIO|BAJO\\\",\\n      \\\"dificultad_estimada\\\": \\\"ALTA|MEDIA|BAJA\\\",\\n      \\\"justificacion\\\": \\\"por que crear este contenido\\\"\\n    }\\n  ],\\n  \\\"canibalizaciones_detectadas\\\": [\\n    {\\n      \\\"query\\\": \\\"string\\\",\\n      \\\"paginas_afectadas\\\": [\\\"urls\\\"],\\n      \\\"accion_recomendada\\\": \\\"string\\\"\\n    }\\n  ],\\n  \\\"alertas_posicion\\\": [\\n    {\\n      \\\"keyword\\\": \\\"string\\\",\\n      \\\"posicion_actual\\\": 0,\\n      \\\"impresiones\\\": 0,\\n      \\\"accion\\\": \\\"string\\\"\\n    }\\n  ]\\n}\",\n  \"messages\": [{\n    \"role\": \"user\",\n    \"content\": \"Analiza los datos de GSC para la categoria: {{ $json.categoria }}\\n\\nTotal keywords transaccionales encontradas: {{ $json.totalKeywords }}\\n\\nTOP KEYWORDS TRANSACCIONALES:\\n{{ JSON.stringify($json.transaccionales, null, 2) }}\\n\\nOPORTUNIDADES (posicion 5-20, faciles de mejorar):\\n{{ JSON.stringify($json.oportunidades, null, 2) }}\\n\\nCANIBALIZACIONES DETECTADAS:\\n{{ JSON.stringify($json.canibalizaciones, null, 2) }}\\n\\nALERTAS (posicion > 10 con impresiones altas):\\n{{ JSON.stringify($json.alertas, null, 2) }}\"\n  }]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-parse-analisis",
+      "name": "Parsear Analisis SEO",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const responseText = $json.content[0].text.trim();\nconst config = $('Filtrar Keywords Transaccionales').item.json.config;\nlet analisis;\n\ntry {\n  const clean = responseText.replace(/```json|\\n```|```/g, '').trim();\n  analisis = JSON.parse(clean);\n} catch(e) {\n  analisis = {\n    categoria: $('Split Categorias').item.json.categoria,\n    resumen_ejecutivo: 'Error al parsear analisis automatico. Revisar manualmente.',\n    contenidos_propuestos: [],\n    canibalizaciones_detectadas: [],\n    alertas_posicion: []\n  };\n}\n\nreturn [{ json: { analisis, config } }];"
+      }
+    },
+    {
+      "id": "node-tiene-contenido",
+      "name": "Tiene contenido propuesto?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1780, 300],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.analisis.contenidos_propuestos.length }}",
+                    "rightValue": 0,
+                    "operator": { "type": "number", "operation": "gt" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "si_contenido"
+            }
+          ]
+        },
+        "fallbackOutput": "extra"
+      }
+    },
+    {
+      "id": "node-preparar-contenido",
+      "name": "Preparar Top 3 Contenidos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 200],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const analisis = $json.analisis;\nconst config = $json.config;\n\n// Tomar los 3 contenidos mas prioritarios\nconst top3 = analisis.contenidos_propuestos\n  .sort((a, b) => a.prioridad - b.prioridad)\n  .slice(0, 3);\n\nreturn top3.map(contenido => ({\n  json: {\n    contenido,\n    categoria: analisis.categoria,\n    config\n  }\n}));"
+      }
+    },
+    {
+      "id": "node-claude-generar",
+      "name": "Claude - Generar Contenido SEO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2220, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $json.config.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4000,\n  \"temperature\": 0.4,\n  \"system\": \"Eres el SEO Content Writer de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en Espana.\\n\\nGeneras contenido SEO transaccional optimizado para captar usuarios que buscan alquilar maquinaria.\\n\\nREGLAS DE CONTENIDO:\\n1. Tono profesional B2B pero accesible. Sin jerga innecesaria.\\n2. Enfoque transaccional: el objetivo es que el usuario solicite presupuesto.\\n3. Incluir CTAs naturales hacia el formulario de solicitud de Equipzilla.\\n4. Datos tecnicos precisos sobre la maquinaria.\\n5. Mencionar ventajas del alquiler vs compra.\\n6. Incluir precios orientativos cuando sea posible (rangos).\\n7. Optimizar para featured snippets (listas, tablas, preguntas).\\n8. Contenido minimo: 1200 palabras para fichas, 1500 para comparativas/guias.\\n\\nESTRUCTURA DEL OUTPUT (devuelve UNICAMENTE este JSON):\\n{\\n  \\\"meta_title\\\": \\\"max 60 chars, incluir keyword principal\\\",\\n  \\\"meta_description\\\": \\\"max 155 chars, incluir CTA\\\",\\n  \\\"h1\\\": \\\"titulo principal con keyword\\\",\\n  \\\"slug\\\": \\\"/url-optimizada\\\",\\n  \\\"contenido_html\\\": \\\"Contenido completo en HTML con H2, H3, listas, tablas. NO incluir H1.\\\",\\n  \\\"schema_markup\\\": {\\n    \\\"@context\\\": \\\"https://schema.org\\\",\\n    \\\"@type\\\": \\\"Product o FAQPage o Article segun tipo\\\",\\n    \\\"...campos relevantes\\\":\\\"...\\\"\\n  },\\n  \\\"internal_links_sugeridos\\\": [\\n    {\\n      \\\"anchor_text\\\": \\\"texto del enlace\\\",\\n      \\\"url_destino\\\": \\\"/pagina-relacionada\\\",\\n      \\\"contexto\\\": \\\"donde colocarlo\\\"\\n    }\\n  ],\\n  \\\"palabras\\\": 0,\\n  \\\"tiempo_lectura_min\\\": 0\\n}\",\n  \"messages\": [{\n    \"role\": \"user\",\n    \"content\": \"Genera el contenido SEO para:\\n\\nCategoria: {{ $json.categoria }}\\nTipo de contenido: {{ $json.contenido.tipo }}\\nTitulo propuesto: {{ $json.contenido.titulo_propuesto }}\\nKeyword principal: {{ $json.contenido.keyword_principal }}\\nKeywords secundarias: {{ $json.contenido.keywords_secundarias.join(', ') }}\\nURL sugerida: {{ $json.contenido.url_sugerida }}\\nJustificacion: {{ $json.contenido.justificacion }}\"\n  }]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-parse-contenido",
+      "name": "Parsear Contenido Generado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2440, 200],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const responseText = $json.content[0].text.trim();\nconst contenidoInfo = $('Preparar Top 3 Contenidos').item.json;\nlet contenido;\n\ntry {\n  const clean = responseText.replace(/```json|\\n```|```/g, '').trim();\n  contenido = JSON.parse(clean);\n} catch(e) {\n  contenido = {\n    meta_title: contenidoInfo.contenido.titulo_propuesto,\n    meta_description: 'Error al generar contenido. Revisar manualmente.',\n    h1: contenidoInfo.contenido.titulo_propuesto,\n    slug: contenidoInfo.contenido.url_sugerida,\n    contenido_html: '<p>Error al parsear contenido generado.</p>',\n    schema_markup: {},\n    internal_links_sugeridos: [],\n    palabras: 0,\n    tiempo_lectura_min: 0\n  };\n}\n\nreturn [{ json: {\n  ...contenido,\n  tipo: contenidoInfo.contenido.tipo,\n  keyword_principal: contenidoInfo.contenido.keyword_principal,\n  categoria: contenidoInfo.categoria,\n  prioridad: contenidoInfo.contenido.prioridad,\n  generado_at: new Date().toISOString(),\n  config: contenidoInfo.config\n} }];"
+      }
+    },
+    {
+      "id": "node-notion-guardar",
+      "name": "Guardar en Notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2660, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $json.config.NOTION_API_KEY }}" },
+            { "name": "Notion-Version", "value": "2022-06-28" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"parent\": { \"database_id\": \"{{ $json.config.NOTION_DATABASE_ID }}\" },\n  \"properties\": {\n    \"Titulo\": {\n      \"title\": [{ \"text\": { \"content\": \"{{ $json.h1 }}\" } }]\n    },\n    \"Tipo\": {\n      \"select\": { \"name\": \"{{ $json.tipo }}\" }\n    },\n    \"Categoria\": {\n      \"select\": { \"name\": \"{{ $json.categoria }}\" }\n    },\n    \"Keyword Principal\": {\n      \"rich_text\": [{ \"text\": { \"content\": \"{{ $json.keyword_principal }}\" } }]\n    },\n    \"Meta Title\": {\n      \"rich_text\": [{ \"text\": { \"content\": \"{{ $json.meta_title }}\" } }]\n    },\n    \"Meta Description\": {\n      \"rich_text\": [{ \"text\": { \"content\": \"{{ $json.meta_description }}\" } }]\n    },\n    \"Slug\": {\n      \"url\": \"https://equipzilla.com{{ $json.slug }}\"\n    },\n    \"Palabras\": {\n      \"number\": {{ $json.palabras || 0 }}\n    },\n    \"Estado\": {\n      \"select\": { \"name\": \"Borrador\" }\n    },\n    \"Prioridad\": {\n      \"number\": {{ $json.prioridad || 1 }}\n    },\n    \"Fecha Generacion\": {\n      \"date\": { \"start\": \"{{ $json.generado_at }}\" }\n    }\n  },\n  \"children\": [\n    {\n      \"object\": \"block\",\n      \"type\": \"heading_2\",\n      \"heading_2\": {\n        \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"Meta Tags\" } }]\n      }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"code\",\n      \"code\": {\n        \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"<title>{{ $json.meta_title }}</title>\\n<meta name=\\\"description\\\" content=\\\"{{ $json.meta_description }}\\\">\" } }],\n        \"language\": \"html\"\n      }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"heading_2\",\n      \"heading_2\": {\n        \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"Schema Markup\" } }]\n      }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"code\",\n      \"code\": {\n        \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"{{ JSON.stringify($json.schema_markup, null, 2) }}\" } }],\n        \"language\": \"json\"\n      }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"heading_2\",\n      \"heading_2\": {\n        \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"Contenido HTML\" } }]\n      }\n    },\n    {\n      \"object\": \"block\",\n      \"type\": \"code\",\n      \"code\": {\n        \"rich_text\": [{ \"type\": \"text\", \"text\": { \"content\": \"{{ $json.contenido_html }}\" } }],\n        \"language\": \"html\"\n      }\n    }\n  ]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-preparar-alertas",
+      "name": "Preparar Alertas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 440],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const analisis = $json.analisis;\nconst config = $json.config;\n\nconst tieneAlertas = analisis.canibalizaciones_detectadas.length > 0 || analisis.alertas_posicion.length > 0;\n\nlet canibText = '';\nif (analisis.canibalizaciones_detectadas.length > 0) {\n  canibText = analisis.canibalizaciones_detectadas.map(c =>\n    `  - \"${c.query}\" -> ${c.paginas_afectadas.length} paginas compitiendo\\n    Accion: ${c.accion_recomendada}`\n  ).join('\\n');\n} else {\n  canibText = '  Ninguna detectada';\n}\n\nlet alertText = '';\nif (analisis.alertas_posicion.length > 0) {\n  alertText = analisis.alertas_posicion.map(a =>\n    `  - \"${a.keyword}\" pos ${a.posicion_actual} (${a.impresiones} imp)\\n    Accion: ${a.accion}`\n  ).join('\\n');\n} else {\n  alertText = '  Ninguna detectada';\n}\n\nconst contenidosText = analisis.contenidos_propuestos.slice(0, 5).map((c, i) =>\n  `  ${i+1}. [${c.tipo}] ${c.titulo_propuesto} (${c.volumen_estimado})`\n).join('\\n');\n\nreturn [{ json: {\n  tieneAlertas,\n  categoria: analisis.categoria,\n  resumen: analisis.resumen_ejecutivo,\n  totalContenidos: analisis.contenidos_propuestos.length,\n  contenidosText,\n  canibText,\n  alertText,\n  config\n} }];"
+      }
+    },
+    {
+      "id": "node-discord-resumen",
+      "name": "Discord - Resumen Semanal SEO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2220, 440],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.config.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"username\": \"Equipzilla SEO Bot\",\n  \"embeds\": [{\n    \"title\": \"SEO Report: {{ $json.categoria }}\",\n    \"description\": \"{{ $json.resumen }}\",\n    \"color\": {{ $json.tieneAlertas ? 15158332 : 3066993 }},\n    \"fields\": [\n      {\n        \"name\": \"Contenidos Propuestos ({{ $json.totalContenidos }})\",\n        \"value\": \"{{ $json.contenidosText || 'Ninguno' }}\",\n        \"inline\": false\n      },\n      {\n        \"name\": \"Canibalizaciones\",\n        \"value\": \"{{ $json.canibText }}\",\n        \"inline\": false\n      },\n      {\n        \"name\": \"Alertas de Posicion\",\n        \"value\": \"{{ $json.alertText }}\",\n        \"inline\": false\n      }\n    ],\n    \"footer\": { \"text\": \"Equipzilla SEO Agent A02 | Informe semanal automatico\" },\n    \"timestamp\": \"{{ $now.toISO() }}\"\n  }]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-discord-alerta-critica",
+      "name": "Discord - Alerta Critica",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2440, 540],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.config.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"username\": \"Equipzilla SEO Bot\",\n  \"content\": \"@here ALERTA SEO: Se han detectado canibalizaciones o caidas de posicion en **{{ $json.categoria }}**. Revisar el informe arriba.\"\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-switch-alerta",
+      "name": "Tiene alertas criticas?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2440, 440],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Preparar Alertas').item.json.tieneAlertas }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "con_alertas"
+            }
+          ]
+        },
+        "fallbackOutput": "extra"
+      }
+    }
+  ],
+  "connections": {
+    "Cron Semanal (Lunes 8:00)": {
+      "main": [[{ "node": "Config", "type": "main", "index": 0 }]]
+    },
+    "Config": {
+      "main": [[{ "node": "Split Categorias", "type": "main", "index": 0 }]]
+    },
+    "Split Categorias": {
+      "main": [[{ "node": "Google Search Console API", "type": "main", "index": 0 }]]
+    },
+    "Google Search Console API": {
+      "main": [[{ "node": "Filtrar Keywords Transaccionales", "type": "main", "index": 0 }]]
+    },
+    "Filtrar Keywords Transaccionales": {
+      "main": [[{ "node": "Claude - Analisis Oportunidades SEO", "type": "main", "index": 0 }]]
+    },
+    "Claude - Analisis Oportunidades SEO": {
+      "main": [[{ "node": "Parsear Analisis SEO", "type": "main", "index": 0 }]]
+    },
+    "Parsear Analisis SEO": {
+      "main": [[{ "node": "Tiene contenido propuesto?", "type": "main", "index": 0 }]]
+    },
+    "Tiene contenido propuesto?": {
+      "main": [
+        [
+          { "node": "Preparar Top 3 Contenidos", "type": "main", "index": 0 },
+          { "node": "Preparar Alertas", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Preparar Alertas", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Preparar Top 3 Contenidos": {
+      "main": [[{ "node": "Claude - Generar Contenido SEO", "type": "main", "index": 0 }]]
+    },
+    "Claude - Generar Contenido SEO": {
+      "main": [[{ "node": "Parsear Contenido Generado", "type": "main", "index": 0 }]]
+    },
+    "Parsear Contenido Generado": {
+      "main": [[{ "node": "Guardar en Notion", "type": "main", "index": 0 }]]
+    },
+    "Preparar Alertas": {
+      "main": [[{ "node": "Discord - Resumen Semanal SEO", "type": "main", "index": 0 }]]
+    },
+    "Discord - Resumen Semanal SEO": {
+      "main": [[{ "node": "Tiene alertas criticas?", "type": "main", "index": 0 }]]
+    },
+    "Tiene alertas criticas?": {
+      "main": [
+        [{ "node": "Discord - Alerta Critica", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  }
+}
