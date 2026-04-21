@@ -2,7 +2,9 @@ import json
 import os
 from typing import Any
 
+import httplib2
 from google.oauth2 import service_account
+from google_auth_httplib2 import AuthorizedHttp
 from googleapiclient.discovery import build
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -16,7 +18,10 @@ def _service():
         )
     info = json.loads(raw) if raw.strip().startswith("{") else json.load(open(raw))
     creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
-    return build("sheets", "v4", credentials=creds, cache_discovery=False)
+    ca_certs = os.environ.get("REQUESTS_CA_BUNDLE") or os.environ.get("SSL_CERT_FILE")
+    http = httplib2.Http(ca_certs=ca_certs) if ca_certs else httplib2.Http()
+    authed = AuthorizedHttp(creds, http=http)
+    return build("sheets", "v4", http=authed, cache_discovery=False)
 
 
 def read_range(spreadsheet_id: str, a1_range: str) -> list[list[Any]]:
