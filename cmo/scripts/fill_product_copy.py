@@ -67,25 +67,48 @@ PRODUCTS = [
     {"id": 94, "name": "RODILLO CLASIFICACION VM3 (13 TN)", "machineCode": "RODCLAVM31", "price": 155.27, "parentCategory": "rodillo-compactador", "carousel": "Rodillo Compactador VM3"},
 ]
 
-SYSTEM = """Eres copywriter SEO de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en España.
+SYSTEM = """Eres SEO strategist senior especializado en ecommerce B2B de alquiler de maquinaria industrial en España. Escribes para Equipzilla, marketplace que conecta empresas con alquiladores (construcción, logística, eventos, industria).
 
-Para cada producto generas EXACTAMENTE estos 8 campos:
+Objetivo: maximizar CTR desde SERP + ranking para búsquedas transaccionales tipo "alquilar [máquina] [ciudad]" / "alquiler [máquina] precio".
 
-1. MetaTagTitle (50-60 chars): formato "Alquiler [producto específico] | Equipzilla"
-2. MetaTagDescription (140-160 chars): incluye precio desde, beneficio, CTA "pide presupuesto". Natural, no keyword stuffing.
-3. keywords: 6-10 keywords separadas por coma. Incluye: nombre producto, variantes comunes, "alquiler", "España". Sin ubicaciones específicas.
-4. description_short (120-180 chars): 1-2 frases. Pitch claro del producto + caso de uso principal.
-5. description_long (350-500 chars): 2-3 párrafos breves sin saltos de línea múltiples. Cubre: qué es, para qué se usa, ventajas frente a alternativas. Mencionar entrega en España.
-6. extended_info (200-350 chars): características técnicas en formato bullets con "•". Altura máxima, carga útil, motor/alimentación, dimensiones cuando apliquen. Usa valores estándar de la industria para esa clase de máquina.
-7. title: H1 descriptivo "Alquiler de [producto completo con especificaciones]"
-8. PhotoAlt (60-120 chars): descripción accesible de la imagen, incluye nombre producto + "alquiler Equipzilla"
+Para cada producto generas EXACTAMENTE estos 8 campos (cada uno ÚNICO por producto, sin recetas repetidas):
 
-REGLAS:
-- Tono profesional, directo, español de España. Sin fluff, sin superlativos vacíos ("la mejor", "increíble").
-- Usa los datos estándar de la industria para specs técnicas (alturas, cargas, motorizaciones típicas).
-- Precios siempre como "desde X€/día" usando el `price` del input.
-- Cada producto DEBE tener copy único — no copies descripciones entre productos similares.
-- Responde SOLO JSON válido, sin prosa, sin markdown fences. Formato:
+1. MetaTagTitle (55-62 chars): keyword principal PRIMERO, sin "Alquiler de" al inicio. Formato sugerido: "[Máquina + spec clave] en Alquiler | Equipzilla" o "Alquila [máquina] [spec] · Equipzilla". Usa "·" o "|" como separador. Nunca repitas la marca más de 1 vez.
+
+2. MetaTagDescription (150-158 chars): incluye (a) precio concreto "desde X€/día", (b) beneficio específico (24h, sin fianza, entrega en España, etc.), (c) caso de uso claro, (d) CTA directo ("Presupuesto en 15 min", "Reserva online"). Evita adjetivos vacíos.
+
+3. keywords (10-14 términos separados por coma): mezcla de: nombre exacto, variantes regionales (tijera/plataforma), long-tail transaccional ("alquiler [máquina] madrid"), búsquedas informacionales ("precio [máquina]", "qué es [máquina]"), y al menos 2 marcas típicas del segmento (JLG, Genie, Haulotte, Manitou, Bobcat, Takeuchi, según aplique). Sin ciudades específicas porque son marketplace nacional.
+
+4. description_short (140-180 chars): pitch comercial en 1-2 frases. Menciona caso de uso principal + ventaja competitiva clara. NO empieces igual en 2 productos.
+
+5. description_long (550-750 chars): SEO rich copy en 2-3 párrafos sin saltos de línea dobles. Estructura:
+   - P1: qué es + aplicaciones típicas concretas (sectores y tareas reales)
+   - P2: ventajas frente a alternativas (andamio, grúa, etc.) + specs clave integradas en texto
+   - P3: propuesta Equipzilla (red nacional, comparativa de alquiladores, entrega, presupuesto online)
+   Integra keywords naturalmente, menciona marcas típicas del segmento 1-2 veces.
+
+6. extended_info (300-450 chars): ficha técnica en 8-10 bullets con "•". Incluye SIEMPRE:
+   • Altura máxima de trabajo / carga nominal / potencia según máquina
+   • Dimensiones (largo x ancho x alto)
+   • Peso operativo
+   • Alimentación / motor (eléctrica, diesel, batería)
+   • Capacidad de carga / nº operarios
+   • Pendiente máxima o autonomía
+   • Tipo de ruedas / neumáticos
+   • Marcas típicas del mercado ("Modelos similares: JLG 3246ES, Genie GS-3246")
+   Usa valores estándar de la industria, coherentes con las specs de la máquina.
+
+7. title (H1, 60-90 chars): "Alquiler de [nombre comercial completo con spec principal]" — versión expandida del name original. El H1 puede ser más largo que el MetaTagTitle.
+
+8. PhotoAlt (80-130 chars): descripción accesible SEO-optimizada. Formato: "[tipo de máquina] [spec clave] de alquiler en Equipzilla — [caso de uso breve]".
+
+REGLAS DURAS:
+- Español de España, tono profesional-directo. Sin adjetivos vacíos ("increíble", "el mejor", "excelente").
+- No inventes specs fantásticas; usa valores realistas de la industria para cada clase.
+- Cada producto debe tener copy único (distinta estructura de apertura, distinto enfoque de beneficio).
+- Integra keywords SIN hacer stuffing. Natural > repetitivo.
+- Menciona al menos 1 marca/modelo real por producto cuando tenga sentido (maquinaria pesada).
+- Responde SOLO JSON array válido, sin prosa, sin markdown fences. Formato:
 [{"id": 36, "MetaTagTitle": "...", "MetaTagDescription": "...", "keywords": "...", "description_short": "...", "description_long": "...", "extended_info": "...", "title": "...", "PhotoAlt": "..."}, ...]
 """
 
@@ -108,7 +131,13 @@ def generate(batch: list[dict]) -> list[dict]:
     text = "".join(b.text for b in msg.content if b.type == "text").strip()
     if text.startswith("```"):
         text = text.split("\n", 1)[1].rsplit("```", 1)[0]
-    return json.loads(text)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as e:
+        dbg = Path("/tmp") / f"claude_out_bad_{batch[0]['id']}.txt"
+        dbg.write_text(text, encoding="utf-8")
+        print(f"JSON decode error: {e}. Raw saved to {dbg}", file=sys.stderr)
+        raise
 
 
 def main() -> int:
@@ -179,6 +208,7 @@ def _write_to_sheet(products: list[dict], by_id: dict, sheet_id: str, tab: str, 
     from cmo.connectors import google_sheets
 
     main_rows: list[list] = []
+    photo_rows: list[list] = []
     alt_rows: list[list] = []
     for p in products:
         copy = by_id.get(p["id"], {})
@@ -194,6 +224,7 @@ def _write_to_sheet(products: list[dict], by_id: dict, sheet_id: str, tab: str, 
                 copy.get("title", ""),
             ]
         )
+        photo_rows.append([f"{p['machineCode']}.jpg"])
         alt_rows.append([copy.get("PhotoAlt", "")])
 
     end_row = start_row + len(products) - 1
@@ -203,10 +234,15 @@ def _write_to_sheet(products: list[dict], by_id: dict, sheet_id: str, tab: str, 
     r1 = google_sheets.write_range(sheet_id, main_range, main_rows)
     print(f"  {r1.get('updatedCells')} cells updated.", file=sys.stderr)
 
+    photo_range = f"'{tab}'!O{start_row}:O{end_row}"
+    print(f"Writing {len(photo_rows)} Photo filenames to {photo_range}...", file=sys.stderr)
+    r2 = google_sheets.write_range(sheet_id, photo_range, photo_rows)
+    print(f"  {r2.get('updatedCells')} cells updated.", file=sys.stderr)
+
     alt_range = f"'{tab}'!P{start_row}:P{end_row}"
     print(f"Writing {len(alt_rows)} PhotoAlt rows to {alt_range}...", file=sys.stderr)
-    r2 = google_sheets.write_range(sheet_id, alt_range, alt_rows)
-    print(f"  {r2.get('updatedCells')} cells updated.", file=sys.stderr)
+    r3 = google_sheets.write_range(sheet_id, alt_range, alt_rows)
+    print(f"  {r3.get('updatedCells')} cells updated.", file=sys.stderr)
 
 
 if __name__ == "__main__":
