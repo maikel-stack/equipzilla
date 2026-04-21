@@ -112,13 +112,29 @@ def generate(batch: list[dict]) -> list[dict]:
 
 
 def main() -> int:
+    import argparse
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--sheet-id", help="Google Sheet ID. If set, writes directly to the sheet instead of CSV.")
+    ap.add_argument("--tab", default="Hoja 1", help="Tab name in the sheet (default: 'Hoja 1')")
+    ap.add_argument("--start-row", type=int, default=4, help="First data row in the sheet (default: 4)")
+    ap.add_argument("--dry-run-copy", action="store_true", help="Skip Claude, read existing CSV for sheet test")
+    args = ap.parse_args()
+
     out_path = Path(__file__).parent / "products_copy.csv"
-    batch_size = 15
-    all_copy: list[dict] = []
-    for i in range(0, len(PRODUCTS), batch_size):
-        batch = PRODUCTS[i : i + batch_size]
-        print(f"[{i + 1}-{i + len(batch)}] generating...", file=sys.stderr)
-        all_copy.extend(generate(batch))
+
+    if args.dry_run_copy and out_path.exists():
+        with open(out_path, encoding="utf-8") as f:
+            all_copy = list(csv.DictReader(f))
+            for r in all_copy:
+                r["id"] = int(r["id"])
+    else:
+        batch_size = 15
+        all_copy = []
+        for i in range(0, len(PRODUCTS), batch_size):
+            batch = PRODUCTS[i : i + batch_size]
+            print(f"[{i + 1}-{i + len(batch)}] generating...", file=sys.stderr)
+            all_copy.extend(generate(batch))
 
     by_id = {row["id"]: row for row in all_copy}
 
@@ -151,9 +167,46 @@ def main() -> int:
                     "PhotoAlt": copy.get("PhotoAlt", ""),
                 }
             )
+    print(f"Wrote {len(PRODUCTS)} rows to {out_path}", file=sys.stderr)
 
-    print(f"\nWrote {len(PRODUCTS)} rows to {out_path}", file=sys.stderr)
+    if args.sheet_id:
+        _write_to_sheet(PRODUCTS, by_id, args.sheet_id, args.tab, args.start_row)
+
     return 0
+
+
+def _write_to_sheet(products: list[dict], by_id: dict, sheet_id: str, tab: str, start_row: int) -> None:
+    from cmo.connectors import google_sheets
+
+    main_rows: list[list] = []
+    alt_rows: list[list] = []
+    for p in products:
+        copy = by_id.get(p["id"], {})
+        main_rows.append(
+            [
+                copy.get("MetaTagTitle", ""),
+                copy.get("MetaTagDescription", ""),
+                copy.get("keywords", ""),
+                "",
+                copy.get("description_short", ""),
+                copy.get("description_long", ""),
+                copy.get("extended_info", ""),
+                copy.get("title", ""),
+            ]
+        )
+        alt_rows.append([copy.get("PhotoAlt", "")])
+
+    end_row = start_row + len(products) - 1
+
+    main_range = f"'{tab}'!F{start_row}:M{end_row}"
+    print(f"Writing {len(main_rows)} rows to {main_range}...", file=sys.stderr)
+    r1 = google_sheets.write_range(sheet_id, main_range, main_rows)
+    print(f"  {r1.get('updatedCells')} cells updated.", file=sys.stderr)
+
+    alt_range = f"'{tab}'!P{start_row}:P{end_row}"
+    print(f"Writing {len(alt_rows)} PhotoAlt rows to {alt_range}...", file=sys.stderr)
+    r2 = google_sheets.write_range(sheet_id, alt_range, alt_rows)
+    print(f"  {r2.get('updatedCells')} cells updated.", file=sys.stderr)
 
 
 if __name__ == "__main__":
