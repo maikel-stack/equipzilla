@@ -7,25 +7,35 @@ Sistema de automatización para **Equipzilla** (marketplace B2B de alquiler de m
 ## Arquitectura general
 
 ```
-Cliente web
-    │
-    ▼
-Formulario web ──► Pipedrive (nuevo deal)
-                        │
-                        ▼ webhook
-                   ┌────────────────────────────────────────────────────┐
-                   │  n8n Cloud (equipzillaproduccion.app.n8n.cloud)    │
-                   │                                                    │
-                   │  1. Lead Scoring Bot  ──► Discord/Slack alert      │
-                   │  2. Auto Presupuesto  ──► WhatsApp + nota CRM      │
-                   │  3. Gestor Respuestas ◄── WhatsApp reply           │
-                   └────────────────────────────────────────────────────┘
-                        │                        ▲
-                        ▼                        │
-                   respond.io (WhatsApp) ────────┘
-                        │
-                        ▼
-                   Cliente recibe presupuesto y responde SÍ/NO
+ Cliente web                    Email a rent@equipzilla.com
+      │                                 │
+      ▼                                 ▼
+ Formulario ──► Pipedrive       Gmail Trigger (n8n)
+                    │                   │
+                    │                   ▼
+                    │         ┌─────────────────────────────┐
+                    │         │ 4. Email Intake Bot         │
+                    │         │  - Claude extrae datos      │
+                    │         │  - Si faltan → email reply  │
+                    │         │  - Si completos → crea deal │
+                    │         │    y dispara webhook quote  │
+                    │         └──────────────┬──────────────┘
+                    │                        │
+                    ▼                        ▼
+              ┌────────────────────────────────────────────────────┐
+              │  n8n Cloud (equipzillaproduccion.app.n8n.cloud)    │
+              │                                                    │
+              │  1. Lead Scoring Bot  ──► Discord/Slack alert      │
+              │  2. Auto Presupuesto  ──► WhatsApp O Email + CRM   │
+              │     (tarifas P3/P4/P5 · P5 = mensual ≥28 días)     │
+              │  3. Gestor Respuestas ◄── WhatsApp reply           │
+              └────────────────────────────────────────────────────┘
+                   │                        ▲
+                   ▼                        │
+              respond.io (WhatsApp) ────────┘
+                   │
+                   ▼
+              Cliente recibe presupuesto y responde SÍ/NO
 ```
 
 ---
@@ -85,7 +95,8 @@ Webhook ──► Extraer datos ──► Preparar payload Claude ──► Clau
 
 **Lógica de tarifa GAM 2026:**
 - Alquiler **< 7 días** → tarifa **P3** (63% del PVP)
-- Alquiler **≥ 7 días** → tarifa **P4** (54% del PVP)
+- Alquiler **7-27 días** → tarifa **P4** (54% del PVP)
+- Alquiler **≥ 28 días** → tarifa **P5 MENSUAL** (`P5_daily = P4_daily × 0.833`, ~45% PVP)
 - `base = tarifa_diaria × días`
 - `seguro = base × 15%`
 - `ecofee = 15€` (siempre)
@@ -94,8 +105,13 @@ Webhook ──► Extraer datos ──► Preparar payload Claude ──► Clau
 
 **Condición auto-presupuesto:**
 - `can_quote = true` (Claude identifica la máquina en tarifa)
-- `total < 1.000€`
-- Teléfono del cliente disponible
+- `total < 3.000€` (subido desde 1.000€ para permitir presupuestos mensuales)
+- `hasContact = true` (teléfono O email del cliente)
+
+**Canales de envío:**
+- Si hay teléfono → WhatsApp (vía respond.io) con PDF adjunto
+- Si no hay teléfono pero sí email → Email (Gmail, plantilla HTML con PDF)
+- Si no hay ninguno → nota en Pipedrive para revisión manual
 
 **Nodos clave:**
 
@@ -171,6 +187,75 @@ Webhook (respond.io) ──► Parsear respuesta ──► Buscar persona Pipedr
 
 ---
 
+### 4. A03 · Email Intake Presupuesto (`workflow_email_intake.json`)
+
+**Trigger:** Gmail Trigger polling `rent@equipzilla.com` (filter `to:rent@equipzilla.com newer_than:1d`, solo no leídos, cada 1 min)
+
+**Flujo:**
+```
+Gmail Trigger ──► Extraer email ──► Claude · Extraer datos ──► Parsear
+                                                                    │
+                                                                    ▼
+                                                           ¿Datos completos?
+                                                                    │
+                                                ┌───────────────────┴────────────────┐
+                                               SÍ                                   NO
+                                                │                                    │
+                                                ▼                                    ▼
+                                      Preparar persona/deal                Responder pidiendo datos
+                                                │                           (Gmail reply al thread)
+                                                ▼
+                                      Crear persona Pipedrive
+                                                │
+                                                ▼
+                                         Crear deal Pipedrive
+                                                │
+                                                ▼
+                                 Disparar webhook pipedrive-quote
+                                  (reutiliza todo el flow de presupuesto)
+                                                │
+                                                ▼
+                                       Enviar ack al lead
+                                  "Hemos recibido tu petición"
+```
+
+**Datos mínimos requeridos** (Claude marca `missing[]`):
+- `asset_type` (máquina solicitada)
+- `date_start` O `duration_hint` (al menos una forma de duración)
+- `contact_email` (siempre presente, tomado del From)
+
+**Datos recomendados** (no bloquean, se marcan en `nice_to_have_missing[]`):
+- `date_end`, `work_location`, `company_name`, `contact_phone`
+
+**Interpretación de duración por lenguaje natural:**
+- "una semana" → `days_estimate=7`, tarifa P4
+- "un mes" / "mensual" → `days_estimate=30`, `monthly=true`, tarifa P5
+- "dos meses" → `days_estimate=60`, tarifa P5
+
+Si no hay `date_start` pero sí `days_estimate`, el workflow asume inicio en **hoy+3 días** y calcula el fin.
+
+**Nodos clave:**
+
+| Nodo | Tipo | Descripción |
+|------|------|-------------|
+| `Gmail Trigger (rent@equipzilla.com)` | gmailTrigger | Credencial `gmail-equipzilla` (OAuth2) |
+| `⚙️ Configuración` | Set | `ANTHROPIC_API_KEY`, `PIPEDRIVE_API_TOKEN`, `QUOTE_WEBHOOK_URL`, pipeline/stage IDs |
+| `Extraer email entrante` | Code | Parsea from/subject/body, limpia bloques citados `> ...` |
+| `Preparar payload Claude` | Code | Construye prompt con datos obligatorios/opcionales |
+| `Claude · Extraer datos` | HTTP | POST `https://api.anthropic.com/v1/messages` |
+| `Parsear extracción` | Code | Parsea JSON, fallback a email del From si Claude no lo extrajo |
+| `¿Datos completos?` | IF | `missing.length === 0` |
+| `Responder pidiendo datos` | Gmail (reply) | Reply al thread pidiendo los campos de `missing[]` |
+| `Preparar persona/deal` | Code | Normaliza fechas, infiere `date_end` de `duration_hint` |
+| `Crear persona Pipedrive` | HTTP | POST `/v1/persons` |
+| `Crear deal Pipedrive` | HTTP | POST `/v1/deals` (pipeline 6, stage 45) |
+| `Disparar webhook presupuesto` | HTTP | POST al webhook `pipedrive-quote` con shape `{ current: {...} }` |
+| `Enviar ack al lead` | Gmail (reply) | Confirma recepción, anuncia presupuesto en minutos |
+
+> **Credencial Gmail:** reutiliza `gmail-equipzilla` (ya configurada en el workflow `A03 · Lead Qualifier Bot · Equipzilla`). Debe tener permisos de lectura Y envío/reply sobre `rent@equipzilla.com`.
+
+---
+
 ## Stages de Pipedrive
 
 | Stage ID | Nombre | Pipeline |
@@ -183,6 +268,8 @@ Webhook (respond.io) ──► Parsear respuesta ──► Buscar persona Pipedr
 ---
 
 ## Tarifa GAM 2026 (extracto)
+
+> La tarifa mensual **P5** se calcula como `P4_daily × 0.833` (descuento adicional del ~17% sobre P4), redondeado a 2 decimales. No se lista en la tabla para evitar duplicar números — Claude la deriva automáticamente cuando `días ≥ 28`.
 
 | Máquina | P3 (€/día) | P4 (€/día) |
 |---------|-----------|-----------|
@@ -211,7 +298,8 @@ Webhook (respond.io) ──► Parsear respuesta ──► Buscar persona Pipedr
 | Mini excavadora 5T | 100.80 | 86.40 |
 
 > **P3**: alquileres < 7 días (63% PVP)
-> **P4**: alquileres ≥ 7 días (54% PVP)
+> **P4**: alquileres 7-27 días (54% PVP)
+> **P5**: alquileres ≥ 28 días · **MENSUAL** (~45% PVP, derivado como `P4 × 0.833`)
 
 ---
 
@@ -244,6 +332,8 @@ Para que las respuestas de WhatsApp de los clientes lleguen al handler:
 
 ## Flujo completo de un deal
 
+### Flujo A — Entrada por formulario web
+
 ```
 1. Cliente rellena formulario web
         ↓
@@ -254,17 +344,40 @@ Para que las respuestas de WhatsApp de los clientes lleguen al handler:
    • Nota en Pipedrive + alerta Discord
         ↓
 4. Webhook → n8n Auto Presupuesto
-   • Claude calcula precio con tarifa GAM 2026
-   • Si total < 1000€ y tiene teléfono:
-     → WhatsApp con presupuesto detallado
+   • Claude calcula precio con tarifa GAM 2026 (P3/P4/P5)
+   • Si total < 3000€ y hay teléfono O email:
+     → Canal WhatsApp si hay teléfono, si no canal Email
      → Nota Pipedrive con tag [EQUIPZILLA_QUOTE]
      → Deal → stage 37 "Oferta enviada"
         ↓
-5. Cliente responde al WhatsApp
+5. Cliente responde al WhatsApp (si fue por WA)
         ↓
 6. respond.io → n8n Gestor Respuestas
    • SÍ → stage 38 "Oferta Aceptada" + WhatsApp confirmación
    • NO → stage 27 "Seguimiento" + tarea CRM + WhatsApp seguimiento
+```
+
+### Flujo B — Entrada por email a `rent@equipzilla.com`
+
+```
+1. Cliente envía email a rent@equipzilla.com
+   (ej. "Necesito una tijera eléctrica 10m en Madrid durante un mes")
+        ↓
+2. Gmail Trigger recoge el email (polling 1 min)
+        ↓
+3. Claude extrae datos estructurados (máquina, fechas, ubicación, empresa, contacto)
+        ↓
+4a. Si faltan datos obligatorios:
+    → Gmail reply pidiendo SOLO los datos que faltan
+    → [FIN — espera a la próxima respuesta del cliente]
+
+4b. Si los datos están completos:
+    → Crea persona en Pipedrive
+    → Crea deal en Pipedrive (pipeline 6, stage 45)
+    → Dispara webhook pipedrive-quote (reutiliza Flujo A desde paso 4)
+    → Envía ack al lead: "Hemos recibido tu petición, te enviamos presupuesto"
+        ↓
+5. El cliente recibe el presupuesto mensual por email (o WhatsApp si dio teléfono)
 ```
 
 ---
@@ -312,13 +425,38 @@ curl -s -X POST "https://equipzillaproduccion.app.n8n.cloud/webhook/whatsapp-rep
   }'
 ```
 
+### Test manual del Email Intake
+
+No hay endpoint HTTP (es un Gmail Trigger). Para probar:
+
+**Opción 1 · Email real:** Enviar un email a `rent@equipzilla.com` con asunto y cuerpo similares a:
+
+```
+Asunto: Alquiler tijera eléctrica 10m
+
+Buenos días,
+Somos Construcciones Ejemplo S.L. (CIF B12345678).
+Necesitamos una tijera eléctrica 10m en Madrid durante un mes, a partir del 1 de mayo.
+Gracias.
+Juan Pérez · 600123456
+```
+
+El workflow debería:
+1. Extraer: `asset_type=Tijera eléctrica 10m`, `date_start=2026-05-01`, `days_estimate=30`, `monthly=true`, `work_location=Madrid`, `company_name=Construcciones Ejemplo S.L.`, `contact_phone=+34600123456`
+2. `missing=[]` → crear deal en Pipedrive y disparar webhook de presupuesto
+3. Presupuesto calculado con **tarifa P5 mensual**
+4. Enviar por WhatsApp (prioridad) o email si no hay teléfono
+
+**Opción 2 · Email con datos incompletos:** Enviar un email tipo "Hola, necesito una máquina, ¿me decís precio?" para verificar que el workflow responde pidiendo los datos faltantes.
+
 ---
 
 ## Archivos del repositorio
 
 | Archivo | Descripción |
 |---------|-------------|
-| `workflow_quote.json` | Workflow Auto Presupuesto (credenciales redactadas) |
+| `workflow_quote.json` | Workflow Auto Presupuesto (P3/P4/P5, canal WhatsApp+Email, credenciales redactadas) |
+| `workflow_email_intake.json` | Workflow Email Intake · recibe emails en `rent@equipzilla.com` y dispara presupuesto |
 | `workflow_reply_handler.json` | Workflow Gestor Respuestas WhatsApp (credenciales redactadas) |
 | `workflow_scoring.json` | Workflow Lead Scoring (credenciales redactadas) |
 | `workflow_scoring_deploy.json` | Snapshot scoring con credenciales (⚠️ NO COMMITEAR) |
@@ -332,5 +470,5 @@ curl -s -X POST "https://equipzillaproduccion.app.n8n.cloud/webhook/whatsapp-rep
 - [ ] **Discord webhook URL**: El admin debe proporcionar la URL real para notificaciones del scoring bot (workflow `xHPqfbcBfzRi9mwy`, nodo `Discord`, actualmente tiene placeholder `PON_AQUI_TU_WEBHOOK`)
 - [ ] **respond.io webhook**: Configurar en respond.io el webhook entrante apuntando a `/webhook/whatsapp-reply` (ver sección Configuración respond.io)
 - [ ] **Follow-up automático 24h**: Workflow programado que detecte deals en stage 37 con nota `[EQUIPZILLA_QUOTE]` de más de 23h sin respuesta y envíe WhatsApp recordatorio
-- [ ] **Email trigger**: Reconciliar el workflow IMAP (`4h7fahq8nefbyqvj`) con el flujo actual
+- [ ] **Desplegar `workflow_email_intake.json`** en n8n Cloud y activar. Verificar que la credencial OAuth `gmail-equipzilla` tiene `gmail.modify` (para marcar leídos) y envío.
 - [ ] **Testing con clientes reales**: Probar el flujo completo con deals de clientes reales (no teléfono de prueba)
