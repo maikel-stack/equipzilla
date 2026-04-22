@@ -3,36 +3,23 @@
   "nodes": [
     {
       "parameters": {
-        "pollTimes": {
-          "item": [
-            {
-              "mode": "everyMinute"
-            }
-          ]
-        },
-        "filters": {
-          "labelIds": [
-            "INBOX"
-          ],
-          "readStatus": "unread",
-          "q": "to:rent@equipzilla.com newer_than:1d"
-        },
+        "format": "simple",
         "options": {
-          "downloadAttachments": false
+          "forceReconnect": 60
         }
       },
-      "id": "c48f03f0-463f-44b9-94c1-d44cf3c398e7",
-      "name": "Gmail Trigger (rent@equipzilla.com)",
-      "type": "n8n-nodes-base.gmailTrigger",
-      "typeVersion": 1.2,
+      "id": "023d986c-0d64-4dcd-bc31-5869dcb9e09a",
+      "name": "Email Trigger (rent@equipzilla.com)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
       "position": [
         0,
         0
       ],
       "credentials": {
-        "gmailOAuth2": {
-          "id": "gmail-equipzilla",
-          "name": "Gmail Equipzilla (rent@equipzilla.com)"
+        "imap": {
+          "id": "REDACTED",
+          "name": "Gmail IMAP rent@equipzilla.com"
         }
       }
     },
@@ -45,22 +32,17 @@
             {
               "name": "ANTHROPIC_API_KEY",
               "type": "stringValue",
-              "string": "ANTHROPIC_API_KEY_REDACTED"
+              "stringValue": "ANTHROPIC_API_KEY_REDACTED"
             },
             {
               "name": "PIPEDRIVE_API_TOKEN",
               "type": "stringValue",
-              "string": "PIPEDRIVE_API_TOKEN_REDACTED"
-            },
-            {
-              "name": "PIPEDRIVE_DOMAIN",
-              "type": "stringValue",
-              "string": "equipzilla"
+              "stringValue": "PIPEDRIVE_API_TOKEN_REDACTED"
             },
             {
               "name": "QUOTE_WEBHOOK_URL",
               "type": "stringValue",
-              "string": "https://equipzillaproduccion.app.n8n.cloud/webhook/pipedrive-quote"
+              "stringValue": "https://equipzillaproduccion.app.n8n.cloud/webhook/pipedrive-quote"
             },
             {
               "name": "PIPEDRIVE_PIPELINE_ID",
@@ -71,28 +53,19 @@
               "name": "PIPEDRIVE_STAGE_ID",
               "type": "numberValue",
               "numberValue": 45
+            },
+            {
+              "name": "FROM_EMAIL",
+              "type": "stringValue",
+              "stringValue": "rent@equipzilla.com"
             }
           ]
         }
       },
-      "id": "0feee218-70d6-4e72-84b3-1729a94f52c7",
+      "id": "efb19c0b-bb35-47d3-beb5-cb6fa9d35ce9",
       "name": "⚙️ Configuración",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [
-        -200,
-        200
-      ]
-    },
-    {
-      "parameters": {
-        "language": "javaScript",
-        "jsCode": "const email = $input.first().json;\n\nconst senderEmail = (email.from?.value?.[0]?.address || email.from || \"\").toLowerCase();\nconst senderName  = email.from?.value?.[0]?.name || senderEmail.split(\"@\")[0] || \"Lead\";\nconst subject     = email.subject || \"(sin asunto)\";\nconst bodyText    = email.text || email.snippet || \"(sin contenido)\";\nconst messageId   = email.id || email.messageId || \"\";\nconst threadId    = email.threadId || messageId;\n\n// Strip quoted-reply blocks to reduce noise\nconst cleanBody = bodyText\n  .split(/^[-]{2,}\\s*Original Message|^On .+ wrote:/mi)[0]\n  .replace(/^>.*$/gm, \"\")\n  .trim();\n\nreturn [{ json: {\n  senderEmail,\n  senderName,\n  subject,\n  body: cleanBody,\n  rawBody: bodyText,\n  messageId,\n  threadId,\n  receivedAt: email.date || new Date().toISOString()\n} }];"
-      },
-      "id": "09c5cbb0-7c1c-444c-8315-52752bafd5bb",
-      "name": "Extraer email entrante",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
       "position": [
         200,
         0
@@ -101,14 +74,28 @@
     {
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const d = $input.first().json;\n\nconst systemPrompt = `Eres el sistema de recepción automática de peticiones de alquiler de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en España (rent@equipzilla.com).\n\nTu tarea: leer el email del cliente y extraer una solicitud de alquiler estructurada. Detectar qué datos faltan y devolver JSON.\n\nDATOS A EXTRAER:\n- asset_type: máquina solicitada (ej. \"Tijera eléctrica 10m\", \"Manipulador telescópico 14m\", \"Grupo electrógeno 60kVA\")\n- asset_engine: \"electrica\" | \"diesel\" | \"glp\" | null\n- date_start: fecha inicio ISO YYYY-MM-DD (o null si no está)\n- date_end: fecha fin ISO YYYY-MM-DD (o null)\n- duration_hint: texto libre con duración si aparece pero sin fechas exactas (\"1 mes\", \"2 semanas\")\n- work_location: ciudad/provincia española o null\n- company_name: razón social o nombre de empresa\n- cif: CIF/NIF español si aparece (patrón [A-Z][0-9]{8} o [0-9]{8}[A-Z])\n- contact_name: nombre de la persona\n- contact_phone: teléfono en formato E.164 (+34...) si aparece, null si no\n- contact_email: email del remitente (usa el del campo From si no hay otro)\n\nDATOS MÍNIMOS REQUERIDOS para poder presupuestar (missing debe listarlos si faltan):\n- asset_type (obligatorio)\n- date_start O duration_hint (al menos uno)\n- contact_email (siempre — lo tienes del From)\n\nDATOS RECOMENDADOS (no bloquean el presupuesto, pero si faltan sumarlos a \"nice_to_have\"):\n- date_end (para calcular días exactos; si hay duration_hint podemos estimar)\n- work_location\n- company_name\n- contact_phone (para enviar por WhatsApp, si no hay se usará email)\n\nINTERPRETACIÓN DE DURACIÓN:\n- Si dicen \"una semana\" → days_estimate=7\n- Si dicen \"un mes\"/\"mensual\" → days_estimate=30, y marca monthly=true\n- Si dicen \"dos meses\" → days_estimate=60, monthly=true\n- Si hay date_start y date_end, calcula days_estimate desde fechas.\n\nDevuelve ÚNICAMENTE este JSON sin markdown:\n{\n  \"asset_type\": \"...\",\n  \"asset_engine\": null,\n  \"date_start\": null,\n  \"date_end\": null,\n  \"duration_hint\": null,\n  \"days_estimate\": null,\n  \"monthly\": false,\n  \"work_location\": null,\n  \"company_name\": null,\n  \"cif\": null,\n  \"contact_name\": \"...\",\n  \"contact_phone\": null,\n  \"contact_email\": \"...\",\n  \"missing\": [\"lista de campos obligatorios que faltan\"],\n  \"nice_to_have_missing\": [\"campos recomendados que faltan\"],\n  \"reply_text\": \"mensaje en español educado pidiendo SOLO los campos de missing[] (vacío si missing está vacío). Incluir saludo personalizado y firma de Equipzilla. Máximo 6 líneas.\"\n}`;\n\nconst userMsg = `Remitente email: ${d.senderEmail}\nNombre remitente: ${d.senderName}\nAsunto: ${d.subject}\n\nCuerpo del email:\n${d.body}`;\n\nreturn [{\n  json: {\n    ...d,\n    _claudePayload: {\n      model: \"claude-sonnet-4-20250514\",\n      max_tokens: 1500,\n      temperature: 0,\n      system: systemPrompt,\n      messages: [{ role: \"user\", content: userMsg }]\n    }\n  }\n}];"
+        "jsCode": "const email = $input.first().json;\n\n// IMAP format: from = \"Name <addr@x.com>\" or raw address\nconst fromRaw = (email.from || '').toString();\nconst m = fromRaw.match(/<([^>]+)>/);\nconst senderEmail = ((m ? m[1] : fromRaw) || '').trim().toLowerCase();\nconst senderName  = fromRaw.replace(/<[^>]+>/, '').trim().replace(/^\"|\"$/g,'') || senderEmail.split('@')[0] || 'Lead';\nconst subject     = email.subject || '(sin asunto)';\nconst bodyText    = email.text || email.textHtml || email.html || '';\nconst messageId   = email.messageId || email.id || '';\n\n// Strip quoted-reply blocks\nconst cleanBody = bodyText\n  .split(/^[-]{2,}\\s*Original Message|^On .+ wrote:|^El .+ escribi/mi)[0]\n  .replace(/^>.*$/gm, '')\n  .trim();\n\nreturn [{ json: {\n  senderEmail, senderName, subject,\n  body: cleanBody, rawBody: bodyText,\n  messageId,\n  receivedAt: email.date || new Date().toISOString()\n} }];"
       },
-      "id": "2ebf6945-9752-4039-a479-1070f1c35b57",
-      "name": "Preparar payload Claude",
+      "id": "fe9049d3-8556-47f1-b863-05b622780ca7",
+      "name": "Extraer email entrante",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const d = $input.first().json;\n\nconst systemPrompt = `Eres el sistema de recepción automática de peticiones de alquiler de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en España (rent@equipzilla.com).\n\nTu tarea: leer el email del cliente y extraer una solicitud de alquiler estructurada. Detectar qué datos faltan y devolver JSON.\n\nDATOS A EXTRAER:\n- asset_type: máquina solicitada (ej. \"Tijera eléctrica 10m\", \"Manipulador telescópico 14m\", \"Grupo electrógeno 60kVA\")\n- asset_engine: \"electrica\" | \"diesel\" | \"glp\" | null\n- date_start: fecha inicio ISO YYYY-MM-DD (o null)\n- date_end: fecha fin ISO YYYY-MM-DD (o null)\n- duration_hint: texto libre si aparece pero sin fechas (\"1 mes\", \"2 semanas\")\n- days_estimate: número entero (calculado de fechas o estimado de duration_hint)\n- monthly: true si menciona \"mes\"/\"mensual\"/\"meses\"\n- work_location: ciudad/provincia española o null\n- company_name: razón social o null\n- cif: CIF/NIF español ([A-Z][0-9]{8} o [0-9]{8}[A-Z]) o null\n- contact_name: nombre persona\n- contact_phone: teléfono E.164 (+34...) o null\n- contact_email: email (usa el From si no hay otro)\n\nDATOS MÍNIMOS REQUERIDOS (lista en missing[] si faltan):\n- asset_type\n- date_start O duration_hint\n- contact_email (siempre lo tienes del From)\n\nDATOS RECOMENDADOS (nice_to_have_missing[]):\n- date_end, work_location, company_name, contact_phone\n\nINTERPRETACIÓN DE DURACIÓN:\n- \"una semana\"→days_estimate=7\n- \"un mes\"/\"mensual\"→days_estimate=30, monthly=true\n- \"dos meses\"→days_estimate=60, monthly=true\n\nDevuelve ÚNICAMENTE este JSON sin markdown:\n{\n  \"asset_type\": \"...\",\n  \"asset_engine\": null,\n  \"date_start\": null, \"date_end\": null,\n  \"duration_hint\": null, \"days_estimate\": null, \"monthly\": false,\n  \"work_location\": null, \"company_name\": null, \"cif\": null,\n  \"contact_name\": \"...\", \"contact_phone\": null, \"contact_email\": \"...\",\n  \"missing\": [],\n  \"nice_to_have_missing\": [],\n  \"reply_text\": \"Mensaje educado en español pidiendo SOLO los campos de missing[] (vacío si missing está vacío). Incluir saludo y firma. Máximo 6 líneas.\"\n}`;\n\nconst userMsg = `Remitente email: ${d.senderEmail}\nNombre remitente: ${d.senderName}\nAsunto: ${d.subject}\n\nCuerpo del email:\n${d.body}`;\n\nreturn [{\n  json: {\n    ...d,\n    _claudePayload: {\n      model: \"claude-sonnet-4-20250514\",\n      max_tokens: 1500,\n      temperature: 0,\n      system: systemPrompt,\n      messages: [{ role: \"user\", content: userMsg }]\n    }\n  }\n}];"
+      },
+      "id": "e15a3a86-9ebb-4507-8695-a553d9f98e24",
+      "name": "Preparar payload Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
         0
       ]
     },
@@ -138,26 +125,26 @@
         "jsonBody": "={{ $json._claudePayload }}",
         "options": {}
       },
-      "id": "fab42712-9ef7-4f83-8723-c48d81cc91dd",
+      "id": "bd98953d-2334-4ade-9386-50e80736f55e",
       "name": "Claude · Extraer datos",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        600,
+        800,
         0
       ]
     },
     {
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const raw = $json.content?.[0]?.text || '{}';\nlet ext;\ntry {\n  const cleaned = raw.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\n  ext = JSON.parse(cleaned);\n} catch(e) {\n  ext = { missing: ['parse_error'], reply_text: 'No hemos podido procesar tu petición automáticamente. Un agente te contactará pronto.' };\n}\n\nconst prev = $('Preparar payload Claude').item.json;\nconst missing = Array.isArray(ext.missing) ? ext.missing : [];\nconst complete = missing.length === 0;\n\n// Fallback: if no contact_email extracted, use the sender's\nif (!ext.contact_email && prev.senderEmail) ext.contact_email = prev.senderEmail;\nif (!ext.contact_name && prev.senderName) ext.contact_name = prev.senderName;\n\nreturn [{\n  json: {\n    ...prev,\n    _claudePayload: undefined,\n    extraction: ext,\n    missing,\n    complete\n  }\n}];"
+        "jsCode": "const raw = $json.content?.[0]?.text || '{}';\nlet ext;\ntry {\n  const cleaned = raw.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\n  ext = JSON.parse(cleaned);\n} catch(e) {\n  ext = { missing: ['parse_error'], reply_text: 'No hemos podido procesar tu petición automáticamente. Un agente te contactará pronto.' };\n}\n\nconst prev = $('Preparar payload Claude').item.json;\nconst missing = Array.isArray(ext.missing) ? ext.missing : [];\nconst complete = missing.length === 0;\n\nif (!ext.contact_email && prev.senderEmail) ext.contact_email = prev.senderEmail;\nif (!ext.contact_name && prev.senderName) ext.contact_name = prev.senderName;\n\nreturn [{\n  json: {\n    ...prev,\n    _claudePayload: undefined,\n    extraction: ext,\n    missing,\n    complete\n  }\n}];"
       },
-      "id": "cae74ab7-615d-418a-9f49-e4ff3df72e3a",
+      "id": "fa16429e-4407-4748-bdd5-634cf507c48b",
       "name": "Parsear extracción",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        800,
+        1000,
         0
       ]
     },
@@ -182,52 +169,48 @@
           "combinator": "and"
         }
       },
-      "id": "cfab4dba-da74-42f7-a511-f74ae7c20743",
+      "id": "27662b8c-47b5-456a-95b4-72e3383debc3",
       "name": "¿Datos completos?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1000,
+        1200,
         0
       ]
     },
     {
       "parameters": {
-        "operation": "reply",
-        "messageId": "={{ $('Extraer email entrante').item.json.messageId }}",
+        "fromEmail": "={{ $('⚙️ Configuración').item.json.FROM_EMAIL }}",
+        "toEmail": "={{ $('Extraer email entrante').item.json.senderEmail }}",
+        "subject": "=Re: {{ $('Extraer email entrante').item.json.subject }}",
         "emailType": "text",
-        "message": "={{ $('Parsear extracción').item.json.extraction.reply_text }}",
+        "text": "={{ $('Parsear extracción').item.json.extraction.reply_text }}",
         "options": {
+          "allowUnauthorizedCerts": false,
           "appendAttribution": false,
-          "threadId": "={{ $('Extraer email entrante').item.json.threadId }}"
+          "replyTo": "rent@equipzilla.com"
         }
       },
-      "id": "dd8eeeab-14af-42e7-8f7c-660ad274bddc",
-      "name": "Responder pidiendo datos",
-      "type": "n8n-nodes-base.gmail",
+      "id": "021bfd86-27fe-4cc4-8856-ddef381f0a3d",
+      "name": "Responder pidiendo datos (SMTP)",
+      "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        1200,
+        1400,
         200
-      ],
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "gmail-equipzilla",
-          "name": "Gmail Equipzilla (rent@equipzilla.com)"
-        }
-      }
+      ]
     },
     {
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const d = $json;\nconst ext = d.extraction;\n\n// Compute date_end if only duration_hint\nlet dateStart = ext.date_start;\nlet dateEnd = ext.date_end;\nif (dateStart && !dateEnd && ext.days_estimate) {\n  const start = new Date(dateStart);\n  const end = new Date(start.getTime() + ext.days_estimate * 86400000);\n  dateEnd = end.toISOString().slice(0, 10);\n}\n// If no dateStart but has days_estimate: default start = today+3 days\nif (!dateStart && ext.days_estimate) {\n  const start = new Date(Date.now() + 3 * 86400000);\n  const end = new Date(start.getTime() + ext.days_estimate * 86400000);\n  dateStart = start.toISOString().slice(0, 10);\n  dateEnd = end.toISOString().slice(0, 10);\n}\n\nconst phoneArr = ext.contact_phone ? [{ value: ext.contact_phone, primary: true, label: \"mobile\" }] : [];\nconst emailArr = ext.contact_email ? [{ value: ext.contact_email, primary: true, label: \"work\" }] : [];\n\nreturn [{\n  json: {\n    ...d,\n    _normalizedDates: { dateStart, dateEnd },\n    _personPayload: {\n      name: ext.contact_name || d.senderName,\n      email: emailArr,\n      phone: phoneArr,\n      visible_to: \"3\"\n    }\n  }\n}];"
+        "jsCode": "const d = $json;\nconst ext = d.extraction;\n\nlet dateStart = ext.date_start;\nlet dateEnd = ext.date_end;\nif (dateStart && !dateEnd && ext.days_estimate) {\n  const start = new Date(dateStart);\n  const end = new Date(start.getTime() + ext.days_estimate * 86400000);\n  dateEnd = end.toISOString().slice(0, 10);\n}\nif (!dateStart && ext.days_estimate) {\n  const start = new Date(Date.now() + 3 * 86400000);\n  const end = new Date(start.getTime() + ext.days_estimate * 86400000);\n  dateStart = start.toISOString().slice(0, 10);\n  dateEnd = end.toISOString().slice(0, 10);\n}\n\nconst phoneArr = ext.contact_phone ? [{ value: ext.contact_phone, primary: true, label: \"mobile\" }] : [];\nconst emailArr = ext.contact_email ? [{ value: ext.contact_email, primary: true, label: \"work\" }] : [];\n\nreturn [{\n  json: {\n    ...d,\n    _normalizedDates: { dateStart, dateEnd },\n    _personPayload: {\n      name: ext.contact_name || d.senderName,\n      email: emailArr,\n      phone: phoneArr,\n      visible_to: \"3\"\n    }\n  }\n}];"
       },
-      "id": "e73ccd52-c841-4ad3-ba0b-6bdde351c54e",
+      "id": "d1a74a36-af96-409e-bf73-3c623ecb7916",
       "name": "Preparar persona/deal",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1200,
+        1400,
         -150
       ]
     },
@@ -240,12 +223,12 @@
         "jsonBody": "={{ $json._personPayload }}",
         "options": {}
       },
-      "id": "dd5af3d4-f6f7-4d22-8731-c98a530f8ebe",
+      "id": "9634e335-01a5-4dea-829b-696f1ccceacb",
       "name": "Crear persona Pipedrive",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1400,
+        1600,
         -150
       ]
     },
@@ -258,12 +241,12 @@
         "jsonBody": "={\n  \"title\": \"{{ $('Parsear extracción').item.json.extraction.asset_type }} · {{ $('Parsear extracción').item.json.extraction.work_location || 'sin ubicación' }} [Email]\",\n  \"person_id\": {{ $json.data.id }},\n  \"pipeline_id\": {{ $('⚙️ Configuración').item.json.PIPEDRIVE_PIPELINE_ID }},\n  \"stage_id\": {{ $('⚙️ Configuración').item.json.PIPEDRIVE_STAGE_ID }},\n  \"status\": \"open\",\n  \"visible_to\": \"3\"\n}",
         "options": {}
       },
-      "id": "c8facc5c-55ff-46ca-bdf5-6e43718f9de4",
+      "id": "6ef6f35f-e24a-42a4-a951-e2e44dae9104",
       "name": "Crear deal Pipedrive",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1600,
+        1800,
         -150
       ]
     },
@@ -276,44 +259,40 @@
         "jsonBody": "={\n  \"current\": {\n    \"id\": {{ $json.data.id }},\n    \"title\": \"{{ $('Parsear extracción').item.json.extraction.asset_type }}\",\n    \"pipeline_id\": {{ $('⚙️ Configuración').item.json.PIPEDRIVE_PIPELINE_ID }},\n    \"stage_id\": {{ $('⚙️ Configuración').item.json.PIPEDRIVE_STAGE_ID }},\n    \"person_id\": {\n      \"name\": \"{{ $('Parsear extracción').item.json.extraction.contact_name }}\",\n      \"email\": [{\"value\": \"{{ $('Parsear extracción').item.json.extraction.contact_email }}\", \"primary\": true}],\n      \"phone\": [{\"value\": \"{{ $('Parsear extracción').item.json.extraction.contact_phone || '' }}\", \"primary\": true}]\n    },\n    \"org_id\": {\"name\": \"{{ $('Parsear extracción').item.json.extraction.company_name || '' }}\"},\n    \"assetType\": \"{{ $('Parsear extracción').item.json.extraction.asset_type }}\",\n    \"assetEngine\": \"{{ $('Parsear extracción').item.json.extraction.asset_engine || '' }}\",\n    \"dateStart\": \"{{ $('Preparar persona/deal').item.json._normalizedDates.dateStart || '' }}\",\n    \"dateFinish\": \"{{ $('Preparar persona/deal').item.json._normalizedDates.dateEnd || '' }}\",\n    \"workLocation\": \"{{ $('Parsear extracción').item.json.extraction.work_location || '' }}\",\n    \"razonSocial\": \"{{ $('Parsear extracción').item.json.extraction.company_name || '' }}\"\n  }\n}",
         "options": {}
       },
-      "id": "2216dd05-0773-4712-86e1-83ca1ea89724",
+      "id": "07babfab-0257-48a7-87e2-06de0ecc4642",
       "name": "Disparar webhook presupuesto",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1800,
+        2000,
         -150
       ]
     },
     {
       "parameters": {
-        "operation": "reply",
-        "messageId": "={{ $('Extraer email entrante').item.json.messageId }}",
+        "fromEmail": "={{ $('⚙️ Configuración').item.json.FROM_EMAIL }}",
+        "toEmail": "={{ $('Extraer email entrante').item.json.senderEmail }}",
+        "subject": "=Re: {{ $('Extraer email entrante').item.json.subject }}",
         "emailType": "text",
-        "message": "=Hola {{ $('Parsear extracción').item.json.extraction.contact_name }},\n\nHemos recibido tu petición de alquiler para: {{ $('Parsear extracción').item.json.extraction.asset_type }}.\n\nEn los próximos minutos te enviaremos el presupuesto automático. Si no lo recibes, un agente te contactará en breve.\n\nEquipo Equipzilla\nrent@equipzilla.com",
+        "text": "=Hola {{ $('Parsear extracción').item.json.extraction.contact_name }},\n\nHemos recibido tu petición de alquiler para: {{ $('Parsear extracción').item.json.extraction.asset_type }}.\n\nEn los próximos minutos te enviaremos el presupuesto automático. Si no lo recibes, un agente te contactará en breve.\n\nEquipo Equipzilla\nrent@equipzilla.com",
         "options": {
+          "allowUnauthorizedCerts": false,
           "appendAttribution": false,
-          "threadId": "={{ $('Extraer email entrante').item.json.threadId }}"
+          "replyTo": "rent@equipzilla.com"
         }
       },
-      "id": "ac474fb9-0070-4b33-95d5-40e7af939186",
-      "name": "Enviar ack al lead",
-      "type": "n8n-nodes-base.gmail",
+      "id": "8d060bab-de70-46b6-bab5-2cffa330580b",
+      "name": "Enviar ack (SMTP)",
+      "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        2000,
+        2200,
         -150
-      ],
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "gmail-equipzilla",
-          "name": "Gmail Equipzilla (rent@equipzilla.com)"
-        }
-      }
+      ]
     }
   ],
   "connections": {
-    "Gmail Trigger (rent@equipzilla.com)": {
+    "Email Trigger (rent@equipzilla.com)": {
       "main": [
         [
           {
@@ -390,7 +369,7 @@
         ],
         [
           {
-            "node": "Responder pidiendo datos",
+            "node": "Responder pidiendo datos (SMTP)",
             "type": "main",
             "index": 0
           }
@@ -434,7 +413,7 @@
       "main": [
         [
           {
-            "node": "Enviar ack al lead",
+            "node": "Enviar ack (SMTP)",
             "type": "main",
             "index": 0
           }
@@ -444,12 +423,5 @@
   },
   "settings": {
     "executionOrder": "v1"
-  },
-  "active": false,
-  "pinData": {},
-  "versionId": "fac64f72-36c4-47de-b367-88ceea439a26",
-  "meta": {
-    "templateCreatedBy": "equipzilla"
-  },
-  "tags": []
+  }
 }

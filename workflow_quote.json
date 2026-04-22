@@ -1,11 +1,5 @@
 {
-  "updatedAt": "2026-03-27T12:17:30.461Z",
-  "createdAt": "2026-03-26T14:50:33.553Z",
-  "id": "axdargrbpFiIMHwt",
   "name": "A03 · Auto Presupuesto · Equipzilla",
-  "description": null,
-  "active": true,
-  "isArchived": false,
   "nodes": [
     {
       "id": "n1",
@@ -204,7 +198,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://api.pipedrive.com/v1/notes?api_token=89da0cfcac75745af450244d9b5e9ef3a80b23c9",
+        "url": "https://api.pipedrive.com/v1/notes?api_token=PIPEDRIVE_API_TOKEN_REDACTED",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\"deal_id\":{{ $('Parsear presupuesto').item.json.dealId }},\"content\":\"🤖 PRESUPUESTO AUTOMÁTICO ENVIADO\\n\\n🏗️ Máquina: {{ $('Parsear presupuesto').item.json.quote.machine_name }}\\n💰 Tarifa {{ $('Parsear presupuesto').item.json.quote.pricing_tier }}: {{ $('Parsear presupuesto').item.json.quote.daily_rate }}€/día × {{ $('Parsear presupuesto').item.json.quote.days }} días\\n\\n📊 DESGLOSE:\\n• Base: {{ $('Parsear presupuesto').item.json.quote.base_cost }}€\\n• Seguro (15%): {{ $('Parsear presupuesto').item.json.quote.insurance }}€\\n• Ecofee: 15€\\n• Cargo batería: {{ $('Parsear presupuesto').item.json.quote.battery_charge }}€\\n\\n✅ TOTAL: {{ $('Parsear presupuesto').item.json.quote.total }}€ (sin IVA)\\n\\n📨 Canal: {{ $('Parsear presupuesto').item.json.channel }} · Destino: {{ $('Parsear presupuesto').item.json.phone || $('Parsear presupuesto').item.json.email }}\\n🏷️ [EQUIPZILLA_QUOTE] deal={{ $('Parsear presupuesto').item.json.dealId }}\\n---\\nGenerado automáticamente · Equipzilla Bot\"}",
@@ -222,7 +216,7 @@
       ],
       "parameters": {
         "method": "PUT",
-        "url": "=https://api.pipedrive.com/v1/deals/{{ $('Parsear presupuesto').item.json.dealId }}?api_token=89da0cfcac75745af450244d9b5e9ef3a80b23c9",
+        "url": "=https://api.pipedrive.com/v1/deals/{{ $('Parsear presupuesto').item.json.dealId }}?api_token=PIPEDRIVE_API_TOKEN_REDACTED",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "{\"stage_id\":37,\"pipeline_id\":6}",
@@ -240,7 +234,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://api.pipedrive.com/v1/notes?api_token=89da0cfcac75745af450244d9b5e9ef3a80b23c9",
+        "url": "https://api.pipedrive.com/v1/notes?api_token=PIPEDRIVE_API_TOKEN_REDACTED",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\"deal_id\":{{ $json.dealId || 0 }},\"content\":\"ℹ️ AUTO PRESUPUESTO: No generado\\nMotivo: {{ $json.quote?.reason_no_quote || ($json.quote?.total >= 3000 ? 'Importe ≥ 3000€ (calculado: ' + $json.quote?.total + '€)' : !$json.hasContact ? 'Sin teléfono ni email' : 'Datos insuficientes') }}\\n---\\nEquipzilla Bot\"}",
@@ -385,29 +379,25 @@
     },
     {
       "parameters": {
-        "sendTo": "={{ $('Parsear presupuesto').item.json.email }}",
+        "fromEmail": "rent@equipzilla.com",
+        "toEmail": "={{ $('Parsear presupuesto').item.json.email }}",
         "subject": "={{ $json._emailSubject }}",
         "emailType": "html",
-        "message": "={{ $json._emailHtml }}",
+        "html": "={{ $json._emailHtml }}",
         "options": {
+          "allowUnauthorizedCerts": false,
           "appendAttribution": false,
           "replyTo": "rent@equipzilla.com"
         }
       },
       "id": "86f6125e-0106-46e7-b9cf-5fa71d82d71e",
-      "name": "Enviar Email Oferta",
-      "type": "n8n-nodes-base.gmail",
+      "name": "Enviar Email Oferta (SMTP)",
+      "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
         2460,
         380
-      ],
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "gmail-equipzilla",
-          "name": "Gmail Equipzilla (rent@equipzilla.com)"
-        }
-      }
+      ]
     }
   ],
   "connections": {
@@ -567,14 +557,14 @@
       "main": [
         [
           {
-            "node": "Enviar Email Oferta",
+            "node": "Enviar Email Oferta (SMTP)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Enviar Email Oferta": {
+    "Enviar Email Oferta (SMTP)": {
       "main": [
         [
           {
@@ -592,497 +582,5 @@
     "callerPolicy": "workflowsFromSameOwner",
     "errorWorkflow": "",
     "availableInMCP": false
-  },
-  "staticData": null,
-  "meta": null,
-  "pinData": null,
-  "versionId": "c353e92f-fa69-4751-8733-58bde85e9f9f",
-  "activeVersionId": "c353e92f-fa69-4751-8733-58bde85e9f9f",
-  "versionCounter": 141,
-  "triggerCount": 1,
-  "shared": [
-    {
-      "updatedAt": "2026-03-26T14:50:33.557Z",
-      "createdAt": "2026-03-26T14:50:33.557Z",
-      "role": "workflow:owner",
-      "workflowId": "axdargrbpFiIMHwt",
-      "projectId": "bmfBaoWnBzH9Ne8E",
-      "project": {
-        "updatedAt": "2026-03-25T11:06:09.169Z",
-        "createdAt": "2026-03-25T11:06:03.209Z",
-        "id": "bmfBaoWnBzH9Ne8E",
-        "name": "Maikel Echevarria Franconetti <maikel@equipzilla.com>",
-        "type": "personal",
-        "icon": null,
-        "description": null,
-        "creatorId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
-      }
-    }
-  ],
-  "tags": [],
-  "activeVersion": {
-    "updatedAt": "2026-03-27T12:17:30.462Z",
-    "createdAt": "2026-03-27T12:17:30.462Z",
-    "versionId": "c353e92f-fa69-4751-8733-58bde85e9f9f",
-    "workflowId": "axdargrbpFiIMHwt",
-    "nodes": [
-      {
-        "id": "n1",
-        "name": "Pipedrive Webhook",
-        "type": "n8n-nodes-base.webhook",
-        "typeVersion": 2,
-        "position": [
-          200,
-          300
-        ],
-        "webhookId": "b2c3d4e5-f6a7-8901-bcde-f12345678902",
-        "parameters": {
-          "httpMethod": "POST",
-          "path": "pipedrive-quote",
-          "responseMode": "responseNode",
-          "options": {}
-        }
-      },
-      {
-        "id": "n1r",
-        "name": "Webhook Response",
-        "type": "n8n-nodes-base.respondToWebhook",
-        "typeVersion": 1,
-        "position": [
-          200,
-          500
-        ],
-        "parameters": {
-          "respondWith": "text",
-          "responseBody": "OK"
-        }
-      },
-      {
-        "id": "n2",
-        "name": "Extraer datos del deal",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          420,
-          300
-        ],
-        "parameters": {
-          "language": "javaScript",
-          "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst deal = body.current || body;\n\nconst dateStart = deal.dateStart || deal.date_start || '';\nconst dateFinish = deal.dateFinish || deal.date_finish || '';\n\nlet duracionDias = null;\nif (dateStart && dateFinish) {\n  const d = Math.ceil((new Date(dateFinish) - new Date(dateStart)) / 86400000);\n  duracionDias = d > 0 ? d : 1;\n}\n\n// Phone from person\nlet phone = '';\nif (deal.person_id && deal.person_id.phone) {\n  const phones = Array.isArray(deal.person_id.phone) ? deal.person_id.phone : [deal.person_id.phone];\n  phone = (phones.find(p => p.primary) || phones[0] || {}).value || '';\n}\n\n// Clean phone: ensure starts with +\nif (phone && !phone.startsWith('+')) {\n  phone = '+34' + phone.replace(/\\s/g, '');\n}\n\nconst personName = deal.person_id?.name || deal.person_name || 'Cliente';\nconst orgName = deal.org_id?.name || deal.org_name || '';\n\nreturn [{\n  json: {\n    dealId: String(deal.id || ''),\n    pipelineId: deal.pipeline_id || deal.active_flag ? 6 : 0,\n    stageId: deal.stage_id || 0,\n    title: deal.title || '',\n    personName,\n    orgName,\n    phone,\n    assetType: deal.assetType || deal['Tipo de Activo'] || '',\n    assetWeight: deal.assetWeight || '',\n    assetEngine: (deal.assetEngine || deal['Motor'] || '').toLowerCase(),\n    dateStart,\n    dateFinish,\n    duracionDias,\n    workLocation: deal.workLocation || deal['Dirección del trabajo'] || '',\n    razonSocial: deal.razonSocial || deal['Razón Social'] || orgName,\n    dealValue: deal.value || 0\n  }\n}];"
-        }
-      },
-      {
-        "id": "n_prep",
-        "name": "Preparar payload Claude",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          640,
-          300
-        ],
-        "parameters": {
-          "language": "javaScript",
-          "jsCode": "const d = $json;\n\nconst systemPrompt = `Eres el sistema de presupuestación automática de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en España.\n\nTARIFA GAM 2026 (€/día sin IVA) - Multiplicadores: P1=84%, P2=69%, P3=63%, P4=54%\n\nREGLAS:\n- Alquiler < 7 días → tarifa P3\n- Alquiler ≥ 7 días → tarifa P4\n\nEXTRAS OBLIGATORIOS:\n- Seguro: 15% sobre subtotal (tarifa × días)\n- Ecofee: 15€ fijo\n- Cargo baterías: 10€ SOLO si máquina eléctrica\n\nPLATAFORMAS TIJERA ELÉCTRICA [eléctrica=true]:\nTijera eléctrica 8m | P3=33.39 | P4=28.62\nTijera eléctrica 10m | P3=46.62 | P4=39.96\nTijera eléctrica 12m | P3=50.40 | P4=43.20\nTijera eléctrica 14m | P3=82.53 | P4=70.74\nTijera eléctrica 16m | P3=116.55 | P4=99.90\nTijera eléctrica 20m | P3=221.76 | P4=190.08\nTijera eléctrica TT 15m | P3=124.74 | P4=106.92\nTijera eléctrica TT 18m | P3=146.79 | P4=125.82\n\nPLATAFORMAS TIJERA DIÉSEL [eléctrica=false]:\nTijera diésel 10m | P3=55.44 | P4=47.52\nTijera diésel 12m | P3=62.37 | P4=53.46\nTijera diésel 14m | P3=81.27 | P4=69.66\nTijera diésel 15m | P3=83.16 | P4=71.28\nTijera diésel 18m | P3=97.02 | P4=83.16\nTijera diésel >=22m | CONSULTAR\n\nPLATAFORMAS ARTICULADAS ELÉCTRICAS/HÍBRIDAS [eléctrica=true]:\nArticulada eléctrica 12m | P3=77.49 | P4=66.42\nArticulada eléctrica 15m | P3=93.24 | P4=79.92\nArticulada eléctrica/híbrida 16m | P3=98.91 | P4=84.78\nArticulada eléctrica/híbrida 20m | P3=187.74 | P4=160.92\nArticulada eléctrica TT 18m | P3=157.50 | P4=135.00\n\nPLATAFORMAS ARTICULADAS DIÉSEL [eléctrica=false]:\nArticulada diésel 12m | P3=75.60 | P4=64.80\nArticulada diésel 16m | P3=81.90 | P4=70.20\nArticulada diésel 18m | P3=105.84 | P4=90.72\nArticulada diésel 20m | P3=121.59 | P4=104.22\nArticulada diésel 26m | P3=194.04 | P4=166.32\nArticulada diésel >=32m | CONSULTAR\n\nPLATAFORMAS TELESCÓPICAS DIÉSEL [eléctrica=false]:\nTelescópica diésel 20m | P3=122.22 | P4=104.76\nTelescópica diésel 28m | P3=206.01 | P4=176.58\nTelescópica diésel >=38m | CONSULTAR\n\nPLATAFORMAS UNIPERSONALES ELÉCTRICAS [eléctrica=true]:\nUnipersonal 5m | P3=43.47 | P4=37.26\nUnipersonal 6m | P3=45.99 | P4=39.42\nUnipersonal 8m | P3=47.25 | P4=40.50\nUnipersonal 10m | P3=81.27 | P4=69.66\nUnipersonal 12m | P3=92.61 | P4=79.38\n\nGRUPOS ELECTRÓGENOS DIÉSEL [eléctrica=false]:\nGrupo 20kVA | P3=28.35 | P4=24.30\nGrupo 30kVA | P3=30.24 | P4=25.92\nGrupo 40kVA | P3=33.39 | P4=28.62\nGrupo 45/50kVA | P3=36.54 | P4=31.32\nGrupo 60kVA | P3=45.99 | P4=39.42\nGrupo 100kVA | P3=54.81 | P4=46.98\nGrupo 135kVA | P3=64.89 | P4=55.62\nGrupo 150kVA | P3=72.45 | P4=62.10\nGrupo 200kVA | P3=91.35 | P4=78.30\nGrupo 250kVA | P3=113.40 | P4=97.20\nGrupo 300kVA | P3=144.90 | P4=124.20\nGrupo 350kVA | P3=170.73 | P4=146.34\nGrupo 400kVA | P3=183.96 | P4=157.68\n\nCARRETILLAS FRONTAL DIÉSEL [eléctrica=false]:\nCarretilla diésel 1.8-2t | P3=53.55 | P4=45.90\nCarretilla diésel 2.5t | P3=57.96 | P4=49.68\nCarretilla diésel 3-3.2t | P3=72.45 | P4=62.10\nCarretilla diésel 3.5t | P3=74.97 | P4=64.26\nCarretilla diésel 4t | P3=91.35 | P4=78.30\nCarretilla diésel 4.5-5t | P3=100.17 | P4=85.86\nCarretilla diésel 7t | P3=155.61 | P4=133.38\nCarretilla diésel >7.5t | CONSULTAR\n\nCARRETILLAS FRONTAL ELÉCTRICA [eléctrica=true]:\nCarretilla eléctrica 1.5-1.6t | P3=50.40 | P4=43.20\nCarretilla eléctrica 1.8t | P3=53.55 | P4=45.90\nCarretilla eléctrica 2t | P3=57.96 | P4=49.68\nCarretilla eléctrica 2.5t | P3=67.41 | P4=57.78\nCarretilla eléctrica 3t | P3=76.23 | P4=65.34\nCarretilla eléctrica 3.5t | P3=95.13 | P4=81.54\nCarretilla eléctrica 4t | P3=114.66 | P4=98.28\nCarretilla eléctrica 5t | P3=127.26 | P4=109.08\nCarretilla eléctrica 5.5t | P3=170.10 | P4=145.80\n\nCARRETILLAS GLP [eléctrica=false]:\nGLP 2.5t | P3=77.49 | P4=66.42\nGLP 3t | P3=79.38 | P4=68.04\nGLP 3.5t | P3=81.90 | P4=70.20\n\nMANIPULADORES TELESCÓPICOS [eléctrica=false]:\nManipulador TL 14m/4000kg | P3=160.02 | P4=137.16\nManipulador TL 15m/5500kg | P3=216.09 | P4=185.22\nManipulador TL 17m/4000kg | P3=175.14 | P4=150.12\nManipulador TL 17m/5000kg | P3=185.22 | P4=158.76\nManipulador TL 18m/4000kg | P3=185.22 | P4=158.76\nManipulador TL 19m/4500kg | P3=197.19 | P4=169.02\nManipulador TL 19m/5500kg | P3=223.65 | P4=191.70\n\nCARRETILLAS TT 4x4 [eléctrica=false]:\nTT 4x4 2-2.5t | P3=76.86 | P4=65.88\nTT 4x4 3t | P3=86.94 | P4=74.52\n\nTRANSPALETAS ELÉCTRICAS [eléctrica=true]:\nTranspaleta eléctrica 1.4t | P3=21.42 | P4=18.36\nTranspaleta eléctrica 2t | P3=26.46 | P4=22.68\n\nTRANSPALETAS MANUALES [eléctrica=false]:\nTranspaleta manual | P3=10.08 | P4=8.64\n\nMINIEXCAVADORAS [eléctrica=false]:\nMiniexcavadora 3t | P3=126.63 | P4=108.54\nMiniexcavadora 5t | P3=163.80 | P4=140.40\nMiniexcavadora 6t | P3=171.36 | P4=146.88\nMiniexcavadora 9t | P3=206.64 | P4=177.12\n\nMINICARGADORAS [eléctrica=false]:\nMinicargadora 2.5t | P3=69.93 | P4=59.94\n\nCÁLCULO PASO A PASO:\n1. Identifica la máquina más similar\n2. Determina si es eléctrica\n3. días < 7 → P3, días >= 7 → P4\n4. base = tarifa_diaria × días\n5. seguro = base × 0.15 (redondear 2 decimales)\n6. ecofee = 15\n7. bateria = 10 si eléctrica, 0 si no\n8. total = base + seguro + ecofee + bateria\n9. can_quote = (total < 1000) Y (precio no es CONSULTAR)\n\nDevuelve ÚNICAMENTE este JSON sin markdown:\n{\"can_quote\":true,\"reason_no_quote\":null,\"machine_name\":\"nombre\",\"is_electric\":true,\"pricing_tier\":\"P3\",\"daily_rate\":46.62,\"days\":2,\"base_cost\":93.24,\"insurance\":13.99,\"ecofee\":15,\"battery_charge\":10,\"total\":132.23,\"whatsapp_text\":\"mensaje completo en español\"}`;\n\nconst userMsg = `Calcula presupuesto para este deal:\n\nCliente: ${d.personName}\nEmpresa: ${d.razonSocial || d.orgName || 'N/A'}\nMáquina solicitada: ${d.assetType || 'No especificada'}\nPeso/capacidad: ${d.assetWeight || 'N/A'}\nMotor/tipo: ${d.assetEngine || 'N/A'}\nFecha inicio: ${d.dateStart || 'N/A'}\nFecha fin: ${d.dateFinish || 'N/A'}\nDías: ${d.duracionDias || 'N/A'}\nLocalización: ${d.workLocation || 'N/A'}\nTeléfono: ${d.phone || 'Sin teléfono'}`;\n\nreturn [{\n  json: {\n    ...d,\n    _claudePayload: {\n      model: \"claude-sonnet-4-20250514\",\n      max_tokens: 1500,\n      temperature: 0,\n      system: systemPrompt,\n      messages: [{ role: \"user\", content: userMsg }]\n    }\n  }\n}];"
-        }
-      },
-      {
-        "id": "n3",
-        "name": "Claude · Calcular Presupuesto",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "position": [
-          860,
-          300
-        ],
-        "parameters": {
-          "method": "POST",
-          "url": "https://api.anthropic.com/v1/messages",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "x-api-key",
-                "value": "REDACTED"
-              },
-              {
-                "name": "anthropic-version",
-                "value": "2023-06-01"
-              },
-              {
-                "name": "content-type",
-                "value": "application/json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={{ $json._claudePayload }}",
-          "options": {}
-        }
-      },
-      {
-        "id": "n4",
-        "name": "Parsear presupuesto",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          1080,
-          300
-        ],
-        "parameters": {
-          "language": "javaScript",
-          "jsCode": "const raw = $json.content?.[0]?.text || '{}';\nlet q;\ntry {\n  const cleaned = raw.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\n  q = JSON.parse(cleaned);\n} catch(e) {\n  q = { can_quote: false, reason_no_quote: 'Error parsing: ' + e.message };\n}\n\nconst prev = $('Preparar payload Claude').item.json;\nreturn [{\n  json: {\n    ...prev,\n    _claudePayload: undefined,\n    quote: q\n  }\n}];"
-        }
-      },
-      {
-        "id": "n5",
-        "name": "¿Auto presupuesto posible?",
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 2,
-        "position": [
-          1300,
-          300
-        ],
-        "parameters": {
-          "conditions": {
-            "options": {
-              "caseSensitive": false,
-              "leftValue": "",
-              "typeValidation": "loose"
-            },
-            "conditions": [
-              {
-                "leftValue": "={{ $json.quote.can_quote }}",
-                "rightValue": true,
-                "operator": {
-                  "type": "boolean",
-                  "operation": "equals"
-                }
-              },
-              {
-                "leftValue": "={{ $json.quote.total }}",
-                "rightValue": 1000,
-                "operator": {
-                  "type": "number",
-                  "operation": "lt"
-                }
-              },
-              {
-                "leftValue": "={{ $json.phone }}",
-                "rightValue": "",
-                "operator": {
-                  "type": "string",
-                  "operation": "notEquals"
-                }
-              }
-            ],
-            "combinator": "and"
-          }
-        }
-      },
-      {
-        "id": "n6",
-        "name": "Enviar WhatsApp Oferta",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "position": [
-          2180,
-          180
-        ],
-        "parameters": {
-          "method": "POST",
-          "url": "=https://api.respond.io/v2/contact/phone:{{ $json.phone }}/message",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Authorization",
-                "value": "Bearer REDACTED"
-              },
-              {
-                "name": "Content-Type",
-                "value": "application/json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={{ $json._waBody }}",
-          "options": {}
-        },
-        "onError": "continueRegularOutput"
-      },
-      {
-        "id": "n7",
-        "name": "Añadir nota presupuesto Pipedrive",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "position": [
-          2400,
-          180
-        ],
-        "parameters": {
-          "method": "POST",
-          "url": "https://api.pipedrive.com/v1/notes?api_token=89da0cfcac75745af450244d9b5e9ef3a80b23c9",
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={\"deal_id\":{{ $('Parsear presupuesto').item.json.dealId }},\"content\":\"🤖 PRESUPUESTO AUTOMÁTICO ENVIADO\\n\\n🏗️ Máquina: {{ $('Parsear presupuesto').item.json.quote.machine_name }}\\n💰 Tarifa {{ $('Parsear presupuesto').item.json.quote.pricing_tier }}: {{ $('Parsear presupuesto').item.json.quote.daily_rate }}€/día × {{ $('Parsear presupuesto').item.json.quote.days }} días\\n\\n📊 DESGLOSE:\\n• Base: {{ $('Parsear presupuesto').item.json.quote.base_cost }}€\\n• Seguro (15%): {{ $('Parsear presupuesto').item.json.quote.insurance }}€\\n• Ecofee: 15€\\n• Cargo batería: {{ $('Parsear presupuesto').item.json.quote.battery_charge }}€\\n\\n✅ TOTAL: {{ $('Parsear presupuesto').item.json.quote.total }}€ (sin IVA)\\n\\n📱 WhatsApp enviado a: {{ $('Parsear presupuesto').item.json.phone }}\\n🏷️ [EQUIPZILLA_QUOTE] deal={{ $('Parsear presupuesto').item.json.dealId }}\\n---\\nGenerado automáticamente · Equipzilla Bot\"}",
-          "options": {}
-        }
-      },
-      {
-        "id": "n8",
-        "name": "Mover a Oferta enviada",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "position": [
-          2620,
-          180
-        ],
-        "parameters": {
-          "method": "PUT",
-          "url": "=https://api.pipedrive.com/v1/deals/{{ $('Parsear presupuesto').item.json.dealId }}?api_token=89da0cfcac75745af450244d9b5e9ef3a80b23c9",
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "{\"stage_id\":37,\"pipeline_id\":6}",
-          "options": {}
-        }
-      },
-      {
-        "id": "n9",
-        "name": "Nota: no auto presupuesto",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "position": [
-          1520,
-          420
-        ],
-        "parameters": {
-          "method": "POST",
-          "url": "https://api.pipedrive.com/v1/notes?api_token=89da0cfcac75745af450244d9b5e9ef3a80b23c9",
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={\"deal_id\":{{ $json.dealId || 0 }},\"content\":\"ℹ️ AUTO PRESUPUESTO: No generado\\nMotivo: {{ $json.quote?.reason_no_quote || ($json.quote?.total >= 1000 ? 'Importe ≥ 1000€ (calculado: ' + $json.quote?.total + '€)' : !$json.phone ? 'Sin teléfono' : 'Datos insuficientes') }}\\n---\\nEquipzilla Bot\"}",
-          "options": {}
-        }
-      },
-      {
-        "id": "n_pdf",
-        "name": "Generar PDF presupuesto",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          1520,
-          180
-        ],
-        "parameters": {
-          "language": "javaScript",
-          "jsCode": "const d = $json;\nconst q = d.quote || {};\nconst batteryRow = (d.assetEngine || '').toLowerCase().includes('elec')\n  ? `<tr><td>Cargo baterias</td><td style=\"text-align:right\">${(q.battery||0).toFixed(2)} EUR</td></tr>`\n  : '';\n\nconst html = `<!DOCTYPE html>\n<html lang=\"es\"><head><meta charset=\"UTF-8\">\n<style>\n*{box-sizing:border-box;margin:0;padding:0}\nbody{font-family:Arial,sans-serif;background:#f0f0f0;padding:24px}\n.card{background:white;border-radius:10px;overflow:hidden;max-width:580px;margin:0 auto}\n.hdr{background:#FF6B00;color:white;padding:28px 32px}\n.hdr h1{font-size:26px;font-weight:700}\n.hdr p{opacity:.88;font-size:14px;margin-top:4px}\n.body{padding:28px 32px}\n.sec{margin-bottom:22px}\n.stitle{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#999;margin-bottom:10px}\n.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}\n.box{background:#f7f7f7;border-radius:7px;padding:11px 14px}\n.box .lbl{font-size:11px;color:#aaa}\n.box .val{font-size:14px;font-weight:600;color:#222;margin-top:3px}\ntable{width:100%;border-collapse:collapse}\ntd{padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:14px}\n.total td{border-bottom:none;border-top:2px solid #FF6B00;padding-top:14px;font-size:18px;font-weight:700;color:#FF6B00}\n.ftr{background:#f7f7f7;padding:16px 32px;font-size:11px;color:#aaa;text-align:center}\n</style></head>\n<body><div class=\"card\">\n  <div class=\"hdr\"><h1>Equipzilla</h1><p>Presupuesto - ${new Date().toLocaleDateString('es-ES')}</p></div>\n  <div class=\"body\">\n    <div class=\"sec\"><div class=\"stitle\">Cliente</div>\n      <div class=\"grid\">\n        <div class=\"box\"><div class=\"lbl\">Nombre</div><div class=\"val\">${d.personName||'-'}</div></div>\n        <div class=\"box\"><div class=\"lbl\">Empresa</div><div class=\"val\">${d.orgName||'-'}</div></div>\n      </div>\n    </div>\n    <div class=\"sec\"><div class=\"stitle\">Maquinaria</div>\n      <div class=\"grid\">\n        <div class=\"box\" style=\"grid-column:1/-1\"><div class=\"lbl\">Tipo</div><div class=\"val\">${d.assetType||'-'}</div></div>\n        <div class=\"box\"><div class=\"lbl\">Inicio</div><div class=\"val\">${d.dateStart||'-'}</div></div>\n        <div class=\"box\"><div class=\"lbl\">Fin</div><div class=\"val\">${d.dateFinish||'-'}</div></div>\n        <div class=\"box\"><div class=\"lbl\">Duracion</div><div class=\"val\">${d.duracionDias} dias - tarifa ${q.tariff_period||''}</div></div>\n        <div class=\"box\"><div class=\"lbl\">Ubicacion</div><div class=\"val\">${d.workLocation||'-'}</div></div>\n      </div>\n    </div>\n    <div class=\"sec\"><div class=\"stitle\">Desglose de precio</div>\n      <table>\n        <tr><td>Tarifa ${q.tariff_period||''} - ${(q.daily_rate||0).toFixed(2)} EUR/dia x ${d.duracionDias} dias</td><td style=\"text-align:right\">${(q.base_price||0).toFixed(2)} EUR</td></tr>\n        <tr><td>Seguro (15%)</td><td style=\"text-align:right\">${(q.insurance||0).toFixed(2)} EUR</td></tr>\n        <tr><td>Ecofee</td><td style=\"text-align:right\">${(q.ecofee||0).toFixed(2)} EUR</td></tr>\n        ${batteryRow}\n        <tr class=\"total\"><td><strong>TOTAL ESTIMADO</strong></td><td style=\"text-align:right\"><strong>${(q.total||0).toFixed(2)} EUR</strong></td></tr>\n      </table>\n    </div>\n  </div>\n  <div class=\"ftr\">Equipzilla · Alquiler de Maquinaria Industrial · equipzilla.com<br>Presupuesto orientativo sujeto a disponibilidad. IVA no incluido.</div>\n</div></body></html>`;\n\nlet pdfReady = false;\nlet pdfError = null;\nlet binaryData = null;\n\ntry {\n  const bnd = 'EQZ' + Date.now();\n  const CRLF = '\\r\\n';\n  const gBody = `--${bnd}${CRLF}Content-Disposition: form-data; name=\"files\"; filename=\"index.html\"${CRLF}Content-Type: text/html; charset=utf-8${CRLF}${CRLF}${html}${CRLF}--${bnd}--${CRLF}`;\n  const gResp = await this.helpers.httpRequest({\n    method: 'POST',\n    url: 'https://demo.gotenberg.dev/forms/chromium/convert/html',\n    headers: { 'Content-Type': `multipart/form-data; boundary=${bnd}` },\n    body: gBody,\n    encoding: 'arraybuffer',\n    returnFullResponse: true,\n    ignoreHttpStatusErrors: true\n  });\n  if (gResp.statusCode !== 200) throw new Error('Gotenberg ' + gResp.statusCode);\n  const pdfBuffer = Buffer.from(gResp.body);\n  // Convert to Buffer and encode as inline base64 (avoids prepareBinaryData external storage issues)\n  const pdfBuffer2 = Buffer.from(gResp.body);\n  const pdfLen = pdfBuffer2.length;\n  // Use inline base64 binary — n8n getBinaryDataBuffer handles both inline and external\n  binaryData = {\n    data: pdfBuffer2.toString('base64'),\n    mimeType: 'application/pdf',\n    fileName: 'Presupuesto_Equipzilla.pdf',\n    fileType: 'pdf',\n    fileSize: pdfLen\n  };\n  pdfReady = true;\n} catch(e) {\n  pdfError = e.message || String(e);\n  binaryData = await this.helpers.prepareBinaryData(Buffer.from('x'), 'fallback.txt', 'text/plain');\n}\n\nconst _fileBinId = 'eqz' + Date.now();\nreturn [{ json: { ...d, pdfReady, pdfError, _fileBinId }, binary: { pdfFile: binaryData } }];\n"
-        },
-        "onError": "continueRegularOutput"
-      },
-      {
-        "id": "n_upload",
-        "name": "Subir PDF",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "position": [
-          1740,
-          180
-        ],
-        "onError": "continueRegularOutput",
-        "parameters": {
-          "method": "POST",
-          "url": "=https://filebin.net/{{ $json._fileBinId }}/Presupuesto_Equipzilla.pdf",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Content-Type",
-                "value": "application/pdf"
-              },
-              {
-                "name": "Accept",
-                "value": "application/json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "contentType": "binaryData",
-          "inputDataFieldName": "pdfFile",
-          "options": {}
-        }
-      },
-      {
-        "id": "n_waprep",
-        "name": "Preparar WA Body",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          1960,
-          180
-        ],
-        "parameters": {
-          "jsCode": "// Get original quote data from PDF generation node\nconst origData = $('Generar PDF presupuesto').first().json;\nconst q = origData.quote || {};\n\nconst pdfReady = origData.pdfReady;\nlet pdfUrl = null;\n\nif (pdfReady && origData._fileBinId) {\n  // Check if upload succeeded (filebin.net returns 201)\n  try {\n    const uploadResp = $input.first().json;\n    // filebin.net returns JSON with \"bin\" object on success\n    if (uploadResp && !uploadResp.error) {\n      pdfUrl = 'https://filebin.net/' + origData._fileBinId + '/Presupuesto_Equipzilla.pdf';\n    }\n  } catch(e) { /* continue without PDF */ }\n}\n\nconst baseText = q.whatsapp_text || '';\nconst pdfLine = pdfUrl ? ('\\n\\n📄 *Presupuesto PDF:* ' + pdfUrl) : '';\nconst waBody = { message: { type: 'text', text: baseText + pdfLine } };\n\nreturn [{ json: { ...origData, pdfUrl, _waBody: waBody } }];\n"
-        }
-      }
-    ],
-    "connections": {
-      "Pipedrive Webhook": {
-        "main": [
-          [
-            {
-              "node": "Webhook Response",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Extraer datos del deal",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Extraer datos del deal": {
-        "main": [
-          [
-            {
-              "node": "Preparar payload Claude",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Claude · Calcular Presupuesto": {
-        "main": [
-          [
-            {
-              "node": "Parsear presupuesto",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Parsear presupuesto": {
-        "main": [
-          [
-            {
-              "node": "¿Auto presupuesto posible?",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "¿Auto presupuesto posible?": {
-        "main": [
-          [
-            {
-              "node": "Generar PDF presupuesto",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Nota: no auto presupuesto",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Enviar WhatsApp Oferta": {
-        "main": [
-          [
-            {
-              "node": "Añadir nota presupuesto Pipedrive",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Añadir nota presupuesto Pipedrive": {
-        "main": [
-          [
-            {
-              "node": "Mover a Oferta enviada",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Preparar payload Claude": {
-        "main": [
-          [
-            {
-              "node": "Claude · Calcular Presupuesto",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Generar PDF presupuesto": {
-        "main": [
-          [
-            {
-              "node": "Subir PDF",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Preparar WA Body": {
-        "main": [
-          [
-            {
-              "node": "Enviar WhatsApp Oferta",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Subir PDF": {
-        "main": [
-          [
-            {
-              "node": "Preparar WA Body",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      }
-    },
-    "authors": "Maikel Echevarria Franconetti",
-    "name": null,
-    "description": null,
-    "autosaved": false,
-    "workflowPublishHistory": [
-      {
-        "createdAt": "2026-03-27T12:17:30.743Z",
-        "id": 110,
-        "workflowId": "axdargrbpFiIMHwt",
-        "versionId": "c353e92f-fa69-4751-8733-58bde85e9f9f",
-        "event": "activated",
-        "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
-      },
-      {
-        "createdAt": "2026-03-27T12:17:30.610Z",
-        "id": 109,
-        "workflowId": "axdargrbpFiIMHwt",
-        "versionId": "c353e92f-fa69-4751-8733-58bde85e9f9f",
-        "event": "deactivated",
-        "userId": "cff4c590-9149-4f4e-bca6-e268afd2afca"
-      }
-    ]
   }
 }
