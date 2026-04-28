@@ -1,0 +1,256 @@
+{
+  "name": "A03 · Web Form Intake · Equipzilla",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "web-form-rental",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "bedf089f-4829-47a8-83a1-d24b575d3749",
+      "name": "Webhook Form Web",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "eb806f17-c090-40b5-ab94-cbfa7e286163"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": true, \"received\": true}"
+      },
+      "id": "37bc8405-870f-4a5a-9f29-6b13a4bec8a8",
+      "name": "Responder al form",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        200,
+        -150
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "return [{\n  json: {\n    ...$json,\n    PIPEDRIVE_API_TOKEN: \"PIPEDRIVE_API_TOKEN_REDACTED\",\n    QUOTE_WEBHOOK_URL: \"https://equipzillaproduccion.app.n8n.cloud/webhook/pipedrive-quote\",\n    PIPELINE_ID: 6,\n    STAGE_ID: 45\n  }\n}];"
+      },
+      "id": "8306d6bd-569a-4ff3-8c9c-2ae44f517d6b",
+      "name": "⚙️ Configuración",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Mapping categoryID → asset_type para Claude\n// DEMO: IDs 7 y 8 mapeados a máquinas reales del catálogo GAM 2026.\n// Lorenzo/Andrés ampliarán con el resto de IDs reales del formulario web.\nconst MAP = {\n  \"7\": { asset_type: \"Tijera eléctrica 10m\", asset_engine: \"electrica\" },\n  \"8\": { asset_type: \"Grupo 60kVA\", asset_engine: \"diesel\" }\n  // Ampliar con: { \"9\": {...}, \"10\": {...}, ... }\n};\nreturn [{ json: { CATEGORY_MAP: MAP } }];"
+      },
+      "id": "42301b20-d7fe-4af2-b381-c9a13d79f540",
+      "name": "📋 Mapping categorías",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const body = $('Webhook Form Web').first().json.body || $('Webhook Form Web').first().json;\nconst lead = body.leadData || {};\nconst articles = Array.isArray(body.articles) ? body.articles : [];\n\n// Email: limpiar markdown [x](mailto:y) → y\nlet email = String(lead.email || '').trim().toLowerCase();\nconst md = email.match(/\\[([^\\]]+)\\]\\(mailto:[^)]+\\)/);\nif (md) email = md[1].toLowerCase();\nemail = email.replace(/^\\[/, '').replace(/\\]\\(mailto:[^)]+\\)$/, '').trim().toLowerCase();\n\n// Phone: normalizar a E.164\nlet phone = String(lead.phone || '').replace(/[^0-9+]/g, '');\nif (phone && !phone.startsWith('+')) {\n  if (phone.length === 9) phone = '+34' + phone;\n  else if (phone.startsWith('00')) phone = '+' + phone.substring(2);\n  else if (phone.length >= 10) phone = '+' + phone;\n}\n\nconst baseLead = {\n  name: lead.name || 'Lead web',\n  email,\n  phone,\n  zipcode: String(lead.zipcode || ''),\n  profesional: lead.profesional || '',\n  utm: lead.utm || '',\n  gclid: lead.gclid || '',\n  additionalInfo: lead.additionalInfo || {},\n  formPageID: body.formPageID || '',\n  operation_type: body.operation_type || 'Alquiler',\n  globalDateFrom: lead.dateWorkFrom || '',\n  globalDateTo: lead.dateWorkTo || ''\n};\n\nreturn [{ json: { ...baseLead, _articles: articles } }];"
+      },
+      "id": "46fa2a78-a789-421b-8327-f4745774ff36",
+      "name": "Extraer datos del form",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.pipedrive.com/v1/persons?api_token={{ $('⚙️ Configuración').item.json.PIPEDRIVE_API_TOKEN }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"{{ $json.name }}\",\n  \"email\": [{ \"value\": \"{{ $json.email }}\", \"primary\": true, \"label\": \"work\" }],\n  \"phone\": [{ \"value\": \"{{ $json.phone }}\", \"primary\": true, \"label\": \"mobile\" }],\n  \"visible_to\": \"3\"\n}",
+        "options": {}
+      },
+      "id": "545dd0fc-3abb-430a-991e-7b354bceda41",
+      "name": "Crear persona Pipedrive",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const lead = $('Extraer datos del form').first().json;\nconst articles = lead._articles || [];\nconst personId = $json?.data?.id;\nconst map = $('📋 Mapping categorías').first().json.CATEGORY_MAP || {};\n\nif (!articles.length) {\n  return [{ json: { ...lead, personId, _noArticles: true } }];\n}\n\nreturn articles.map((a, i) => {\n  const cat = String(a.categoryID);\n  const m = map[cat] || { asset_type: '⚠️ Categoría sin mapear (ID ' + cat + ')', asset_engine: '', needs_manual_mapping: true };\n  return {\n    json: {\n      ...lead,\n      _articles: undefined,\n      personId,\n      _articleIndex: i,\n      _articleCount: articles.length,\n      categoryID: a.categoryID,\n      articleFrom: a.from || lead.globalDateFrom,\n      articleTo: a.to || lead.globalDateTo,\n      quantity: a.quantity || 1,\n      _machine: m\n    }\n  };\n});"
+      },
+      "id": "3c35f1ea-ba1b-4670-ae64-0c7dc104e368",
+      "name": "Splitear artículos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.pipedrive.com/v1/deals?api_token={{ $('⚙️ Configuración').item.json.PIPEDRIVE_API_TOKEN }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"{{ $json._machine.asset_type }} · {{ $json.zipcode }} · {{ $json.articleFrom }} a {{ $json.articleTo }} [Form]\",\n  \"person_id\": {{ $json.personId }},\n  \"pipeline_id\": {{ $('⚙️ Configuración').item.json.PIPELINE_ID }},\n  \"stage_id\": {{ $('⚙️ Configuración').item.json.STAGE_ID }},\n  \"status\": \"open\",\n  \"visible_to\": \"3\"\n}",
+        "options": {}
+      },
+      "id": "3757d56d-42a1-4b26-80f2-2a0d6162f81c",
+      "name": "Crear deal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.pipedrive.com/v1/notes?api_token={{ $('⚙️ Configuración').item.json.PIPEDRIVE_API_TOKEN }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"deal_id\": {{ $('Crear deal').item.json.data.id }},\n  \"content\": \"📝 LEAD WEB · formulario {{ $('Splitear artículos').item.json.formPageID }}\\n\\n👤 Tipo: {{ $('Splitear artículos').item.json.profesional }}\\n📍 CP: {{ $('Splitear artículos').item.json.zipcode }}\\n📦 categoryID: {{ $('Splitear artículos').item.json.categoryID }} · cantidad: {{ $('Splitear artículos').item.json.quantity }}\\n💰 Financiación: {{ $('Splitear artículos').item.json.additionalInfo.financiacion ? 'sí' : 'no' }} · 👷 Operario: {{ $('Splitear artículos').item.json.additionalInfo.operario ? 'sí' : 'no' }}\\n📊 UTM: {{ $('Splitear artículos').item.json.utm }} · gclid: {{ $('Splitear artículos').item.json.gclid }}\\n\\nℹ️ Info adicional: {{ $('Splitear artículos').item.json.additionalInfo.info }}\\n\\nArtículo {{ $('Splitear artículos').item.json._articleIndex + 1 }} de {{ $('Splitear artículos').item.json._articleCount }}\\n---\\n[EQUIPZILLA_FORM]\"\n}",
+        "options": {}
+      },
+      "id": "4f935d12-8192-4e0c-a4e1-20e075ba5389",
+      "name": "Nota lead web",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuración').item.json.QUOTE_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"current\": {\n    \"id\": {{ $json.data.id }},\n    \"title\": \"{{ $('Splitear artículos').item.json._machine.asset_type }}\",\n    \"pipeline_id\": {{ $('⚙️ Configuración').item.json.PIPELINE_ID }},\n    \"stage_id\": {{ $('⚙️ Configuración').item.json.STAGE_ID }},\n    \"person_id\": {\n      \"name\": \"{{ $('Splitear artículos').item.json.name }}\",\n      \"email\": [{\"value\": \"{{ $('Splitear artículos').item.json.email }}\", \"primary\": true}],\n      \"phone\": [{\"value\": \"{{ $('Splitear artículos').item.json.phone }}\", \"primary\": true}]\n    },\n    \"org_id\": {\"name\": \"{{ $('Splitear artículos').item.json.profesional }}\"},\n    \"assetType\": \"{{ $('Splitear artículos').item.json._machine.asset_type }}\",\n    \"assetEngine\": \"{{ $('Splitear artículos').item.json._machine.asset_engine }}\",\n    \"dateStart\": \"{{ $('Splitear artículos').item.json.articleFrom }}\",\n    \"dateFinish\": \"{{ $('Splitear artículos').item.json.articleTo }}\",\n    \"workLocation\": \"CP {{ $('Splitear artículos').item.json.zipcode }}\",\n    \"razonSocial\": \"{{ $('Splitear artículos').item.json.profesional }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "6586b8d9-f6d7-449b-9226-987a3675cf02",
+      "name": "Disparar webhook presupuesto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Form Web": {
+      "main": [
+        [
+          {
+            "node": "Responder al form",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "⚙️ Configuración",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚙️ Configuración": {
+      "main": [
+        [
+          {
+            "node": "📋 Mapping categorías",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Mapping categorías": {
+      "main": [
+        [
+          {
+            "node": "Extraer datos del form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer datos del form": {
+      "main": [
+        [
+          {
+            "node": "Crear persona Pipedrive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear persona Pipedrive": {
+      "main": [
+        [
+          {
+            "node": "Splitear artículos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Splitear artículos": {
+      "main": [
+        [
+          {
+            "node": "Crear deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear deal": {
+      "main": [
+        [
+          {
+            "node": "Nota lead web",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Disparar webhook presupuesto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
