@@ -134,6 +134,96 @@ Webhook ──► Extraer datos ──► Preparar payload Claude ──► Clau
 
 ---
 
+### 4. A04 · Availability Resolver (`Te9SQkO8blPWJZgw`)
+
+**Trigger principal:** webhook `POST /webhook/a04-availability-in` (header `X-Equipzilla-Token`)
+**Trigger respuestas:** webhook `POST /webhook/a04-replies-in` (WhatsApp Business / Brevo inbound)
+**Trigger watchdog:** schedule cada 15 min (escala deals con > 4h sin cierre)
+
+**Misión:** cuando un trato se etiqueta como `No hay disponibilidad`, busca cobertura alternativa contactando alquiladores (Tier 1 BBDD activa, Tier 2 BBDD dormida, Tier 3 cold via Google Places) por WhatsApp + Brevo en paralelo, **sin filtrar nunca datos del cliente final**.
+
+**Fases:**
+1. Validar payload (header + campos críticos)
+2. Anonimizar brief (`oferta_anonimizada`, único objeto que sale al exterior)
+3. Validación anti-fugas (bloqueante: ningún mensaje sale si detecta nombre/NIF/teléfono/email/dirección del cliente)
+4. Buscar Tier 1+2 en Postgres (Haversine ≤ 50 km, excluye `original_supplier_id` y opt-outs)
+5. Si pool < 5 → enriquecer Tier 3 vía Google Places (Text Search + Details), filtrar a los que tengan teléfono o web
+6. Consolidar y deduplicar pool
+7. Por cada alquilador: generar mensajes (Claude Sonnet 4) → check `validacion_privacidad=ok` → WhatsApp Business API → wait 30 s → email Brevo → log outreach
+8. Webhook de respuestas: correlacionar por `tracking_id` (extraído de `[ref:...]` o header `X-Equipzilla-Tracking`) → clasificar con Claude (`disponible | no_disponible | pide_mas_info | contraoferta | opt_out | ruido`)
+9. FIFO con reserva 30 min en `staticData`. Categoría `disponible` + tarifa en margen ≤ +15% → reserva. Otra respuesta `disponible` durante la ventana → Slack override candidate. `contraoferta` o `requiere_humano` → Slack revisión humana. `opt_out` → handler.
+10. Tras la ventana, update Pipeline CRM con alquilador asignado y broadcast cordial al resto.
+11. Watchdog cada 15 min: deals reservados > 4 h sin cierre se escalan en Slack y CRM.
+
+**Prompts del sistema (resumen):**
+- Generador (`Generar mensajes (Claude)`) — Tono por tier (TIER_1 directo, TIER_2 reactivación, TIER_3 cold con base legal art. 6.1.f RGPD + opt-out + enlace a privacidad). Salida JSON estricta con `validacion_privacidad`, `whatsapp.texto`, `email.{asunto,cuerpo}`, `tier_aplicado`, `tracking_id`.
+- Clasificador (`Clasificar (Claude)`) — JSON con `categoria`, `confianza`, `datos_extraidos.{tarifa_dia_eur, tarifa_total_eur, condiciones, info_pedida, fechas_alternativas}`, `requiere_humano`, `razon_humano`. `requiere_humano=true` si confianza < 0.7, contraoferta, tarifa fuera de margen ±15%, o tono hostil.
+
+**Variables nuevas (nodo `⚙️ Configuración`):**
+
+| Variable | Descripción |
+|----------|-------------|
+| `EQUIPZILLA_TOKEN` | Header `X-Equipzilla-Token` que valida el webhook entrante |
+| `WA_BUSINESS_TOKEN` | Bearer de WhatsApp Business Cloud API |
+| `WA_PHONE_NUMBER_ID` | Phone Number ID de WhatsApp Business |
+| `WA_DISPLAY_PHONE` | Teléfono visible en mensajes (E.164) |
+| `BREVO_FROM_EMAIL` / `BREVO_FROM_NAME` | Remitente outreach |
+| `GOOGLE_PLACES_API_KEY` | Para enriquecimiento Tier 3 |
+| `SLACK_WEBHOOK_URL` | Notificaciones override / revisión humana / fugas / timeout |
+| `PRIVACY_POLICY_URL`, `WEB_URL`, `CONTACT_EMAIL` | Identificación corporativa en plantillas Tier 3 |
+| `SEARCH_RADIUS_KM` (50), `POOL_MIN_THRESHOLD` (5), `TIER3_MAX_RESULTS` (10), `BUDGET_MARGIN_PCT` (15), `FIFO_RESERVATION_MINUTES` (30), `WATCHDOG_TIMEOUT_HOURS` (4) | Parámetros operativos |
+
+**Tablas Postgres esperadas en producción** (los nodos las referencian, pero algunos están como `Code` de log para no bloquear el flujo si la BBDD aún no existe):
+
+```sql
+CREATE TABLE alquiladores (
+  id text PRIMARY KEY,
+  nombre_comercial text NOT NULL,
+  email_comercial text,
+  whatsapp text,
+  lat float8, lng float8,
+  categorias_servicio text[],
+  especialidad text,
+  ciudad text,
+  ultima_operacion_fecha timestamptz,
+  activo bool DEFAULT true,
+  opt_out_comercial bool DEFAULT false,
+  origen text DEFAULT 'manual',
+  creado_en timestamptz DEFAULT NOW()
+);
+
+CREATE TABLE outreach_log (
+  tracking_id text PRIMARY KEY,
+  deal_id text NOT NULL,
+  alquilador_id text NOT NULL,
+  tier text CHECK (tier IN ('TIER_1','TIER_2','TIER_3')),
+  canal_enviado text,
+  timestamp_envio timestamptz NOT NULL,
+  timestamp_respuesta timestamptz,
+  categoria_respuesta text,
+  tarifa_ofrecida_eur numeric,
+  estado_final text DEFAULT 'sin_respuesta',
+  filtracion_detectada bool DEFAULT false
+);
+
+CREATE TABLE a04_events (
+  id bigserial PRIMARY KEY,
+  event text NOT NULL,
+  deal_id text,
+  payload jsonb,
+  ts timestamptz DEFAULT NOW()
+);
+```
+
+**Configuración pendiente para activar:**
+- Rellenar credenciales en el nodo `⚙️ Configuración` (todas las que llevan `PON_AQUI_TU_*`)
+- Conectar credencial Postgres `Equipzilla Postgres` en los nodos Postgres
+- Configurar webhook entrante en WhatsApp Business Cloud API → `/webhook/a04-replies-in`
+- Configurar inbound parsing en Brevo → `/webhook/a04-replies-in`
+- Configurar webhook saliente en Pipeline CRM → `/webhook/a04-availability-in` con header `X-Equipzilla-Token`
+
+---
+
 ### 3. A03 · Gestor Respuestas WhatsApp (`dsizYBkRpiSlRin1`)
 
 **Trigger:** respond.io webhook `whatsapp-reply` — URL:
