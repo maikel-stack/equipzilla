@@ -18,7 +18,12 @@
             {
               "name": "ANTHROPIC_API_KEY",
               "type": "stringValue",
-              "stringValue": "PON_AQUI_TU_ANTHROPIC_API_KEY"
+              "stringValue": "ANTHROPIC_API_KEY_REDACTED"
+            },
+            {
+              "name": "RESPOND_IO_API_KEY",
+              "type": "stringValue",
+              "stringValue": "RESPOND_IO_API_KEY_REDACTED"
             },
             {
               "name": "PIPELINE_API_KEY",
@@ -44,16 +49,6 @@
               "name": "BREVO_FROM_NAME",
               "type": "stringValue",
               "stringValue": "Equipzilla"
-            },
-            {
-              "name": "WA_BUSINESS_TOKEN",
-              "type": "stringValue",
-              "stringValue": "PON_AQUI_TU_WA_BUSINESS_TOKEN"
-            },
-            {
-              "name": "WA_PHONE_NUMBER_ID",
-              "type": "stringValue",
-              "stringValue": "PON_AQUI_TU_WA_PHONE_NUMBER_ID"
             },
             {
               "name": "WA_DISPLAY_PHONE",
@@ -583,13 +578,13 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "=https://graph.facebook.com/v20.0/{{ $('⚙️ Configuración').item.json.WA_PHONE_NUMBER_ID }}/messages",
+        "url": "=https://api.respond.io/v2/contact/phone:{{ ($json.alquilador.whatsapp || '').replace(/[^0-9]/g, '') }}/message",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "Authorization",
-              "value": "=Bearer {{ $('⚙️ Configuración').item.json.WA_BUSINESS_TOKEN }}"
+              "value": "=Bearer {{ $('⚙️ Configuración').item.json.RESPOND_IO_API_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -599,7 +594,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"recipient_type\": \"individual\",\n  \"to\": \"{{ ($json.alquilador.whatsapp || '').replace(/[^0-9]/g, '') }}\",\n  \"type\": \"text\",\n  \"text\": { \"preview_url\": false, \"body\": {{ JSON.stringify(($json.whatsapp && $json.whatsapp.texto || '') + '\\n\\n[ref:' + $json.tracking_id + ']') }} }\n}",
+        "jsonBody": "={\n  \"channelId\": 403918,\n  \"message\": {\n    \"type\": \"text\",\n    \"text\": {{ JSON.stringify(($json.whatsapp && $json.whatsapp.texto || '') + '\\n\\n[ref:' + $json.tracking_id + ']') }}\n  }\n}",
         "options": {}
       },
       "continueOnFail": true

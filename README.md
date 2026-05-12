@@ -215,10 +215,17 @@ CREATE TABLE a04_events (
 );
 ```
 
+**Estado de credenciales en n8n live (`Te9SQkO8blPWJZgw`):**
+- ✅ `ANTHROPIC_API_KEY` cargada (Claude Sonnet 4)
+- ✅ `RESPOND_IO_API_KEY` cargada (WhatsApp via respond.io v2, channel `403918`)
+- ⏳ `PIPELINE_API_KEY`, `BREVO_API_KEY`, `GOOGLE_PLACES_API_KEY`, `SLACK_WEBHOOK_URL`, `EQUIPZILLA_TOKEN`: pendientes
+
+> **Nota:** El nodo `Enviar WhatsApp` usa respond.io v2 (`https://api.respond.io/v2/contact/phone:{phone}/message`), no Meta Cloud directo. Mismo broker que A03.
+
 **Configuración pendiente para activar:**
-- Rellenar credenciales en el nodo `⚙️ Configuración` (todas las que llevan `PON_AQUI_TU_*`)
+- Rellenar credenciales restantes en el nodo `⚙️ Configuración` (las que llevan `PON_AQUI_TU_*`)
 - Conectar credencial Postgres `Equipzilla Postgres` en los nodos Postgres
-- Configurar webhook entrante en WhatsApp Business Cloud API → `/webhook/a04-replies-in`
+- Configurar webhook entrante en respond.io → `/webhook/a04-replies-in` (evento "Incoming message")
 - Configurar inbound parsing en Brevo → `/webhook/a04-replies-in`
 - Configurar webhook saliente en Pipeline CRM → `/webhook/a04-availability-in` con header `X-Equipzilla-Token`
 
