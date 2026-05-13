@@ -4,6 +4,8 @@
 
 **Modelo:** `claude-sonnet-4-20250514` · **Workflow n8n:** `A04 · Availability Resolver · Equipzilla` (ID `Te9SQkO8blPWJZgw`)
 
+> **Rollout fasado:** en producción arrancamos solo con **Tier 3** (cold outreach via Google Places + base legal RGPD). Tier 1 y Tier 2 están construidos en el workflow pero desactivados con el feature flag `TIER12_ENABLED=false` en el nodo `⚙️ Configuración`. Cuando la BBDD de alquiladores esté conectada en n8n se activan flipeando la variable — la arquitectura ya está montada. Los ejemplos T1 y T2 abajo muestran el **tono diferenciado** que aplicará el agente cuando estén operativos.
+
 ---
 
 ## 1. Lo que entra del CRM (datos sensibles incluidos)

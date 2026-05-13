@@ -215,6 +215,16 @@ CREATE TABLE a04_events (
 );
 ```
 
+**Rollout fasado (estado actual):**
+
+| Tier | Activo | Notas |
+|---|---|---|
+| **Tier 3** (cold outreach via Google Places) | ✅ | Operativo en producción cuando se active el workflow. Tono formal con base legal art. 6.1.f RGPD y opt-out explícito (BAJA). |
+| **Tier 1** (BBDD activa, < 6 meses) | ⏸️ desactivado | Nodos presentes pero el feature flag `TIER12_ENABLED=false` corta la búsqueda. |
+| **Tier 2** (BBDD dormida, > 6 meses) | ⏸️ desactivado | Idem. |
+
+Cuando esté lista la BBDD de alquiladores (tabla Postgres `alquiladores` + credencial conectada en n8n), basta con flipear `TIER12_ENABLED → true` en el nodo `⚙️ Configuración` para que Tier 1+2 entren a operar. La rama Tier 3 sigue siendo el fallback automático cuando Tier 1+2 devuelve < 5 candidatos.
+
 **Estado de credenciales en n8n live (`Te9SQkO8blPWJZgw`):**
 - ✅ `ANTHROPIC_API_KEY` cargada (Claude Sonnet 4)
 - ✅ `RESPOND_IO_API_KEY` cargada (WhatsApp via respond.io v2, channel `403918`)

@@ -26,9 +26,19 @@
               "stringValue": "RESPOND_IO_API_KEY_REDACTED"
             },
             {
+              "name": "BREVO_API_KEY",
+              "type": "stringValue",
+              "stringValue": "BREVO_API_KEY_REDACTED"
+            },
+            {
+              "name": "GOOGLE_PLACES_API_KEY",
+              "type": "stringValue",
+              "stringValue": "GOOGLE_PLACES_API_KEY_REDACTED"
+            },
+            {
               "name": "PIPELINE_API_KEY",
               "type": "stringValue",
-              "stringValue": "PON_AQUI_TU_PIPELINE_API_KEY"
+              "stringValue": "PIPELINE_API_KEY_REDACTED"
             },
             {
               "name": "PIPELINE_DOMAIN",
@@ -36,14 +46,9 @@
               "stringValue": "equipzilla"
             },
             {
-              "name": "BREVO_API_KEY",
-              "type": "stringValue",
-              "stringValue": "PON_AQUI_TU_BREVO_API_KEY"
-            },
-            {
               "name": "BREVO_FROM_EMAIL",
               "type": "stringValue",
-              "stringValue": "outreach@equipzilla.com"
+              "stringValue": "rent@equipzilla.com"
             },
             {
               "name": "BREVO_FROM_NAME",
@@ -56,19 +61,14 @@
               "stringValue": "+34621273810"
             },
             {
-              "name": "GOOGLE_PLACES_API_KEY",
+              "name": "DISCORD_WEBHOOK_URL",
               "type": "stringValue",
-              "stringValue": "PON_AQUI_TU_GOOGLE_PLACES_KEY"
-            },
-            {
-              "name": "SLACK_WEBHOOK_URL",
-              "type": "stringValue",
-              "stringValue": "PON_AQUI_TU_SLACK_WEBHOOK"
+              "stringValue": "PON_AQUI_TU_DISCORD_WEBHOOK"
             },
             {
               "name": "EQUIPZILLA_TOKEN",
               "type": "stringValue",
-              "stringValue": "PON_AQUI_TU_EQUIPZILLA_TOKEN"
+              "stringValue": "EQUIPZILLA_TOKEN_REDACTED"
             },
             {
               "name": "PRIVACY_POLICY_URL",
@@ -84,6 +84,16 @@
               "name": "CONTACT_EMAIL",
               "type": "stringValue",
               "stringValue": "rent@equipzilla.com"
+            },
+            {
+              "name": "TIER12_ENABLED",
+              "type": "booleanValue",
+              "booleanValue": false
+            },
+            {
+              "name": "TIER3_ENABLED",
+              "type": "booleanValue",
+              "booleanValue": true
             },
             {
               "name": "SEARCH_RADIUS_KM",
@@ -182,7 +192,7 @@
     },
     {
       "id": "node-payload-error",
-      "name": "Notificar payload incompleto",
+      "name": "Notificar payload incompleto (Discord)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -191,12 +201,13 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "={{ $('⚙️ Configuración').item.json.SLACK_WEBHOOK_URL }}",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"text\": \":warning: A04 · Payload incompleto. Faltan: {{ ($json.missing || []).join(', ') }}\\n```{{ JSON.stringify($json.raw).slice(0, 500) }}```\"\n}",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":warning: **A04 · Payload incompleto**\\nFaltan: `{{ ($json.missing || []).join(', ') }}`\",\n  \"embeds\": [{ \"description\": \"```json\\n{{ JSON.stringify($json.raw).slice(0, 1500).replace(/\"/g, '\\\\\"') }}\\n```\" }]\n}",
         "options": {}
-      }
+      },
+      "continueOnFail": true
     },
     {
       "id": "node-anonymize",
@@ -258,7 +269,7 @@
     },
     {
       "id": "node-antileak-block-slack",
-      "name": "Notificar fuga (Slack)",
+      "name": "Notificar fuga (Discord)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -267,12 +278,13 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "={{ $('⚙️ Configuración').item.json.SLACK_WEBHOOK_URL }}",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"text\": \":rotating_light: A04 · Validación anti-fugas BLOQUEADA — deal {{ $json.deal_id }}\\n```{{ JSON.stringify($json.leaks) }}```\"\n}",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":rotating_light: **A04 · Validación anti-fugas BLOQUEADA**\\nDeal: `{{ $json.deal_id }}`\",\n  \"embeds\": [{ \"title\": \"Datos detectados en oferta_anonimizada\", \"description\": \"```json\\n{{ JSON.stringify($json.leaks).slice(0, 1500).replace(/\"/g, '\\\\\"') }}\\n```\", \"color\": 15158332 }]\n}",
         "options": {}
-      }
+      },
+      "continueOnFail": true
     },
     {
       "id": "node-search-tier12",
@@ -303,7 +315,7 @@
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const items = $input.all().map(i => i.json).filter(r => r && r.alquilador_id);\nconst src = $('Validación anti-fugas').first().json;\nreturn [{ json: {\n  oferta_anonimizada: src.oferta_anonimizada,\n  raw_payload: src.raw_payload,\n  deal_id: src.deal_id,\n  tier12_results: items,\n  tier12_count: items.length\n} }];"
+        "jsCode": "const cfg = $('⚙️ Configuración').item.json;\nconst tier12Enabled = cfg.TIER12_ENABLED === true || cfg.TIER12_ENABLED === 'true';\nconst src = $('Validación anti-fugas').first().json;\n\n// Feature flag: si Tier 1+2 está deshabilitado, devolvemos pool vacío para que\n// el IF '¿Pool < 5?' siempre rute a la fase Tier 3 (cold outreach).\nconst items = tier12Enabled\n  ? $input.all().map(i => i.json).filter(r => r && r.alquilador_id)\n  : [];\n\nreturn [{ json: {\n  oferta_anonimizada: src.oferta_anonimizada,\n  raw_payload: src.raw_payload,\n  deal_id: src.deal_id,\n  tier12_results: items,\n  tier12_count: items.length,\n  tier12_enabled: tier12Enabled\n} }];"
       }
     },
     {
@@ -996,14 +1008,14 @@
         "url": "=https://{{ $('⚙️ Configuración').item.json.PIPELINE_DOMAIN }}.pipedrive.com/api/v1/deals/{{ $json.deal_id }}?api_token={{ $('⚙️ Configuración').item.json.PIPELINE_API_KEY }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"status\": \"open\",\n  \"label_ids\": [],\n  \"a04_alquilador_asignado\": \"{{ $json.alquilador_id }}\",\n  \"a04_tarifa_acordada_eur\": {{ ($json.datos_extraidos && $json.datos_extraidos.tarifa_dia_eur) || 0 }},\n  \"a04_fecha_resolucion_gap\": \"{{ new Date().toISOString() }}\",\n  \"a04_estado\": \"cobertura_recuperada\"\n}",
+        "jsonBody": "={\n  \"stage_id\": 28,\n  \"status\": \"open\"\n}",
         "options": {}
       },
       "continueOnFail": true
     },
     {
       "id": "node-slack-override",
-      "name": "Notificar Slack override",
+      "name": "Notificar override (Discord)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -1012,16 +1024,17 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "={{ $('⚙️ Configuración').item.json.SLACK_WEBHOOK_URL }}",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"text\": \":hourglass_flowing_sand: A04 · Override candidate — deal {{ $json.deal_id }}\\nNuevo: {{ $json.alquilador_id }} · tarifa {{ ($json.datos_extraidos && $json.datos_extraidos.tarifa_dia_eur) || '?' }}€/día\\nReservado: {{ $json.reserved_state && $json.reserved_state.alquilador_id }} · {{ $json.reserved_state && $json.reserved_state.tarifa }}€/día\\nResponde en este hilo OVERRIDE para forzar cambio.\"\n}",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":hourglass_flowing_sand: **A04 · Override candidate** — deal `{{ $json.deal_id }}`\",\n  \"embeds\": [{ \"color\": 15844367, \"fields\": [\n    { \"name\": \"Nuevo\", \"value\": \"`{{ $json.alquilador_id }}` · {{ ($json.datos_extraidos && $json.datos_extraidos.tarifa_dia_eur) || '?' }}€/día\", \"inline\": true },\n    { \"name\": \"Reservado\", \"value\": \"`{{ $json.reserved_state && $json.reserved_state.alquilador_id }}` · {{ $json.reserved_state && $json.reserved_state.tarifa }}€/día\", \"inline\": true },\n    { \"name\": \"Acción\", \"value\": \"Responde `OVERRIDE {{ $json.tracking_id }}` para forzar cambio.\" }\n  ] }]\n}",
         "options": {}
-      }
+      },
+      "continueOnFail": true
     },
     {
       "id": "node-slack-human-review",
-      "name": "Notificar Slack revisión humana",
+      "name": "Notificar revisión humana (Discord)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -1030,12 +1043,13 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "={{ $('⚙️ Configuración').item.json.SLACK_WEBHOOK_URL }}",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"text\": \":warning: A04 · Revisión humana — deal {{ $json.deal_id }}\\nCategoría: {{ $json.categoria }} · confianza {{ $json.confianza }}\\nMotivo: {{ $json.razon_humano || 'contraoferta o tarifa fuera de margen' }}\\nDatos: ```{{ JSON.stringify($json.datos_extraidos) }}```\"\n}",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":warning: **A04 · Revisión humana** — deal `{{ $json.deal_id }}`\",\n  \"embeds\": [{ \"color\": 16753920, \"fields\": [\n    { \"name\": \"Categoría\", \"value\": \"`{{ $json.categoria }}` · confianza {{ $json.confianza }}\", \"inline\": true },\n    { \"name\": \"Motivo\", \"value\": \"{{ $json.razon_humano || 'contraoferta o tarifa fuera de margen' }}\", \"inline\": true },\n    { \"name\": \"Datos extraídos\", \"value\": \"```json\\n{{ JSON.stringify($json.datos_extraidos).slice(0, 800).replace(/\"/g, '\\\\\"') }}\\n```\" }\n  ] }]\n}",
         "options": {}
-      }
+      },
+      "continueOnFail": true
     },
     {
       "id": "node-cierre-cordial-broadcast",
@@ -1101,7 +1115,7 @@
     },
     {
       "id": "node-watchdog-slack",
-      "name": "Notificar Slack timeout",
+      "name": "Notificar timeout (Discord)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -1110,16 +1124,17 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "={{ $('⚙️ Configuración').item.json.SLACK_WEBHOOK_URL }}",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"text\": \":alarm_clock: A04 · Timeout 4h sin cobertura — deal {{ $json.deal_id }}\\nEscalar manualmente. Estado: ```{{ JSON.stringify($json.state) }}```\"\n}",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":alarm_clock: **A04 · Timeout 4h sin cobertura** — deal `{{ $json.deal_id }}`\\nEscalar manualmente.\",\n  \"embeds\": [{ \"color\": 15158332, \"description\": \"```json\\n{{ JSON.stringify($json.state).slice(0, 800).replace(/\"/g, '\\\\\"') }}\\n```\" }]\n}",
         "options": {}
-      }
+      },
+      "continueOnFail": true
     },
     {
       "id": "node-watchdog-tag-deal",
-      "name": "Tag deal · Sin cobertura",
+      "name": "Nota Pipedrive · escalado A04",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -1127,11 +1142,11 @@
         1300
       ],
       "parameters": {
-        "method": "PUT",
-        "url": "=https://{{ $('⚙️ Configuración').item.json.PIPELINE_DOMAIN }}.pipedrive.com/api/v1/deals/{{ $json.deal_id }}?api_token={{ $('⚙️ Configuración').item.json.PIPELINE_API_KEY }}",
+        "method": "POST",
+        "url": "=https://{{ $('⚙️ Configuración').item.json.PIPELINE_DOMAIN }}.pipedrive.com/api/v1/notes?api_token={{ $('⚙️ Configuración').item.json.PIPELINE_API_KEY }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"a04_estado\": \"sin_cobertura_disponible_escalar\",\n  \"a04_fecha_escalado\": \"{{ new Date().toISOString() }}\"\n}",
+        "jsonBody": "={\n  \"deal_id\": {{ Number($json.deal_id) }},\n  \"content\": \"<h3>[A04] Sin cobertura disponible — escalar manualmente</h3><p>Timeout de {{ $('⚙️ Configuración').item.json.WATCHDOG_TIMEOUT_HOURS }} h sin respuesta válida. Revisar outreach_log.</p><p><b>Estado:</b> <code>{{ JSON.stringify($json.state) }}</code></p>\"\n}",
         "options": {}
       },
       "continueOnFail": true
@@ -1149,6 +1164,25 @@
         "language": "javaScript",
         "jsCode": "// En producción: INSERT INTO a04_events (event, deal_id, payload, ts) VALUES (...)\nconst src = $json;\nconst evt = {\n  event: src.event || 'a04.deal.escalated',\n  deal_id: src.deal_id || null,\n  payload: src,\n  ts: new Date().toISOString()\n};\nconsole.log('[a04_events]', JSON.stringify(evt));\nreturn [{ json: { logged: true, ...evt } }];"
       }
+    },
+    {
+      "id": "node-pd-note-close",
+      "name": "Nota Pipedrive · cierre A04",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2220,
+        640
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('⚙️ Configuración').item.json.PIPELINE_DOMAIN }}.pipedrive.com/api/v1/notes?api_token={{ $('⚙️ Configuración').item.json.PIPELINE_API_KEY }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"deal_id\": {{ Number($json.deal_id) }},\n  \"content\": \"<h3>[A04] Cobertura recuperada</h3><ul><li><b>Alquilador asignado:</b> {{ $json.alquilador_id }}</li><li><b>Tarifa/día:</b> {{ ($json.datos_extraidos && $json.datos_extraidos.tarifa_dia_eur) || 'n/d' }} €</li><li><b>Condiciones:</b> {{ ($json.datos_extraidos && $json.datos_extraidos.condiciones) || '—' }}</li><li><b>Tracking:</b> {{ $json.tracking_id }}</li><li><b>Resuelto:</b> {{ new Date().toISOString() }}</li></ul>\"\n}",
+        "options": {}
+      },
+      "continueOnFail": true
     }
   ],
   "connections": {
@@ -1568,7 +1602,7 @@
       "main": [
         [
           {
-            "node": "Cierre cordial broadcast",
+            "node": "Nota Pipedrive · cierre A04",
             "type": "main",
             "index": 0
           }
@@ -1635,6 +1669,17 @@
         [
           {
             "node": "Logger eventos a04_events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nota Pipedrive · cierre A04": {
+      "main": [
+        [
+          {
+            "node": "Cierre cordial broadcast",
             "type": "main",
             "index": 0
           }
