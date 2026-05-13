@@ -136,14 +136,16 @@ Webhook ──► Extraer datos ──► Preparar payload Claude ──► Clau
 
 ### 4. A04 · Availability Resolver (`Te9SQkO8blPWJZgw`)
 
-**Trigger:** webhook `POST /webhook/a04-availability-in` enviado por Pipedrive cuando un **deal pasa a estado "Perdido" con motivo "INTERNA - No hay disponibilidad…" (lost_reason id `357`)** o "INTERNA - No hay alquilador en la zona" (`372`).
+**Trigger:** webhook `POST /webhook/a04-availability-in` enviado por Pipedrive cuando un **deal en stage "Oferta Aceptada" pasa a status "Perdido" con motivo `id=357` "INTERNA - No hay disponibilidad del producto/servicio en la zona solicitada (OFERTA ACEPTADA)"**.
 
-El nodo `Validar payload` parsea el webhook `updated.deal` de Pipedrive y filtra por:
+El nodo `Validar payload` parsea el webhook `updated.deal` de Pipedrive y filtra **estrictamente** por:
 1. `current.status === 'lost'`
-2. `current.lost_reason ∈ {357, 372}` (o texto que contenga "no hay disponibilidad" / "no hay alquilador")
-3. **Dedup por transición:** solo procesa si `previous.status !== 'lost'` o el motivo previo no era A04 — así un re-edit del deal ya perdido no relanza el agente.
+2. `current.lost_reason === 357` (el único motivo que incluye "OFERTA ACEPTADA" en su definición — confirma que el cliente ya había aceptado la oferta y solo falta cobertura)
+3. **Dedup por transición:** solo procesa si `previous.status !== 'lost'` o el motivo previo no era 357 — un re-edit del deal ya perdido no relanza el agente.
 
-El validador mapea los custom fields de Pipedrive al schema interno A04 (`assetType` → `machine.subcategory`, `dateStart/dateFinish` → fechas, `zipcode/Provincia/Dirección del trabajo` → location, `precioTrato` → budget, etc.).
+Otros motivos de pérdida (372 "No hay alquilador en zona", 350 "CLIENTE no interesado", etc.) **no disparan A04**.
+
+El validador mapea los custom fields de Pipedrive al schema interno A04 (`assetType` → `machine.subcategory`, `dateStart/dateFinish` → fechas, `zipcode/Provincia/Dirección del trabajo` → location, `precioTrato` → budget, `alquiladorTransaccional` → original supplier que rechazó, etc.).
 
 **Trigger respuestas:** webhook `POST /webhook/a04-replies-in` (WhatsApp Business / Brevo inbound)
 **Trigger watchdog:** schedule cada 15 min (escala deals con > 4h sin cierre)
