@@ -136,9 +136,25 @@ Webhook ──► Extraer datos ──► Preparar payload Claude ──► Clau
 
 ### 4. A04 · Availability Resolver (`Te9SQkO8blPWJZgw`)
 
-**Trigger principal:** webhook `POST /webhook/a04-availability-in` (header `X-Equipzilla-Token`)
+**Trigger:** webhook `POST /webhook/a04-availability-in` enviado por Pipedrive cuando un **deal pasa a estado "Perdido" con motivo "INTERNA - No hay disponibilidad…" (lost_reason id `357`)** o "INTERNA - No hay alquilador en la zona" (`372`).
+
+El nodo `Validar payload` parsea el webhook `updated.deal` de Pipedrive y filtra por:
+1. `current.status === 'lost'`
+2. `current.lost_reason ∈ {357, 372}` (o texto que contenga "no hay disponibilidad" / "no hay alquilador")
+3. **Dedup por transición:** solo procesa si `previous.status !== 'lost'` o el motivo previo no era A04 — así un re-edit del deal ya perdido no relanza el agente.
+
+El validador mapea los custom fields de Pipedrive al schema interno A04 (`assetType` → `machine.subcategory`, `dateStart/dateFinish` → fechas, `zipcode/Provincia/Dirección del trabajo` → location, `precioTrato` → budget, etc.).
+
 **Trigger respuestas:** webhook `POST /webhook/a04-replies-in` (WhatsApp Business / Brevo inbound)
 **Trigger watchdog:** schedule cada 15 min (escala deals con > 4h sin cierre)
+
+**Configuración del webhook saliente en Pipedrive:**
+
+1. Pipedrive → Settings → Tools and integrations → Webhooks → **Add new webhook**
+2. Subscription URL: `https://equipzillaproduccion.app.n8n.cloud/webhook/a04-availability-in`
+3. Event action: `updated`
+4. Event object: `deal`
+5. (Opcional) HTTP Auth: Basic Auth con user+password — habría que añadir `authentication: basicAuth` al webhook trigger de n8n para validarlo. Pipedrive no soporta headers custom.
 
 **Misión:** cuando un trato se etiqueta como `No hay disponibilidad`, busca cobertura alternativa contactando alquiladores (Tier 1 BBDD activa, Tier 2 BBDD dormida, Tier 3 cold via Google Places) por WhatsApp + Brevo en paralelo, **sin filtrar nunca datos del cliente final**.
 
