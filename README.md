@@ -215,6 +215,18 @@ CREATE TABLE a04_events (
 );
 ```
 
+**Condiciones comerciales comunicadas al alquilador en cada outreach:**
+- Comisión Equipzilla: **15%** sobre el importe del alquiler
+- El **contrato lo firma el alquilador** directamente con el cliente final
+- El **presupuesto del cliente ya está aceptado** (la operación está cerrada por el lado del cliente)
+- CTA: si tiene disponibilidad, que comparta empresa + persona de contacto + teléfono para que Equipzilla le llame
+
+**Branch onboarding alquilador nuevo:** cuando un alquilador responde con sus datos de contacto (clasificador detecta `tiene_datos_contacto=true`), A04 crea automáticamente:
+1. **Persona en Pipedrive** con teléfono + email del alquilador
+2. **Deal en pipeline `Alquiladores Nuevos` (id 15) · stage `Datos recibidos` (id 81)** con nota detallada
+3. **Email a david@equipzilla.com** con el resumen del lead
+4. **Notificación Discord** con todos los campos extraídos
+
 **Rollout fasado (estado actual):**
 
 | Tier | Activo | Notas |

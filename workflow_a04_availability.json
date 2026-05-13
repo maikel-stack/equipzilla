@@ -530,7 +530,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 1200,\n  \"temperature\": 0.4,\n  \"system\": \"Eres A04 Availability Resolver, agente de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en España.\\n\\n== MISIÓN ==\\nCuando un trato no tiene cobertura del alquilador asignado, generas mensajes personalizados (WhatsApp + email) dirigidos a alquiladores alternativos para conseguir cobertura SIN exponer datos del cliente final.\\n\\n== PROTOCOLO DE PRIVACIDAD (CRÍTICO — NO NEGOCIABLE) ==\\nNUNCA incluyas en los mensajes: nombre/razón social/NIF del cliente, teléfono/email/web del cliente, nombre exacto de la obra, nombres propios de personas relacionadas con el cliente, ni dirección exacta del trabajo (solo ciudad, barrio o CP).\\nSÍ puedes incluir: tipo y especificaciones técnicas de la máquina, fechas, duración, urgencia, zona geográfica aproximada, condiciones de acceso (ZBE, altura libre, peso máx., accesos restringidos) sin identificar la obra, y que la operación se gestiona, factura y cobra vía Equipzilla.\\nSi detectas datos de cliente que deberían anonimizarse y no lo están, devuelve validacion_privacidad='bloqueado' y NO generes el mensaje.\\n\\n== TONO ==\\nProfesional, directo, B2B. Mensajes breves: el alquilador debe saber en menos de 10s si le interesa. WhatsApp permite emojis mínimos y útiles; email más formal, sin emojis.\\n\\n== TIER DE CONTACTO ==\\nTIER_1 — Alquilador activo con histórico. Tono familiar, directo, sin presentación.\\nTIER_2 — Alquilador inactivo. Tono de reactivación: recordatorio breve + propuesta concreta.\\nTIER_3 — Alquilador externo, contacto en frío. Tono formal con presentación corporativa breve, base legal (interés legítimo B2B art. 6.1.f RGPD) y opt-out explícito (BAJA) en el mismo mensaje. Email Tier 3 incluye enlace a política de privacidad.\\n\\n== SALIDA ESPERADA ==\\nDevuelves SIEMPRE un único objeto JSON con esta estructura exacta, sin markdown ni texto adicional:\\n{\\\"validacion_privacidad\\\":\\\"ok\\\"|\\\"bloqueado\\\",\\\"razon_bloqueo\\\":null,\\\"whatsapp\\\":{\\\"texto\\\":\\\"...\\\"},\\\"email\\\":{\\\"asunto\\\":\\\"...\\\",\\\"cuerpo\\\":\\\"...\\\"},\\\"tier_aplicado\\\":\\\"TIER_1\\\"|\\\"TIER_2\\\"|\\\"TIER_3\\\",\\\"tracking_id\\\":\\\"string único\\\"}\\n\\nPRIORIDADES: 1) Privacidad del cliente, 2) Claridad y brevedad, 3) Conversión, 4) Cumplimiento legal.\",\n  \"messages\": [{\"role\":\"user\",\"content\": {{ JSON.stringify(JSON.stringify({ oferta_anonimizada: $json.oferta_anonimizada, alquilador: $json.alquilador, equipzilla: { web: $('⚙️ Configuración').item.json.WEB_URL, contact_email: $('⚙️ Configuración').item.json.CONTACT_EMAIL, telefono: $('⚙️ Configuración').item.json.WA_DISPLAY_PHONE, privacy_url: $('⚙️ Configuración').item.json.PRIVACY_POLICY_URL } })) }} }]\n}",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 1400,\n  \"temperature\": 0.4,\n  \"system\": \"Eres A04 Availability Resolver, agente de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en España.\\n\\n== MISIÓN ==\\nCuando un trato no tiene cobertura del alquilador asignado, generas mensajes personalizados (WhatsApp + email) dirigidos a alquiladores alternativos para conseguir cobertura SIN exponer datos del cliente final.\\n\\n== PROTOCOLO DE PRIVACIDAD (CRÍTICO — NO NEGOCIABLE) ==\\nNUNCA incluyas en los mensajes: nombre/razón social/NIF del cliente, teléfono/email/web del cliente, nombre exacto de la obra, nombres propios de personas relacionadas con el cliente, ni dirección exacta del trabajo (solo ciudad, barrio o CP).\\nSÍ puedes incluir: tipo y especificaciones técnicas de la máquina, fechas, duración, urgencia, zona geográfica aproximada, condiciones de acceso (ZBE, altura libre, peso máx., accesos restringidos) sin identificar la obra.\\nSi detectas datos de cliente que deberían anonimizarse y no lo están, devuelve validacion_privacidad='bloqueado' y NO generes el mensaje.\\n\\n== CONDICIONES COMERCIALES DE EQUIPZILLA (incluir SIEMPRE en el email; en WhatsApp solo si cabe) ==\\nDebes comunicar al alquilador estas tres condiciones operativas claramente:\\n1. **Comisión Equipzilla: 15%** sobre el importe del alquiler.\\n2. **El contrato lo firma el alquilador directamente con el cliente final** (Equipzilla facilita la operación pero no es el firmante del contrato de alquiler).\\n3. **El presupuesto del cliente ya está aceptado** (la operación está cerrada por el lado del cliente — solo falta cobertura).\\nNO reveles el techo de presupuesto al alquilador; pide su tarifa abierta.\\n\\n== CALL TO ACTION (siempre, en WhatsApp y email) ==\\nCierra pidiendo al alquilador que, si tiene la máquina disponible y quiere cerrar la oportunidad, comparta sus datos de contacto (nombre de empresa, persona de contacto y teléfono) para que el equipo de Equipzilla le llame.\\n\\n== TONO ==\\nProfesional, directo, B2B. Mensajes breves: el alquilador debe saber en menos de 10s si le interesa. WhatsApp permite emojis útiles; email más formal sin emojis.\\n\\n== TIER DE CONTACTO ==\\nTIER_1 — Alquilador activo con histórico. Tono familiar, directo, sin presentación.\\nTIER_2 — Alquilador inactivo. Tono de reactivación: recordatorio breve + propuesta concreta.\\nTIER_3 — Alquilador externo, contacto en frío. Tono formal con presentación corporativa breve, base legal (interés legítimo B2B art. 6.1.f RGPD) y opt-out explícito (BAJA) en el mismo mensaje. Email Tier 3 incluye enlace a política de privacidad.\\n\\n== SALIDA ESPERADA ==\\nDevuelves SIEMPRE un único objeto JSON con esta estructura exacta, sin markdown ni texto adicional:\\n{\\\"validacion_privacidad\\\":\\\"ok\\\"|\\\"bloqueado\\\",\\\"razon_bloqueo\\\":null,\\\"whatsapp\\\":{\\\"texto\\\":\\\"...\\\"},\\\"email\\\":{\\\"asunto\\\":\\\"...\\\",\\\"cuerpo\\\":\\\"...\\\"},\\\"tier_aplicado\\\":\\\"TIER_1\\\"|\\\"TIER_2\\\"|\\\"TIER_3\\\",\\\"tracking_id\\\":\\\"string único\\\"}\\n\\nPRIORIDADES: 1) Privacidad del cliente, 2) Comunicar las 3 condiciones de Equipzilla, 3) CTA pidiendo datos de contacto, 4) Claridad y brevedad, 5) Cumplimiento legal.\",\n  \"messages\": [{\"role\":\"user\",\"content\": {{ JSON.stringify(JSON.stringify({ oferta_anonimizada: $json.oferta_anonimizada, alquilador: $json.alquilador, equipzilla: { web: $('⚙️ Configuración').item.json.WEB_URL, contact_email: $('⚙️ Configuración').item.json.CONTACT_EMAIL, telefono: $('⚙️ Configuración').item.json.WA_DISPLAY_PHONE, privacy_url: $('⚙️ Configuración').item.json.PRIVACY_POLICY_URL } })) }} }]\n}",
         "options": {}
       },
       "continueOnFail": true
@@ -734,7 +734,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 600,\n  \"temperature\": 0.0,\n  \"system\": \"Eres el clasificador de respuestas de A04 Availability Resolver. Recibes una respuesta libre de un alquilador (WhatsApp o email) y la clasificas en una categoría operativa, extrayendo los datos relevantes.\\n\\nCategorías: disponible | no_disponible | pide_mas_info | contraoferta | opt_out | ruido.\\n\\nDevuelves SIEMPRE solo este JSON sin markdown:\\n{\\\"categoria\\\":\\\"...\\\",\\\"confianza\\\":0.0,\\\"datos_extraidos\\\":{\\\"tarifa_dia_eur\\\":null,\\\"tarifa_total_eur\\\":null,\\\"condiciones\\\":null,\\\"info_pedida\\\":null,\\\"fechas_alternativas\\\":null},\\\"requiere_humano\\\":true,\\\"razon_humano\\\":null}\\n\\nrequiere_humano=true cuando: confianza<0.7, categoria=contraoferta, tarifa fuera de margen ±15% sobre objetivo, o mensaje con queja/reclamación/tono hostil.\",\n  \"messages\": [{\"role\":\"user\",\"content\": {{ JSON.stringify(JSON.stringify({ tracking_id: $json.tracking_id, canal: $json.canal, alquilador_id: $json.alquilador_id, respuesta: $json.respuesta })) }} }]\n}",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 800,\n  \"temperature\": 0.0,\n  \"system\": \"Eres el clasificador de respuestas de A04 Availability Resolver. Recibes una respuesta libre de un alquilador (WhatsApp o email) a una solicitud de cobertura y la clasificas en una categoría operativa, extrayendo datos relevantes.\\n\\nCategorías: disponible | no_disponible | pide_mas_info | contraoferta | opt_out | ruido.\\n\\nADEMÁS, extrae si el alquilador comparte sus datos de contacto en la respuesta:\\n- empresa (razón social / nombre comercial del alquilador)\\n- nombre_contacto (persona)\\n- telefono (E.164 si está claro, si no el formato original)\\n- email\\nMarca tiene_datos_contacto=true si comparte al menos (empresa O nombre_contacto) Y (teléfono O email distinto del canal por el que respondió).\\n\\nDevuelves SIEMPRE solo este JSON sin markdown:\\n{\\\"categoria\\\":\\\"...\\\",\\\"confianza\\\":0.0,\\\"datos_extraidos\\\":{\\\"tarifa_dia_eur\\\":null,\\\"tarifa_total_eur\\\":null,\\\"condiciones\\\":null,\\\"info_pedida\\\":null,\\\"fechas_alternativas\\\":null},\\\"datos_contacto_alquilador\\\":{\\\"empresa\\\":null,\\\"nombre_contacto\\\":null,\\\"telefono\\\":null,\\\"email\\\":null},\\\"tiene_datos_contacto\\\":false,\\\"requiere_humano\\\":true,\\\"razon_humano\\\":null}\\n\\nrequiere_humano=true cuando: confianza<0.7, categoria=contraoferta, tarifa fuera de margen ±15% sobre objetivo, o mensaje con queja/reclamación/tono hostil.\",\n  \"messages\": [{\"role\":\"user\",\"content\": {{ JSON.stringify(JSON.stringify({ tracking_id: $json.tracking_id, canal: $json.canal, alquilador_id: $json.alquilador_id, sender: $json.sender, respuesta: $json.respuesta })) }} }]\n}",
         "options": {}
       },
       "continueOnFail": true
@@ -1183,6 +1183,144 @@
         "options": {}
       },
       "continueOnFail": true
+    },
+    {
+      "id": "node-onboarding-check",
+      "name": "¿Tiene datos contacto?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        760
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.tiene_datos_contacto }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node-onboarding-pd-person",
+      "name": "PD · Crear persona alquilador",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1560,
+        640
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('⚙️ Configuración').item.json.PIPELINE_DOMAIN }}.pipedrive.com/api/v1/persons?api_token={{ $('⚙️ Configuración').item.json.PIPELINE_API_KEY }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": {{ JSON.stringify(($json.datos_contacto_alquilador && ($json.datos_contacto_alquilador.nombre_contacto || $json.datos_contacto_alquilador.empresa)) || $json.sender || 'Alquilador A04') }},\n  \"phone\": [{ \"value\": {{ JSON.stringify(($json.datos_contacto_alquilador && $json.datos_contacto_alquilador.telefono) || $json.sender || '') }}, \"label\": \"work\", \"primary\": true }],\n  \"email\": [{ \"value\": {{ JSON.stringify(($json.datos_contacto_alquilador && $json.datos_contacto_alquilador.email) || '') }}, \"label\": \"work\", \"primary\": true }],\n  \"visible_to\": \"3\"\n}",
+        "options": {}
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-onboarding-pd-deal",
+      "name": "PD · Crear deal Alquiladores Nuevos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        640
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('⚙️ Configuración').item.json.PIPELINE_DOMAIN }}.pipedrive.com/api/v1/deals?api_token={{ $('⚙️ Configuración').item.json.PIPELINE_API_KEY }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": {{ JSON.stringify('[A04] ' + (($json.datos_contacto_alquilador && ($json.datos_contacto_alquilador.empresa || $json.datos_contacto_alquilador.nombre_contacto)) || 'Nuevo alquilador') + ' · vía outreach') }},\n  \"person_id\": {{ ($json.data && $json.data.id) || 'null' }},\n  \"pipeline_id\": 15,\n  \"stage_id\": 81,\n  \"status\": \"open\",\n  \"visible_to\": \"3\"\n}",
+        "options": {}
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-onboarding-pd-note",
+      "name": "PD · Nota deal onboarding",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        640
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('⚙️ Configuración').item.json.PIPELINE_DOMAIN }}.pipedrive.com/api/v1/notes?api_token={{ $('⚙️ Configuración').item.json.PIPELINE_API_KEY }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"deal_id\": {{ ($json.data && $json.data.id) || 0 }},\n  \"content\": {{ JSON.stringify('<h3>[A04] Alquilador nuevo — datos recibidos</h3><p>Vía: ' + ($('Parsear clasificación').item.json.canal || 'n/d') + '</p><ul><li><b>Empresa:</b> ' + (($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.empresa) || '—') + '</li><li><b>Contacto:</b> ' + (($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.nombre_contacto) || '—') + '</li><li><b>Teléfono:</b> ' + (($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.telefono) || $('Parsear clasificación').item.json.sender || '—') + '</li><li><b>Email:</b> ' + (($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.email) || '—') + '</li><li><b>Tracking:</b> ' + ($('Parsear clasificación').item.json.tracking_id || '—') + '</li></ul><p><b>Respuesta original:</b></p><blockquote>' + ($('Parsear clasificación').item.json.respuesta || '').replace(/</g,'&lt;').slice(0,1000) + '</blockquote>') }}\n}",
+        "options": {}
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-onboarding-email-david",
+      "name": "Email a David (Brevo)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        820
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $('⚙️ Configuración').item.json.BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"A04 · Equipzilla\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"david@equipzilla.com\", \"name\": \"David\" }],\n  \"subject\": {{ JSON.stringify('[A04] Alquilador nuevo interesado: ' + (($('Parsear clasificación').item.json.datos_contacto_alquilador && ($('Parsear clasificación').item.json.datos_contacto_alquilador.empresa || $('Parsear clasificación').item.json.datos_contacto_alquilador.nombre_contacto)) || 'nuevo contacto')) }},\n  \"textContent\": {{ JSON.stringify('Hola David,\\n\\nUn alquilador ha respondido al outreach de A04 con sus datos de contacto.\\n\\n• Empresa: ' + (($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.empresa) || 'no indicada') + '\\n• Contacto: ' + (($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.nombre_contacto) || 'no indicado') + '\\n• Teléfono: ' + (($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.telefono) || $('Parsear clasificación').item.json.sender || 'no indicado') + '\\n• Email: ' + (($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.email) || 'no indicado') + '\\n\\nCanal: ' + ($('Parsear clasificación').item.json.canal || 'n/d') + '\\nTracking: ' + ($('Parsear clasificación').item.json.tracking_id || '—') + '\\n\\nRespuesta original:\\n' + ($('Parsear clasificación').item.json.respuesta || '').slice(0, 2000) + '\\n\\nDeal creado automáticamente en Pipedrive — pipeline \"Alquiladores Nuevos\", stage \"Datos recibidos\".\\n\\nLlámale para cerrar onboarding.\\n\\n— A04 Availability Resolver') }}\n}",
+        "options": {}
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-onboarding-discord",
+      "name": "Discord · alquilador nuevo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        820
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":handshake: **Alquilador nuevo interesado** — datos recibidos\",\n  \"embeds\": [{ \"color\": 3066993, \"fields\": [\n    { \"name\": \"Empresa\", \"value\": \"{{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.empresa) || '—' }}\", \"inline\": true },\n    { \"name\": \"Contacto\", \"value\": \"{{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.nombre_contacto) || '—' }}\", \"inline\": true },\n    { \"name\": \"Teléfono\", \"value\": \"`{{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.telefono) || $('Parsear clasificación').item.json.sender || '—' }}`\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.email) || '—' }}`\", \"inline\": true },\n    { \"name\": \"Canal\", \"value\": \"{{ $('Parsear clasificación').item.json.canal }}\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $('Parsear clasificación').item.json.tracking_id }}`\", \"inline\": true },\n    { \"name\": \"Acción\", \"value\": \"Deal creado en Pipedrive · pipeline **Alquiladores Nuevos** · stage **Datos recibidos**. Notificación enviada a david@equipzilla.com.\" }\n  ] }]\n}",
+        "options": {}
+      },
+      "continueOnFail": true
     }
   ],
   "connections": {
@@ -1520,21 +1658,21 @@
       "main": [
         [
           {
-            "node": "Evaluar FIFO + reserva",
+            "node": "¿Tiene datos contacto?",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Notificar Slack revisión humana",
+            "node": "Notificar revisión humana (Discord)",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Notificar Slack revisión humana",
+            "node": "¿Tiene datos contacto?",
             "type": "main",
             "index": 0
           }
@@ -1680,6 +1818,73 @@
         [
           {
             "node": "Cierre cordial broadcast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Tiene datos contacto?": {
+      "main": [
+        [
+          {
+            "node": "PD · Crear persona alquilador",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email a David (Brevo)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Evaluar FIFO + reserva",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PD · Crear persona alquilador": {
+      "main": [
+        [
+          {
+            "node": "PD · Crear deal Alquiladores Nuevos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PD · Crear deal Alquiladores Nuevos": {
+      "main": [
+        [
+          {
+            "node": "PD · Nota deal onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PD · Nota deal onboarding": {
+      "main": [
+        [
+          {
+            "node": "Logger eventos a04_events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email a David (Brevo)": {
+      "main": [
+        [
+          {
+            "node": "Discord · alquilador nuevo",
             "type": "main",
             "index": 0
           }
