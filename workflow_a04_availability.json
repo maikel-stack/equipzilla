@@ -11,122 +11,162 @@
         120
       ],
       "parameters": {
-        "mode": "manual",
-        "includeOtherFields": false,
-        "fields": {
-          "values": [
+        "assignments": {
+          "assignments": [
             {
+              "id": "ANTHROPIC_API_KEY",
               "name": "ANTHROPIC_API_KEY",
-              "type": "stringValue",
-              "stringValue": "ANTHROPIC_API_KEY_REDACTED"
+              "value": "ANTHROPIC_API_KEY_REDACTED",
+              "type": "string"
             },
             {
+              "id": "RESPOND_IO_API_KEY",
               "name": "RESPOND_IO_API_KEY",
-              "type": "stringValue",
-              "stringValue": "RESPOND_IO_API_KEY_REDACTED"
+              "value": "RESPOND_IO_API_KEY_REDACTED",
+              "type": "string"
             },
             {
+              "id": "BREVO_API_KEY",
               "name": "BREVO_API_KEY",
-              "type": "stringValue",
-              "stringValue": "BREVO_API_KEY_REDACTED"
+              "value": "BREVO_API_KEY_REDACTED",
+              "type": "string"
             },
             {
+              "id": "GOOGLE_PLACES_API_KEY",
               "name": "GOOGLE_PLACES_API_KEY",
-              "type": "stringValue",
-              "stringValue": "GOOGLE_PLACES_API_KEY_REDACTED"
+              "value": "GOOGLE_PLACES_API_KEY_REDACTED",
+              "type": "string"
             },
             {
+              "id": "PIPELINE_API_KEY",
               "name": "PIPELINE_API_KEY",
-              "type": "stringValue",
-              "stringValue": "PIPELINE_API_KEY_REDACTED"
+              "value": "PIPELINE_API_KEY_REDACTED",
+              "type": "string"
             },
             {
+              "id": "PIPELINE_DOMAIN",
               "name": "PIPELINE_DOMAIN",
-              "type": "stringValue",
-              "stringValue": "equipzilla"
+              "value": "equipzilla",
+              "type": "string"
             },
             {
+              "id": "BREVO_FROM_EMAIL",
               "name": "BREVO_FROM_EMAIL",
-              "type": "stringValue",
-              "stringValue": "rent@equipzilla.com"
+              "value": "rent@equipzilla.com",
+              "type": "string"
             },
             {
+              "id": "BREVO_FROM_NAME",
               "name": "BREVO_FROM_NAME",
-              "type": "stringValue",
-              "stringValue": "Equipzilla"
+              "value": "Equipzilla",
+              "type": "string"
             },
             {
+              "id": "WA_DISPLAY_PHONE",
               "name": "WA_DISPLAY_PHONE",
-              "type": "stringValue",
-              "stringValue": "+34621273810"
+              "value": "+34621273810",
+              "type": "string"
             },
             {
+              "id": "DISCORD_WEBHOOK_URL",
               "name": "DISCORD_WEBHOOK_URL",
-              "type": "stringValue",
-              "stringValue": "PON_AQUI_TU_DISCORD_WEBHOOK"
+              "value": "PON_AQUI_TU_DISCORD_WEBHOOK",
+              "type": "string"
             },
             {
+              "id": "EQUIPZILLA_TOKEN",
               "name": "EQUIPZILLA_TOKEN",
-              "type": "stringValue",
-              "stringValue": "EQUIPZILLA_TOKEN_REDACTED"
+              "value": "EQUIPZILLA_TOKEN_REDACTED",
+              "type": "string"
             },
             {
+              "id": "PRIVACY_POLICY_URL",
               "name": "PRIVACY_POLICY_URL",
-              "type": "stringValue",
-              "stringValue": "https://equipzilla.com/legal/privacidad"
+              "value": "https://equipzilla.com/legal/privacidad",
+              "type": "string"
             },
             {
+              "id": "WEB_URL",
               "name": "WEB_URL",
-              "type": "stringValue",
-              "stringValue": "https://equipzilla.com"
+              "value": "https://equipzilla.com",
+              "type": "string"
             },
             {
+              "id": "CONTACT_EMAIL",
               "name": "CONTACT_EMAIL",
-              "type": "stringValue",
-              "stringValue": "rent@equipzilla.com"
+              "value": "rent@equipzilla.com",
+              "type": "string"
             },
             {
+              "id": "TIER12_ENABLED",
               "name": "TIER12_ENABLED",
-              "type": "booleanValue",
-              "booleanValue": false
+              "value": false,
+              "type": "boolean"
             },
             {
+              "id": "TIER3_ENABLED",
               "name": "TIER3_ENABLED",
-              "type": "booleanValue",
-              "booleanValue": true
+              "value": true,
+              "type": "boolean"
             },
             {
+              "id": "SEARCH_RADIUS_KM",
               "name": "SEARCH_RADIUS_KM",
-              "type": "numberValue",
-              "numberValue": 50
+              "value": 50,
+              "type": "number"
             },
             {
+              "id": "POOL_MIN_THRESHOLD",
               "name": "POOL_MIN_THRESHOLD",
-              "type": "numberValue",
-              "numberValue": 5
+              "value": 5,
+              "type": "number"
             },
             {
+              "id": "TIER3_MAX_RESULTS",
               "name": "TIER3_MAX_RESULTS",
-              "type": "numberValue",
-              "numberValue": 10
+              "value": 10,
+              "type": "number"
             },
             {
+              "id": "BUDGET_MARGIN_PCT",
               "name": "BUDGET_MARGIN_PCT",
-              "type": "numberValue",
-              "numberValue": 15
+              "value": 15,
+              "type": "number"
             },
             {
+              "id": "FIFO_RESERVATION_MINUTES",
               "name": "FIFO_RESERVATION_MINUTES",
-              "type": "numberValue",
-              "numberValue": 30
+              "value": 30,
+              "type": "number"
             },
             {
+              "id": "WATCHDOG_TIMEOUT_HOURS",
               "name": "WATCHDOG_TIMEOUT_HOURS",
-              "type": "numberValue",
-              "numberValue": 4
+              "value": 4,
+              "type": "number"
+            },
+            {
+              "id": "TEST_MODE",
+              "name": "TEST_MODE",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "TEST_REDIRECT_EMAIL",
+              "name": "TEST_REDIRECT_EMAIL",
+              "value": "maikel@equipzilla.com",
+              "type": "string"
+            },
+            {
+              "id": "WA_ENABLED",
+              "name": "WA_ENABLED",
+              "value": false,
+              "type": "boolean"
             }
           ]
-        }
+        },
+        "options": {},
+        "includeOtherFields": false
       }
     },
     {
@@ -141,7 +181,7 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "a04-availability-in",
-        "responseMode": "lastNode",
+        "responseMode": "onReceived",
         "options": {}
       },
       "webhookId": "1d5e2ac0-c842-4a0b-a589-218047c9bedc"
@@ -157,7 +197,7 @@
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "// Parser webhook Pipedrive A04: dispara cuando un deal transiciona a lost\n// con motivo de la familia 'No hay disponibilidad' (ids 357 ó 372).\n\nconst body = $input.first().json.body || $input.first().json;\nconst meta = body.meta || {};\nconst action = meta.action || body.event_action || body.event || null;\nconst object = meta.object || body.event_object || null;\nconst cur = body.current || body.data || {};\nconst prev = body.previous || {};\n\n// 1) Solo eventos de update sobre deals\nif (!String(object || '').includes('deal')) {\n  return [{ json: { ok: false, skip: true, reason: 'not_a_deal_event', object } }];\n}\nif (!String(action || '').match(/updated|change/i)) {\n  return [{ json: { ok: false, skip: true, reason: 'not_an_update', action } }];\n}\n\n// 2) Trigger A04 = transición a lost con motivo de disponibilidad\n// Trigger estricto: solo lost_reason 357 'INTERNA - No hay disponibilidad ... (OFERTA ACEPTADA)'\nconst A04_REASON_IDS = ['357', 357];\nconst isLostNow = String(cur.status || '').toLowerCase() === 'lost';\nconst wasLostBefore = String(prev.status || '').toLowerCase() === 'lost';\nconst reasonNow = cur.lost_reason_id || cur.lost_reason || null;\nconst reasonText = typeof cur.lost_reason === 'string' ? cur.lost_reason : '';\nconst reasonBefore = prev.lost_reason_id || prev.lost_reason || null;\nconst matchesA04 = A04_REASON_IDS.includes(reasonNow) ||\n  /no hay disponibilidad.*oferta\\s*aceptada/i.test(reasonText) ||\n  /falta de disponibilidad/i.test(reasonText);\n\nif (!isLostNow || !matchesA04) {\n  return [{ json: { ok: false, skip: true, reason: 'not_a04_state', status: cur.status, lost_reason: cur.lost_reason } }];\n}\n\n// Dedup: solo procesar si es transición (no estaba ya en estado A04 antes)\nconst alreadyInA04State = wasLostBefore && (\n  A04_REASON_IDS.includes(reasonBefore) ||\n  /no hay disponibilidad.*oferta\\s*aceptada/i.test(String(reasonBefore || ''))\n);\nif (alreadyInA04State) {\n  return [{ json: { ok: false, skip: true, reason: 'already_in_a04_state', deal_id: cur.id } }];\n}\n\n// 3) Mapear campos custom Pipedrive → schema A04\nconst F = {\n  assetType: '8a4171415b4177f4b7b15d0bdad9a202cf26db9b',\n  assetEngine: '93586f4a594880d752f8406c62cab4174a2495ad',\n  assetHeight: '9ab4702bc6ad498c9254eaeaad321002ecbb5500',\n  assetWeight: '049ee75fcbcb04d99bc51c29f1067850ffd5ac0e',\n  assetKVA: '66f2ac210435c4059f9452febc3109365ec092ee',\n  assetExtra: '76853669b77be85d115aa66df5c97dd5cac87b9f',\n  dateStart: 'b0bda5b24d686579053698d95f5054a9de9c3fcd',\n  dateFinish: 'dcc1a242dace8fdf0db3da26ab9428f43ae441ab',\n  zipcode: '2fd5cb02ee2858ee169c89cb1f94ab83f845173d',\n  provincia: '98bda3ea4fc70a079f03240b1d7d3f176fc158f3',\n  workAddress: '2184fde118dfc9382f1f996614fa28891f9a74c5',\n  precioTrato: 'd0a90608ec6ae27b44b57bacd8163dc7223680f0',\n  alquiladorOrig: '9a53d2ae313fbe8b092f0215219842cf64291ff7',\n  cif: '2f94333d1a105a0af27ed6a8f1ea3656b553d7c3',\n  razonSocial: '3ed9a86045d6202a652cddd85d270882690aa41b',\n  rentDuration: '1b24939d619154af830ceb305c80a3ef329b415d',\n  assetUse: 'cec043617eab0aa9a009d7feeb641ad62522cc4b'\n};\nconst pick = (k) => cur[k] !== undefined && cur[k] !== '' ? cur[k] : null;\n\nconst dateStart = pick(F.dateStart);\nconst dateEnd = pick(F.dateFinish);\nlet durationDays = null;\nif (dateStart && dateEnd) {\n  const d1 = new Date(dateStart), d2 = new Date(dateEnd);\n  if (!isNaN(d1) && !isNaN(d2)) durationDays = Math.max(1, Math.round((d2 - d1) / 86400000));\n}\nif (!durationDays && pick(F.rentDuration)) {\n  const m = String(cur[F.rentDuration]).match(/(\\d+)/);\n  if (m) durationDays = parseInt(m[1], 10);\n}\n\nconst precioTrato = parseFloat(pick(F.precioTrato)) || null;\nconst dailyRate = (precioTrato && durationDays) ? Math.round(precioTrato / durationDays) : null;\n\nconst person = cur.person_id || {};\nconst org = cur.org_id || {};\nconst personPhones = Array.isArray(person.phone) ? person.phone : [];\nconst personEmails = Array.isArray(person.email) ? person.email : [];\n\nconst payload = {\n  event: 'deal.lost.availability',\n  deal_id: String(cur.id || cur.deal_id || ''),\n  pipedrive_url: cur.id ? `https://equipzilla.pipedrive.com/deal/${cur.id}` : null,\n  client: {\n    id: person.value ? `PD-${person.value}` : null,\n    company_name: pick(F.razonSocial) || org.name || null,\n    contact_name: person.name || null,\n    phone: (personPhones[0] && personPhones[0].value) || null,\n    email: (personEmails[0] && personEmails[0].value) || null,\n    nif: pick(F.cif) || null\n  },\n  machine: {\n    category: 'elevacion',\n    subcategory: pick(F.assetType) || null,\n    specifications: {\n      tipo_motor: pick(F.assetEngine),\n      altura_trabajo_m: pick(F.assetHeight),\n      peso_kg: pick(F.assetWeight),\n      potencia_kva: pick(F.assetKVA),\n      extras: pick(F.assetExtra),\n      uso_previsto: pick(F.assetUse)\n    }\n  },\n  dates: { start: dateStart, end: dateEnd, duration_days: durationDays },\n  location: {\n    address: pick(F.workAddress),\n    city: pick(F.provincia),\n    postal_code: pick(F.zipcode),\n    lat: null, lng: null\n  },\n  budget: { estimated_total_eur: precioTrato, daily_rate_target_eur: dailyRate },\n  notes: [pick(F.assetExtra), pick(F.assetUse)].filter(Boolean).join(' · '),\n  original_supplier_id: pick(F.alquiladorOrig) ? `PD-SUP-${cur[F.alquiladorOrig]}` : null,\n  urgency: 'high',\n  _raw_lost_reason: cur.lost_reason\n};\n\nconst missing = [];\nif (!payload.deal_id) missing.push('deal_id');\nif (!payload.machine.subcategory) missing.push('machine.subcategory (assetType)');\nif (!payload.dates.start) missing.push('dates.start (dateStart)');\nif (!payload.location.postal_code && !payload.location.city) missing.push('location.postal_code|city');\n\nif (missing.length) {\n  return [{ json: { ok: false, error: 'incomplete_payload', missing, raw_current: cur, deal_id: payload.deal_id } }];\n}\nreturn [{ json: { ok: true, payload } }];"
+        "jsCode": "// Parser webhook Pipedrive A04: dispara cuando un deal transiciona a lost\n// con motivo de la familia 'No hay disponibilidad' (ids 357 ó 372).\n\nconst inp = $('Webhook A04 IN').first().json;\nconst body = inp.body || inp;\nconst meta = body.meta || {};\nconst action = meta.action || body.event_action || body.event || null;\nconst object = meta.object || body.event_object || null;\nconst cur = body.current || body.data || {};\nconst prev = body.previous || {};\n\n// 1) Solo eventos de update sobre deals\nif (!String(object || '').includes('deal')) {\n  return [{ json: { ok: false, skip: true, reason: 'not_a_deal_event', object } }];\n}\nif (!String(action || '').match(/updated|change/i)) {\n  return [{ json: { ok: false, skip: true, reason: 'not_an_update', action } }];\n}\n\n// 2) Trigger A04 = transición a lost con motivo de disponibilidad\n// Trigger estricto: solo lost_reason 357 'INTERNA - No hay disponibilidad ... (OFERTA ACEPTADA)'\nconst A04_REASON_IDS = ['357', 357];\nconst isLostNow = String(cur.status || '').toLowerCase() === 'lost';\nconst wasLostBefore = String(prev.status || '').toLowerCase() === 'lost';\nconst reasonNow = cur.lost_reason_id || cur.lost_reason || null;\nconst reasonText = typeof cur.lost_reason === 'string' ? cur.lost_reason : '';\nconst reasonBefore = prev.lost_reason_id || prev.lost_reason || null;\nconst matchesA04 = A04_REASON_IDS.includes(reasonNow) ||\n  /no hay disponibilidad.*oferta\\s*aceptada/i.test(reasonText) ||\n  /falta de disponibilidad/i.test(reasonText);\n\nif (!isLostNow || !matchesA04) {\n  return [{ json: { ok: false, skip: true, reason: 'not_a04_state', status: cur.status, lost_reason: cur.lost_reason } }];\n}\n\n// Dedup: solo procesar si es transición (no estaba ya en estado A04 antes)\nconst alreadyInA04State = wasLostBefore && (\n  A04_REASON_IDS.includes(reasonBefore) ||\n  /no hay disponibilidad.*oferta\\s*aceptada/i.test(String(reasonBefore || ''))\n);\nif (alreadyInA04State) {\n  return [{ json: { ok: false, skip: true, reason: 'already_in_a04_state', deal_id: cur.id } }];\n}\n\n// 3) Mapear campos custom Pipedrive → schema A04\nconst F = {\n  assetType: '8a4171415b4177f4b7b15d0bdad9a202cf26db9b',\n  assetEngine: '93586f4a594880d752f8406c62cab4174a2495ad',\n  assetHeight: '9ab4702bc6ad498c9254eaeaad321002ecbb5500',\n  assetWeight: '049ee75fcbcb04d99bc51c29f1067850ffd5ac0e',\n  assetKVA: '66f2ac210435c4059f9452febc3109365ec092ee',\n  assetExtra: '76853669b77be85d115aa66df5c97dd5cac87b9f',\n  dateStart: 'b0bda5b24d686579053698d95f5054a9de9c3fcd',\n  dateFinish: 'dcc1a242dace8fdf0db3da26ab9428f43ae441ab',\n  zipcode: '2fd5cb02ee2858ee169c89cb1f94ab83f845173d',\n  provincia: '98bda3ea4fc70a079f03240b1d7d3f176fc158f3',\n  workAddress: '2184fde118dfc9382f1f996614fa28891f9a74c5',\n  precioTrato: 'd0a90608ec6ae27b44b57bacd8163dc7223680f0',\n  alquiladorOrig: '9a53d2ae313fbe8b092f0215219842cf64291ff7',\n  cif: '2f94333d1a105a0af27ed6a8f1ea3656b553d7c3',\n  razonSocial: '3ed9a86045d6202a652cddd85d270882690aa41b',\n  rentDuration: '1b24939d619154af830ceb305c80a3ef329b415d',\n  assetUse: 'cec043617eab0aa9a009d7feeb641ad62522cc4b'\n};\nconst pick = (k) => cur[k] !== undefined && cur[k] !== '' ? cur[k] : null;\n\nconst dateStart = pick(F.dateStart);\nconst dateEnd = pick(F.dateFinish);\nlet durationDays = null;\nif (dateStart && dateEnd) {\n  const d1 = new Date(dateStart), d2 = new Date(dateEnd);\n  if (!isNaN(d1) && !isNaN(d2)) durationDays = Math.max(1, Math.round((d2 - d1) / 86400000));\n}\nif (!durationDays && pick(F.rentDuration)) {\n  const m = String(cur[F.rentDuration]).match(/(\\d+)/);\n  if (m) durationDays = parseInt(m[1], 10);\n}\n\nconst precioTrato = parseFloat(pick(F.precioTrato)) || null;\nconst dailyRate = (precioTrato && durationDays) ? Math.round(precioTrato / durationDays) : null;\n\nconst person = cur.person_id || {};\nconst org = cur.org_id || {};\nconst personPhones = Array.isArray(person.phone) ? person.phone : [];\nconst personEmails = Array.isArray(person.email) ? person.email : [];\n\nconst payload = {\n  event: 'deal.lost.availability',\n  deal_id: String(cur.id || cur.deal_id || ''),\n  pipedrive_url: cur.id ? `https://equipzilla.pipedrive.com/deal/${cur.id}` : null,\n  client: {\n    id: person.value ? `PD-${person.value}` : null,\n    company_name: pick(F.razonSocial) || org.name || null,\n    contact_name: person.name || null,\n    phone: (personPhones[0] && personPhones[0].value) || null,\n    email: (personEmails[0] && personEmails[0].value) || null,\n    nif: pick(F.cif) || null\n  },\n  machine: {\n    category: 'elevacion',\n    subcategory: pick(F.assetType) || null,\n    specifications: {\n      tipo_motor: pick(F.assetEngine),\n      altura_trabajo_m: pick(F.assetHeight),\n      peso_kg: pick(F.assetWeight),\n      potencia_kva: pick(F.assetKVA),\n      extras: pick(F.assetExtra),\n      uso_previsto: pick(F.assetUse)\n    }\n  },\n  dates: { start: dateStart, end: dateEnd, duration_days: durationDays },\n  location: {\n    address: pick(F.workAddress),\n    city: pick(F.provincia),\n    postal_code: pick(F.zipcode),\n    lat: null, lng: null\n  },\n  budget: { estimated_total_eur: precioTrato, daily_rate_target_eur: dailyRate },\n  notes: [pick(F.assetExtra), pick(F.assetUse)].filter(Boolean).join(' · '),\n  original_supplier_id: pick(F.alquiladorOrig) ? `PD-SUP-${cur[F.alquiladorOrig]}` : null,\n  urgency: 'high',\n  _raw_lost_reason: cur.lost_reason\n};\n\nconst missing = [];\nif (!payload.deal_id) missing.push('deal_id');\nif (!payload.machine.subcategory) missing.push('machine.subcategory (assetType)');\nif (!payload.dates.start) missing.push('dates.start (dateStart)');\nif (!payload.location.postal_code && !payload.location.city) missing.push('location.postal_code|city');\n\nif (missing.length) {\n  return [{ json: { ok: false, error: 'incomplete_payload', missing, raw_current: cur, deal_id: payload.deal_id } }];\n}\nreturn [{ json: { ok: true, payload } }];"
       }
     },
     {
@@ -302,7 +342,8 @@
           "queryReplacement": "={{ $json.oferta_anonimizada.location.lat }},{{ $json.oferta_anonimizada.location.lng }},{{ $json.oferta_anonimizada.original_supplier_id || '' }},{{ $json.oferta_anonimizada.machine.category }},{{ $('⚙️ Configuración').item.json.SEARCH_RADIUS_KM }}"
         }
       },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "disabled": true
     },
     {
       "id": "node-aggregate-tier12",
@@ -332,12 +373,12 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict"
+            "typeValidation": "loose"
           },
           "conditions": [
             {
               "leftValue": "={{ $json.tier12_count }}",
-              "rightValue": "={{ $('⚙️ Configuración').item.json.POOL_MIN_THRESHOLD }}",
+              "rightValue": 5,
               "operator": {
                 "type": "number",
                 "operation": "lt"
@@ -454,7 +495,7 @@
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const items = $input.all();\nconst pool = $('Agrupar Tier 1+2').first().json;\n\nconst enriched = items\n  .map(it => {\n    const r = (it.json && it.json.result) || {};\n    const baseIdx = it.json && it.json.place_id;\n    const baseFromInput = $('Normalizar Tier 3').all().find(x => x.json.place_id === r.place_id);\n    const base = (baseFromInput && baseFromInput.json) || {};\n    const phone = r.international_phone_number || r.formatted_phone_number || null;\n    return {\n      alquilador_id: 'PROSPECT-' + (r.place_id || base.place_id || 'unknown'),\n      nombre_comercial: r.name || base.nombre_comercial,\n      ciudad: base.ciudad,\n      whatsapp: phone ? phone.replace(/[^0-9+]/g, '') : null,\n      website: r.website || null,\n      email_comercial: null,\n      formatted_address: r.formatted_address || base.formatted_address,\n      tier: 'TIER_3',\n      origen: 'cold_enrichment'\n    };\n  })\n  .filter(r => r.whatsapp || r.email_comercial);\n\nreturn [{ json: {\n  oferta_anonimizada: pool.oferta_anonimizada,\n  raw_payload: pool.raw_payload,\n  deal_id: pool.deal_id,\n  tier12_results: pool.tier12_results,\n  tier3_results_enriched: enriched,\n  tier3_enriched_count: enriched.length\n} }];"
+        "jsCode": "const items = $input.all();\nconst pool = $('Agrupar Tier 1+2').first().json;\n\nconst deriveEmail = (website) => {\n  if (!website) return null;\n  // Regex en vez de URL() por compatibilidad sandbox\n  const m = String(website).match(/^https?:\\/\\/(?:www\\.)?([a-z0-9.-]+\\.(?:es|com|cat|net|org|eu))/i);\n  if (!m) return null;\n  const host = m[1].toLowerCase();\n  // Excluir Equipzilla mismo\n  if (host.includes('equipzilla')) return null;\n  return `info@${host}`;\n};\n\nconst enriched = items\n  .map(it => {\n    const r = (it.json && it.json.result) || {};\n    const baseFromInput = $('Normalizar Tier 3').all().find(x => x.json.place_id === r.place_id);\n    const base = (baseFromInput && baseFromInput.json) || {};\n    const phone = r.international_phone_number || r.formatted_phone_number || null;\n    const website = r.website || null;\n    const derivedEmail = deriveEmail(website);\n    return {\n      alquilador_id: 'PROSPECT-' + (r.place_id || base.place_id || 'unknown'),\n      nombre_comercial: r.name || base.nombre_comercial,\n      ciudad: base.ciudad,\n      whatsapp: phone ? phone.replace(/[^0-9+]/g, '') : null,\n      website,\n      email_comercial: derivedEmail,\n      email_derivado: !!derivedEmail,\n      formatted_address: r.formatted_address || base.formatted_address,\n      tier: 'TIER_3',\n      origen: 'cold_enrichment',\n      raw_name: r.name\n    };\n  })\n  // Dedupe por dominio (si hay 4 sucursales de la misma cadena, solo 1 email)\n  .filter((r, i, arr) => arr.findIndex(x => x.email_comercial === r.email_comercial) === i)\n  // Excluir Equipzilla por nombre también\n  .filter(r => !/equipzilla/i.test(r.raw_name || ''))\n  // Solo los que tengan email derivado\n  .filter(r => r.email_comercial);\n\nreturn [{ json: {\n  oferta_anonimizada: pool.oferta_anonimizada,\n  raw_payload: pool.raw_payload,\n  deal_id: pool.deal_id,\n  tier12_results: pool.tier12_results,\n  tier3_results_enriched: enriched,\n  tier3_enriched_count: enriched.length\n} }];"
       }
     },
     {
@@ -609,7 +650,8 @@
         "jsonBody": "={\n  \"channelId\": 403918,\n  \"message\": {\n    \"type\": \"text\",\n    \"text\": {{ JSON.stringify(($json.whatsapp && $json.whatsapp.texto || '') + '\\n\\n[ref:' + $json.tracking_id + ']') }}\n  }\n}",
         "options": {}
       },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "disabled": true
     },
     {
       "id": "node-wait-30s",
@@ -624,7 +666,8 @@
         "amount": 30,
         "unit": "seconds"
       },
-      "webhookId": "cafb9998-8855-4a4b-85bc-64914bb52f68"
+      "webhookId": "cafb9998-8855-4a4b-85bc-64914bb52f68",
+      "disabled": true
     },
     {
       "id": "node-send-email",
@@ -653,7 +696,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}\", \"name\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\" }],\n  \"subject\": {{ JSON.stringify($('Parsear respuesta Claude').item.json.email && $('Parsear respuesta Claude').item.json.email.asunto) }},\n  \"textContent\": {{ JSON.stringify(($('Parsear respuesta Claude').item.json.email && $('Parsear respuesta Claude').item.json.email.cuerpo || '') + '\\n\\nTe contactamos también por WhatsApp. Responde por el canal que prefieras.\\n\\n[ref:' + $('Parsear respuesta Claude').item.json.tracking_id + ']') }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $('Parsear respuesta Claude').item.json.tracking_id }}\" }\n}",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{\n    \"email\": \"{{ $('⚙️ Configuración').item.json.TEST_MODE ? $('⚙️ Configuración').item.json.TEST_REDIRECT_EMAIL : $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}\",\n    \"name\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\"\n  }],\n  \"subject\": {{ JSON.stringify(($('⚙️ Configuración').item.json.TEST_MODE ? '[TEST→' + ($('Parsear respuesta Claude').item.json.alquilador.email_comercial || 'no-email') + '] ' : '') + ($('Parsear respuesta Claude').item.json.email.asunto || '')) }},\n  \"textContent\": {{ JSON.stringify(($('⚙️ Configuración').item.json.TEST_MODE ? '⚠ TEST_MODE activo · destinatario real habría sido: ' + ($('Parsear respuesta Claude').item.json.alquilador.email_comercial || 'desconocido') + '\\n   alquilador: ' + ($('Parsear respuesta Claude').item.json.alquilador.nombre_comercial || '') + '\\n   website: ' + ($('Parsear respuesta Claude').item.json.alquilador.website || '') + '\\n\\n--- mensaje generado ---\\n\\n' : '') + ($('Parsear respuesta Claude').item.json.email.cuerpo || '') + '\\n\\n[ref:' + $('Parsear respuesta Claude').item.json.tracking_id + ']') }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $('Parsear respuesta Claude').item.json.tracking_id }}\" }\n}",
         "options": {}
       },
       "continueOnFail": true
@@ -684,7 +727,7 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "a04-replies-in",
-        "responseMode": "lastNode",
+        "responseMode": "onReceived",
         "options": {}
       },
       "webhookId": "155552c1-b756-4e71-8f7d-fdfec930271b"
@@ -1368,7 +1411,7 @@
         ],
         [
           {
-            "node": "Notificar payload incompleto",
+            "node": "Notificar payload incompleto (Discord)",
             "type": "main",
             "index": 0
           }
@@ -1408,7 +1451,7 @@
         ],
         [
           {
-            "node": "Notificar fuga (Slack)",
+            "node": "Notificar fuga (Discord)",
             "type": "main",
             "index": 0
           }
@@ -1523,6 +1566,7 @@
     },
     "Split por alquilador": {
       "main": [
+        [],
         [
           {
             "node": "Generar mensajes (Claude)",
@@ -1710,14 +1754,14 @@
         ],
         [
           {
-            "node": "Notificar Slack override",
+            "node": "Notificar override (Discord)",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Notificar Slack revisión humana",
+            "node": "Notificar revisión humana (Discord)",
             "type": "main",
             "index": 0
           }
@@ -1762,25 +1806,25 @@
       "main": [
         [
           {
-            "node": "Notificar Slack timeout",
+            "node": "Notificar timeout (Discord)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Notificar Slack timeout": {
+    "Notificar timeout (Discord)": {
       "main": [
         [
           {
-            "node": "Tag deal · Sin cobertura",
+            "node": "Nota Pipedrive · escalado A04",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Tag deal · Sin cobertura": {
+    "Nota Pipedrive · escalado A04": {
       "main": [
         [
           {

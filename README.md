@@ -233,6 +233,11 @@ CREATE TABLE a04_events (
 );
 ```
 
+**Modo email-only (MVP):**
+- WhatsApp cold prohibido por política Meta → nodos `Enviar WhatsApp` y `Wait 30s` **desactivados**. Flag `WA_ENABLED=false` en config para futura reactivación.
+- Para Tier 3 (sin email en Google Places), el filtro deriva `info@{domain}` desde la URL del website. Excluye automáticamente equipzilla.com y deduplica por dominio (varias sucursales de una cadena = 1 solo email).
+- Flag `TEST_MODE=true` redirige **todos los envíos** a `maikel@equipzilla.com` con prefijo `[TEST→destinatario-real] ...`. Probado funcionalmente. Para ir a producción real: cambiar `TEST_MODE=false` en `⚙️ Configuración`.
+
 **Condiciones comerciales comunicadas al alquilador en cada outreach:**
 - Comisión Equipzilla: **15%** sobre el importe del alquiler
 - El **contrato lo firma el alquilador** directamente con el cliente final
