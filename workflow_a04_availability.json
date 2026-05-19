@@ -1364,6 +1364,259 @@
         "options": {}
       },
       "continueOnFail": true
+    },
+    {
+      "id": "node-discord-email-sent",
+      "name": "Discord · email enviado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4640,
+        320
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":outbox_tray: **Email enviado a alquilador** {{ $('⚙️ Configuración').item.json.TEST_MODE ? '(modo TEST)' : '' }}\",\n  \"embeds\": [{ \"color\": 5814783, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Deal\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.deal_id }}`\", \"inline\": true },\n    { \"name\": \"Tier\", \"value\": \"{{ $('Parsear respuesta Claude').item.json.tier_aplicado }}\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
+        "options": {}
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-wait-24h",
+      "name": "Wait 24h (recordatorio 1)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4860,
+        320
+      ],
+      "parameters": {
+        "amount": 24,
+        "unit": "hours"
+      },
+      "webhookId": "ef099716-b3c7-4b7d-906b-9a8ccd8f0de6"
+    },
+    {
+      "id": "node-check-replied-1",
+      "name": "¿Ya respondió? (R1)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5080,
+        320
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const sd = $getWorkflowStaticData('global');\nconst tid = $json.tracking_id;\nconst already = sd[`replied:${tid}`];\nreturn [{ json: { ...$json, should_remind: !already, replied_at: already?.ts || null } }];"
+      }
+    },
+    {
+      "id": "node-if-not-replied-1",
+      "name": "IF no respondió R1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5300,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.should_remind }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node-send-reminder-1",
+      "name": "Brevo · Recordatorio 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5520,
+        280
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $('⚙️ Configuración').item.json.BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"{{ $('⚙️ Configuración').item.json.TEST_MODE ? $('⚙️ Configuración').item.json.TEST_REDIRECT_EMAIL : $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}\", \"name\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\" }],\n  \"subject\": {{ JSON.stringify(($('⚙️ Configuración').item.json.TEST_MODE ? '[TEST→' + ($('Parsear respuesta Claude').item.json.alquilador.email_comercial || 'no-email') + '] ' : '') + 'Recordatorio · ' + ($('Parsear respuesta Claude').item.json.email.asunto || '')) }},\n  \"textContent\": {{ JSON.stringify('Hola,\\n\\nUn recordatorio rápido sobre la oportunidad que te enviamos ayer:\\n\\n· Máquina: ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.machine.descripcion_legible || 'maquinaria solicitada') + '\\n· Zona: ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.location.city || '') + ' (' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.location.postal_code || '') + ')\\n· Fechas: ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.start || '') + ' al ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.end || '') + '\\n\\nLa operación sigue abierta y el cliente espera cobertura. Si tienes la máquina, comparte tus datos (empresa, persona, teléfono) y te llamamos.\\n\\nCondiciones: 15% comisión Equipzilla · contrato directo alquilador-cliente · presupuesto aceptado.\\n\\nPara darte de baja responde BAJA.\\n\\nGracias,\\nEquipo Equipzilla\\nrent@equipzilla.com\\n\\n[ref:' + $('Parsear respuesta Claude').item.json.tracking_id + ']') }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $('Parsear respuesta Claude').item.json.tracking_id }}\" }\n}",
+        "options": {}
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-discord-reminder-1",
+      "name": "Discord · recordatorio 1 enviado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5740,
+        280
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":bell: **Recordatorio #1 enviado** (24h sin respuesta)\",\n  \"embeds\": [{ \"color\": 16763904, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
+        "options": {}
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-wait-48h",
+      "name": "Wait 48h (recordatorio 2)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        5960,
+        280
+      ],
+      "parameters": {
+        "amount": 48,
+        "unit": "hours"
+      },
+      "webhookId": "29ea195c-1feb-4142-9b47-ebde35845191"
+    },
+    {
+      "id": "node-check-replied-2",
+      "name": "¿Ya respondió? (R2)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6180,
+        280
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const sd = $getWorkflowStaticData('global');\nconst tid = $json.tracking_id;\nconst already = sd[`replied:${tid}`];\nreturn [{ json: { ...$json, should_remind: !already, replied_at: already?.ts || null } }];"
+      }
+    },
+    {
+      "id": "node-if-not-replied-2",
+      "name": "IF no respondió R2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        6400,
+        280
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.should_remind }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node-send-reminder-2",
+      "name": "Brevo · Recordatorio 2 (final)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6620,
+        240
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $('⚙️ Configuración').item.json.BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"{{ $('⚙️ Configuración').item.json.TEST_MODE ? $('⚙️ Configuración').item.json.TEST_REDIRECT_EMAIL : $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}\", \"name\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\" }],\n  \"subject\": {{ JSON.stringify(($('⚙️ Configuración').item.json.TEST_MODE ? '[TEST→' + ($('Parsear respuesta Claude').item.json.alquilador.email_comercial || 'no-email') + '] ' : '') + 'Último seguimiento · ' + ($('Parsear respuesta Claude').item.json.email.asunto || '')) }},\n  \"textContent\": {{ JSON.stringify('Hola,\\n\\nÚltimo seguimiento sobre la oportunidad que te enviamos esta semana.\\n\\nSi tienes la máquina disponible para ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.location.city || 'la zona indicada') + ' del ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.start || '') + ' al ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.end || '') + ', responde con tus datos de contacto y cerramos.\\n\\nSi no te interesa, no te molestaremos más con esta operación.\\n\\nCondiciones: 15% comisión · contrato directo alquilador-cliente · presupuesto del cliente aceptado.\\n\\nResponde BAJA para no recibir más comunicaciones de Equipzilla.\\n\\nGracias,\\nEquipo Equipzilla\\nrent@equipzilla.com | +34 621 273 810\\n\\n[ref:' + $('Parsear respuesta Claude').item.json.tracking_id + ']') }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $('Parsear respuesta Claude').item.json.tracking_id }}\" }\n}",
+        "options": {}
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-discord-reminder-2",
+      "name": "Discord · recordatorio 2 enviado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6840,
+        240
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":bell: **Recordatorio #2 (final) enviado** (72h sin respuesta)\",\n  \"embeds\": [{ \"color\": 15105570, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
+        "options": {}
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-mark-replied",
+      "name": "Marcar replied en staticData",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        900
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const sd = $getWorkflowStaticData('global');\nconst tid = $json.tracking_id;\nif (tid) {\n  sd[`replied:${tid}`] = { ts: Date.now(), categoria: $json.categoria, canal: $json.canal };\n}\nreturn [{ json: $json }];"
+      }
     }
   ],
   "connections": {
@@ -1650,6 +1903,11 @@
             "node": "Split por alquilador",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Discord · email enviado",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -1691,7 +1949,7 @@
       "main": [
         [
           {
-            "node": "Switch por categoría",
+            "node": "Marcar replied en staticData",
             "type": "main",
             "index": 0
           }
@@ -1929,6 +2187,129 @@
         [
           {
             "node": "Discord · alquilador nuevo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord · email enviado": {
+      "main": [
+        [
+          {
+            "node": "Wait 24h (recordatorio 1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 24h (recordatorio 1)": {
+      "main": [
+        [
+          {
+            "node": "¿Ya respondió? (R1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Ya respondió? (R1)": {
+      "main": [
+        [
+          {
+            "node": "IF no respondió R1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF no respondió R1": {
+      "main": [
+        [
+          {
+            "node": "Brevo · Recordatorio 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Brevo · Recordatorio 1": {
+      "main": [
+        [
+          {
+            "node": "Discord · recordatorio 1 enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord · recordatorio 1 enviado": {
+      "main": [
+        [
+          {
+            "node": "Wait 48h (recordatorio 2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 48h (recordatorio 2)": {
+      "main": [
+        [
+          {
+            "node": "¿Ya respondió? (R2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Ya respondió? (R2)": {
+      "main": [
+        [
+          {
+            "node": "IF no respondió R2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF no respondió R2": {
+      "main": [
+        [
+          {
+            "node": "Brevo · Recordatorio 2 (final)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Brevo · Recordatorio 2 (final)": {
+      "main": [
+        [
+          {
+            "node": "Discord · recordatorio 2 enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar replied en staticData": {
+      "main": [
+        [
+          {
+            "node": "Switch por categoría",
             "type": "main",
             "index": 0
           }
