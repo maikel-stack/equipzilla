@@ -70,7 +70,7 @@
             {
               "id": "DISCORD_WEBHOOK_URL",
               "name": "DISCORD_WEBHOOK_URL",
-              "value": "PON_AQUI_TU_DISCORD_WEBHOOK",
+              "value": "DISCORD_WEBHOOK_URL_REDACTED",
               "type": "string"
             },
             {
@@ -260,7 +260,7 @@
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const p = $json.payload;\nconst marginPct = $('⚙️ Configuración').item.json.BUDGET_MARGIN_PCT || 15;\nconst nowIso = new Date().toISOString();\nconst trackingRoot = `TRK-${p.deal_id}-${Date.now()}`;\n\nconst specs = p.machine.specifications || {};\nconst specBits = [];\nif (specs.tipo_motor) specBits.push(String(specs.tipo_motor));\nif (specs.altura_trabajo_m) specBits.push(`${specs.altura_trabajo_m} m altura`);\nif (specs.potencia_kva) specBits.push(`${specs.potencia_kva} kVA`);\nif (specs.peso_kg) specBits.push(`${specs.peso_kg} kg`);\nconst subcat = String(p.machine.subcategory || p.machine.category || 'maquina').replace(/_/g, ' ');\nconst desc = `${subcat.charAt(0).toUpperCase() + subcat.slice(1)}${specBits.length ? ' ' + specBits.join(', ') : ''}`;\n\nconst constraints = [];\nif (p.notes) {\n  const n = String(p.notes);\n  if (/zbe|baja[s]?\\s*emis/i.test(n)) constraints.push('Acceso restringido por ZBE / bajas emisiones');\n  if (/altura\\s*libre/i.test(n)) constraints.push('Restricción de altura libre');\n  if (/peso\\s*m[áa]ximo/i.test(n)) constraints.push('Restricción de peso máximo');\n  if (/acceso\\s*restring/i.test(n)) constraints.push('Acceso restringido');\n}\n\nconst targetEur = (p.budget && p.budget.daily_rate_target_eur) || null;\nconst maxEur = targetEur ? Math.round(targetEur * (1 + marginPct / 100)) : null;\n\nconst oferta = {\n  tracking_root_id: trackingRoot,\n  deal_id_internal: p.deal_id,\n  original_supplier_id: p.original_supplier_id || null,\n  machine: {\n    category: p.machine.category,\n    subcategory: p.machine.subcategory || null,\n    specifications: specs,\n    descripcion_legible: desc\n  },\n  dates: {\n    start: p.dates.start,\n    end: p.dates.end || null,\n    duration_days: p.dates.duration_days || null,\n    urgency: p.urgency || 'normal'\n  },\n  location: {\n    city: (p.location && p.location.city) || null,\n    postal_code: (p.location && p.location.postal_code) || null,\n    zone_label: (p.location && (p.location.zone_label || p.location.city)) || null,\n    lat: (p.location && p.location.lat) || null,\n    lng: (p.location && p.location.lng) || null\n  },\n  constraints,\n  budget_range: { daily_rate_target_eur: targetEur, daily_rate_max_eur: maxEur },\n  generated_at: nowIso\n};\n\nreturn [{ json: { oferta_anonimizada: oferta, raw_payload: p, deal_id: p.deal_id } }];"
+        "jsCode": "const p = $json.payload;\nconst marginPct = $('⚙️ Configuración').item.json.BUDGET_MARGIN_PCT || 15;\nconst nowIso = new Date().toISOString();\nconst trackingRoot = `TRK-${p.deal_id}-${Date.now()}`;\n\nconst specs = p.machine.specifications || {};\nconst specBits = [];\nif (specs.tipo_motor) specBits.push(String(specs.tipo_motor));\nif (specs.altura_trabajo_m) specBits.push(`${specs.altura_trabajo_m} m altura`);\nif (specs.potencia_kva) specBits.push(`${specs.potencia_kva} kVA`);\nif (specs.peso_kg) specBits.push(`${specs.peso_kg} kg`);\nconst subcat = String(p.machine.subcategory || p.machine.category || 'maquina').replace(/_/g, ' ');\nconst desc = `${subcat.charAt(0).toUpperCase() + subcat.slice(1)}${specBits.length ? ' ' + specBits.join(', ') : ''}`;\n\nconst constraints = [];\nif (p.notes) {\n  const n = String(p.notes);\n  if (/zbe|baja[s]?\\s*emis/i.test(n)) constraints.push('Acceso restringido por ZBE / bajas emisiones');\n  if (/altura\\s*libre/i.test(n)) constraints.push('Restricción de altura libre');\n  if (/peso\\s*m[áa]ximo/i.test(n)) constraints.push('Restricción de peso máximo');\n  if (/acceso\\s*restring/i.test(n)) constraints.push('Acceso restringido');\n}\n\nconst total = (p.budget && p.budget.estimated_total_eur) || null;\nconst targetEur = (p.budget && p.budget.daily_rate_target_eur) || null;\nconst maxEur = targetEur ? Math.round(targetEur * (1 + marginPct / 100)) : null;\nconst durDays = (p.dates && p.dates.duration_days) || null;\n\nconst oferta = {\n  tracking_root_id: trackingRoot,\n  deal_id_internal: p.deal_id,\n  original_supplier_id: p.original_supplier_id || null,\n  machine: {\n    category: p.machine.category,\n    subcategory: p.machine.subcategory || null,\n    specifications: specs,\n    descripcion_legible: desc\n  },\n  dates: {\n    start: p.dates.start,\n    end: p.dates.end || null,\n    duration_days: durDays,\n    urgency: p.urgency || 'normal'\n  },\n  location: {\n    city: (p.location && p.location.city) || null,\n    postal_code: (p.location && p.location.postal_code) || null,\n    zone_label: (p.location && (p.location.zone_label || p.location.city)) || null,\n    lat: (p.location && p.location.lat) || null,\n    lng: (p.location && p.location.lng) || null\n  },\n  constraints,\n  // ─── BLOQUE ECONÓMICO COMPLETO ─────────────────────────────────────\n  presupuesto: {\n    total_eur: total,\n    tarifa_diaria_eur: targetEur,\n    tarifa_diaria_max_eur: maxEur,\n    duracion_dias: durDays,\n    moneda: 'EUR',\n    estado: 'aceptado_por_cliente'\n  },\n  // legacy compat\n  budget_range: { daily_rate_target_eur: targetEur, daily_rate_max_eur: maxEur },\n  generated_at: nowIso\n};\n\nreturn [{ json: { oferta_anonimizada: oferta, raw_payload: p, deal_id: p.deal_id } }];"
       }
     },
     {
@@ -571,7 +571,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 1400,\n  \"temperature\": 0.4,\n  \"system\": \"Eres A04 Availability Resolver, agente de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en España.\\n\\n== MISIÓN ==\\nCuando un trato no tiene cobertura del alquilador asignado, generas mensajes personalizados (WhatsApp + email) dirigidos a alquiladores alternativos para conseguir cobertura SIN exponer datos del cliente final.\\n\\n== PROTOCOLO DE PRIVACIDAD (CRÍTICO — NO NEGOCIABLE) ==\\nNUNCA incluyas en los mensajes: nombre/razón social/NIF del cliente, teléfono/email/web del cliente, nombre exacto de la obra, nombres propios de personas relacionadas con el cliente, ni dirección exacta del trabajo (solo ciudad, barrio o CP).\\nSÍ puedes incluir: tipo y especificaciones técnicas de la máquina, fechas, duración, urgencia, zona geográfica aproximada, condiciones de acceso (ZBE, altura libre, peso máx., accesos restringidos) sin identificar la obra.\\nSi detectas datos de cliente que deberían anonimizarse y no lo están, devuelve validacion_privacidad='bloqueado' y NO generes el mensaje.\\n\\n== CONDICIONES COMERCIALES DE EQUIPZILLA (incluir SIEMPRE en el email; en WhatsApp solo si cabe) ==\\nDebes comunicar al alquilador estas tres condiciones operativas claramente:\\n1. **Comisión Equipzilla: 15%** sobre el importe del alquiler.\\n2. **El contrato lo firma el alquilador directamente con el cliente final** (Equipzilla facilita la operación pero no es el firmante del contrato de alquiler).\\n3. **El presupuesto del cliente ya está aceptado** (la operación está cerrada por el lado del cliente — solo falta cobertura).\\nNO reveles el techo de presupuesto al alquilador; pide su tarifa abierta.\\n\\n== CALL TO ACTION (siempre, en WhatsApp y email) ==\\nCierra pidiendo al alquilador que, si tiene la máquina disponible y quiere cerrar la oportunidad, comparta sus datos de contacto (nombre de empresa, persona de contacto y teléfono) para que el equipo de Equipzilla le llame.\\n\\n== TONO ==\\nProfesional, directo, B2B. Mensajes breves: el alquilador debe saber en menos de 10s si le interesa. WhatsApp permite emojis útiles; email más formal sin emojis.\\n\\n== TIER DE CONTACTO ==\\nTIER_1 — Alquilador activo con histórico. Tono familiar, directo, sin presentación.\\nTIER_2 — Alquilador inactivo. Tono de reactivación: recordatorio breve + propuesta concreta.\\nTIER_3 — Alquilador externo, contacto en frío. Tono formal con presentación corporativa breve, base legal (interés legítimo B2B art. 6.1.f RGPD) y opt-out explícito (BAJA) en el mismo mensaje. Email Tier 3 incluye enlace a política de privacidad.\\n\\n== SALIDA ESPERADA ==\\nDevuelves SIEMPRE un único objeto JSON con esta estructura exacta, sin markdown ni texto adicional:\\n{\\\"validacion_privacidad\\\":\\\"ok\\\"|\\\"bloqueado\\\",\\\"razon_bloqueo\\\":null,\\\"whatsapp\\\":{\\\"texto\\\":\\\"...\\\"},\\\"email\\\":{\\\"asunto\\\":\\\"...\\\",\\\"cuerpo\\\":\\\"...\\\"},\\\"tier_aplicado\\\":\\\"TIER_1\\\"|\\\"TIER_2\\\"|\\\"TIER_3\\\",\\\"tracking_id\\\":\\\"string único\\\"}\\n\\nPRIORIDADES: 1) Privacidad del cliente, 2) Comunicar las 3 condiciones de Equipzilla, 3) CTA pidiendo datos de contacto, 4) Claridad y brevedad, 5) Cumplimiento legal.\",\n  \"messages\": [{\"role\":\"user\",\"content\": {{ JSON.stringify(JSON.stringify({ oferta_anonimizada: $json.oferta_anonimizada, alquilador: $json.alquilador, equipzilla: { web: $('⚙️ Configuración').item.json.WEB_URL, contact_email: $('⚙️ Configuración').item.json.CONTACT_EMAIL, telefono: $('⚙️ Configuración').item.json.WA_DISPLAY_PHONE, privacy_url: $('⚙️ Configuración').item.json.PRIVACY_POLICY_URL } })) }} }]\n}",
+        "jsonBody": "={{ JSON.stringify($json.claude_body) }}",
         "options": {}
       },
       "continueOnFail": true
@@ -1140,7 +1140,8 @@
             }
           ]
         }
-      }
+      },
+      "disabled": true
     },
     {
       "id": "node-watchdog-scan",
@@ -1617,6 +1618,20 @@
         "language": "javaScript",
         "jsCode": "const sd = $getWorkflowStaticData('global');\nconst tid = $json.tracking_id;\nif (tid) {\n  sd[`replied:${tid}`] = { ts: Date.now(), categoria: $json.categoria, canal: $json.canal };\n}\nreturn [{ json: $json }];"
       }
+    },
+    {
+      "id": "node-claude-build-body",
+      "name": "Construir body Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2770,
+        380
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const SYSTEM_PROMPT = \"Eres A04 Availability Resolver, agente de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en Espa\\u00f1a.\\n\\n== MISI\\u00d3N ==\\nCuando un trato no tiene cobertura del alquilador asignado, generas el email dirigido a alquiladores alternativos para conseguir cobertura SIN exponer datos del cliente final.\\n\\n== PROTOCOLO DE PRIVACIDAD (CR\\u00cdTICO \\u2014 NO NEGOCIABLE) ==\\nNUNCA incluyas: nombre/raz\\u00f3n social/NIF del cliente, tel\\u00e9fono/email/web del cliente, nombre exacto de obra, nombres propios de personas relacionadas con el cliente, ni direcci\\u00f3n exacta del trabajo (solo ciudad o CP).\\nS\\u00cd puedes incluir: tipo y especificaciones t\\u00e9cnicas de la m\\u00e1quina, fechas, duraci\\u00f3n, urgencia, zona aproximada, condiciones de acceso (ZBE, altura libre, peso m\\u00e1x., accesos restringidos), y el bloque econ\\u00f3mico completo.\\nSi detectas datos de cliente que deber\\u00edan anonimizarse, devuelve validacion_privacidad=bloqueado y NO generes el mensaje.\\n\\n== DATOS ECON\\u00d3MICOS A INCLUIR SIEMPRE ==\\nMuestra el bloque econ\\u00f3mico de la operaci\\u00f3n con TRANSPARENCIA:\\n- Importe TOTAL del alquiler (presupuesto.total_eur \\u20ac)\\n- Tarifa diaria objetivo (presupuesto.tarifa_diaria_eur \\u20ac/d\\u00eda)\\n- Duraci\\u00f3n (presupuesto.duracion_dias d\\u00edas)\\n- Estado: presupuesto aceptado por el cliente\\n\\nLa tarifa diaria es la TARIFA OBJETIVO acordada con el cliente. El alquilador es libre de aceptarla o proponer otra; en ese caso se renegocia.\\n\\n== CONDICIONES COMERCIALES DE EQUIPZILLA (incluir SIEMPRE) ==\\n1. Comisi\\u00f3n Equipzilla: 15% sobre lo que paga el cliente (Equipzilla la descuenta al facturar al alquilador).\\n2. El contrato lo firma el alquilador directamente con el cliente final (Equipzilla facilita, no es firmante).\\n3. El presupuesto del cliente ya est\\u00e1 aceptado (solo falta cobertura, operaci\\u00f3n lista para cerrar).\\n4. SIN RIESGO FINANCIERO PARA EL ALQUILADOR: Equipzilla solo factura al alquilador cuando el cliente final haya pagado. Si el cliente no paga, el alquilador no debe nada a Equipzilla. Dest\\u00e1calo claramente, es un argumento clave.\\n\\n== CALL TO ACTION ==\\nCierra pidiendo al alquilador que, si tiene la m\\u00e1quina disponible y quiere cerrar, comparta sus datos de contacto (empresa, persona, tel\\u00e9fono) para que Equipzilla le llame.\\n\\n== TONO ==\\nProfesional, directo, B2B. Email formal sin emojis. Estructurado con bloques claros: m\\u00e1quina, ubicaci\\u00f3n, fechas, importe, condiciones, CTA, base legal.\\n\\n== TIER ==\\nTIER_1 \\u2014 Alquilador activo con hist\\u00f3rico. Tono familiar, sin presentaci\\u00f3n.\\nTIER_2 \\u2014 Alquilador inactivo. Tono de reactivaci\\u00f3n.\\nTIER_3 \\u2014 Externo, cold. Tono formal con presentaci\\u00f3n corporativa breve, base legal (inter\\u00e9s leg\\u00edtimo B2B art. 6.1.f RGPD) y opt-out expl\\u00edcito (BAJA). Incluye enlace a pol\\u00edtica de privacidad.\\n\\n== SALIDA ESPERADA ==\\nSolo este objeto JSON sin markdown:\\nvalidacion_privacidad: ok o bloqueado\\nrazon_bloqueo: null o string\\nwhatsapp: { texto: string }\\nemail: { asunto: string, cuerpo: string }\\ntier_aplicado: TIER_1 o TIER_2 o TIER_3\\ntracking_id: string \\u00fanico\\n\\nPRIORIDADES: 1) Privacidad del cliente, 2) Datos econ\\u00f3micos transparentes, 3) Sin riesgo financiero, 4) Condiciones Equipzilla, 5) CTA datos contacto, 6) Cumplimiento legal.\";\n\nconst cfg = $('⚙️ Configuración').item.json;\nconst equipzilla = {\n  web: cfg.WEB_URL,\n  contact_email: cfg.CONTACT_EMAIL,\n  telefono: cfg.WA_DISPLAY_PHONE,\n  privacy_url: cfg.PRIVACY_POLICY_URL\n};\n\nconst userPayload = JSON.stringify({\n  oferta_anonimizada: $json.oferta_anonimizada,\n  alquilador: $json.alquilador,\n  equipzilla\n});\n\nconst body = {\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 1600,\n  temperature: 0.4,\n  system: SYSTEM_PROMPT,\n  messages: [{ role: 'user', content: userPayload }]\n};\n\nreturn [{ json: { claude_body: body, alquilador: $json.alquilador, oferta_anonimizada: $json.oferta_anonimizada, deal_id: $json.deal_id, raw_payload: $json.raw_payload } }];"
+      }
     }
   ],
   "connections": {
@@ -1822,7 +1837,7 @@
         [],
         [
           {
-            "node": "Generar mensajes (Claude)",
+            "node": "Construir body Claude",
             "type": "main",
             "index": 0
           }
@@ -2310,6 +2325,17 @@
         [
           {
             "node": "Switch por categoría",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construir body Claude": {
+      "main": [
+        [
+          {
+            "node": "Generar mensajes (Claude)",
             "type": "main",
             "index": 0
           }
