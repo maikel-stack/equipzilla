@@ -523,7 +523,7 @@
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const src = $json;\nconst tier12 = src.tier12_results || [];\nconst tier3 = (src.tier3_results_enriched || []).map(r => ({\n  alquilador_id: r.alquilador_id,\n  nombre_comercial: r.nombre_comercial,\n  email_comercial: r.email_comercial,\n  whatsapp: r.whatsapp,\n  ciudad: r.ciudad,\n  tier: 'TIER_3',\n  origen: 'cold_enrichment'\n}));\n\nconst seen = new Set();\nconst pool = [];\nfor (const a of [...tier12, ...tier3]) {\n  const key = (a.alquilador_id || '') + '|' + (a.whatsapp || '') + '|' + (a.email_comercial || '');\n  if (seen.has(key)) continue;\n  seen.add(key);\n  if (!a.whatsapp && !a.email_comercial) continue;\n  pool.push(a);\n}\n\nreturn pool.map(a => ({ json: {\n  alquilador: a,\n  oferta_anonimizada: src.oferta_anonimizada,\n  deal_id: src.deal_id,\n  raw_payload: src.raw_payload\n} }));"
+        "jsCode": "const src = $json;\nconst tier12 = src.tier12_results || [];\nconst tier3 = (src.tier3_results_enriched || []).map(r => ({\n  alquilador_id: r.alquilador_id,\n  nombre_comercial: r.nombre_comercial,\n  email_comercial: r.email_comercial,\n  whatsapp: r.whatsapp,\n  ciudad: r.ciudad,\n  website: r.website,\n  tier: 'TIER_3',\n  origen: 'cold_enrichment'\n}));\n\nconst seen = new Set();\nconst pool = [];\nfor (const a of [...tier12, ...tier3]) {\n  const key = (a.alquilador_id || '') + '|' + (a.email_comercial || '') + '|' + (a.whatsapp || '');\n  if (seen.has(key)) continue;\n  seen.add(key);\n  if (!a.email_comercial) continue;\n  pool.push(a);\n}\n\nif (pool.length === 0) {\n  return [{ json: {\n    empty_pool: true,\n    deal_id: src.deal_id,\n    oferta_anonimizada: src.oferta_anonimizada,\n    raw_payload: src.raw_payload,\n    tier12_count: tier12.length,\n    tier3_count: (src.tier3_results_enriched || []).length\n  } }];\n}\n\nreturn pool.map(a => ({ json: {\n  empty_pool: false,\n  alquilador: a,\n  oferta_anonimizada: src.oferta_anonimizada,\n  deal_id: src.deal_id,\n  raw_payload: src.raw_payload\n} }));"
       }
     },
     {
@@ -1681,6 +1681,55 @@
           "combinator": "and"
         }
       }
+    },
+    {
+      "id": "node-empty-pool-check",
+      "name": "¿Pool vacío?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2550,
+        380
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.empty_pool }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node-discord-empty-pool",
+      "name": "Discord · sin candidatos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2770,
+        240
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":mag: **Sin candidatos automatizados** — gestionar manualmente\",\n  \"embeds\": [{ \"color\": 15844367, \"fields\": [\n    { \"name\": \"Deal\", \"value\": \"`{{ $json.deal_id }}`\", \"inline\": true },\n    { \"name\": \"Zona\", \"value\": \"{{ $json.oferta_anonimizada.location.city || '—' }} ({{ $json.oferta_anonimizada.location.postal_code || '—' }})\", \"inline\": true },\n    { \"name\": \"Máquina\", \"value\": \"{{ $json.oferta_anonimizada.machine.descripcion_legible }}\", \"inline\": false },\n    { \"name\": \"Fechas\", \"value\": \"{{ $json.oferta_anonimizada.dates.start }} → {{ $json.oferta_anonimizada.dates.end }}\", \"inline\": true },\n    { \"name\": \"Tier 1+2 / Tier 3\", \"value\": \"{{ $json.tier12_count }} / {{ $json.tier3_count }}\", \"inline\": true },\n    { \"name\": \"Pipedrive\", \"value\": \"https://equipzilla.pipedrive.com/deal/{{ $json.deal_id }}\", \"inline\": false }\n  ] }]\n}",
+        "options": {}
+      },
+      "continueOnFail": true
     }
   ],
   "connections": {
@@ -1874,7 +1923,7 @@
       "main": [
         [
           {
-            "node": "Split por alquilador",
+            "node": "¿Pool vacío?",
             "type": "main",
             "index": 0
           }
@@ -2412,6 +2461,24 @@
           }
         ],
         []
+      ]
+    },
+    "¿Pool vacío?": {
+      "main": [
+        [
+          {
+            "node": "Discord · sin candidatos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split por alquilador",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
