@@ -148,7 +148,7 @@
             {
               "id": "TEST_MODE",
               "name": "TEST_MODE",
-              "value": true,
+              "value": false,
               "type": "boolean"
             },
             {
