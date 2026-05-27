@@ -1380,7 +1380,7 @@
         "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":outbox_tray: **Email enviado a alquilador** {{ $('⚙️ Configuración').item.json.TEST_MODE ? '(modo TEST)' : '' }}\",\n  \"embeds\": [{ \"color\": 5814783, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Deal\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.deal_id }}`\", \"inline\": true },\n    { \"name\": \"Tier\", \"value\": \"{{ $('Parsear respuesta Claude').item.json.tier_aplicado }}\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":outbox_tray: **Email enviado a alquilador** {{ $('⚙️ Configuración').item.json.TEST_MODE ? '(modo TEST)' : '' }}\",\n  \"embeds\": [{ \"color\": 5814783, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Deal\", \"value\": \"`{{ $json.deal_id }}`\", \"inline\": true },\n    { \"name\": \"Tier\", \"value\": \"{{ $json.tier_aplicado }}\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
         "options": {}
       },
       "continueOnFail": true
@@ -1471,7 +1471,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"{{ $('⚙️ Configuración').item.json.TEST_MODE ? $('⚙️ Configuración').item.json.TEST_REDIRECT_EMAIL : $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}\", \"name\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\" }],\n  \"bcc\": [\n    { \"email\": \"maikel@equipzilla.com\", \"name\": \"Maikel\" },\n    { \"email\": \"david@equipzilla.com\", \"name\": \"David\" },\n    { \"email\": \"andres@equipzilla.com\", \"name\": \"Andres\" },\n    { \"email\": \"lorenzo@equipzilla.com\", \"name\": \"Lorenzo\" },\n    { \"email\": \"paola@equipzilla.com\", \"name\": \"Paola\" }\n  ],\n  \"subject\": {{ JSON.stringify(($('⚙️ Configuración').item.json.TEST_MODE ? '[TEST→' + ($('Parsear respuesta Claude').item.json.alquilador.email_comercial || 'no-email') + '] ' : '') + 'Recordatorio · ' + ($('Parsear respuesta Claude').item.json.email.asunto || '')) }},\n  \"textContent\": {{ JSON.stringify('Hola,\\n\\nUn recordatorio rápido sobre la oportunidad que te enviamos ayer:\\n\\n· Máquina: ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.machine.descripcion_legible || 'maquinaria solicitada') + '\\n· Zona: ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.location.city || '') + ' (' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.location.postal_code || '') + ')\\n· Fechas: ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.start || '') + ' al ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.end || '') + '\\n\\nLa operación sigue abierta y el cliente espera cobertura. Si tienes la máquina, comparte tus datos (empresa, persona, teléfono) y te llamamos.\\n\\nCondiciones: 15% comisión Equipzilla · contrato directo alquilador-cliente · presupuesto aceptado.\\n\\nPara darte de baja responde BAJA.\\n\\nGracias,\\nEquipo Equipzilla\\nrent@equipzilla.com\\n\\n[ref:' + $('Parsear respuesta Claude').item.json.tracking_id + ']') }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $('Parsear respuesta Claude').item.json.tracking_id }}\" }\n}",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"{{ $('⚙️ Configuración').item.json.TEST_MODE ? $('⚙️ Configuración').item.json.TEST_REDIRECT_EMAIL : $json.alquilador.email_comercial }}\", \"name\": \"{{ $json.alquilador.nombre_comercial }}\" }],\n  \"bcc\": [\n    { \"email\": \"maikel@equipzilla.com\", \"name\": \"Maikel\" },\n    { \"email\": \"david@equipzilla.com\", \"name\": \"David\" },\n    { \"email\": \"andres@equipzilla.com\", \"name\": \"Andres\" },\n    { \"email\": \"lorenzo@equipzilla.com\", \"name\": \"Lorenzo\" },\n    { \"email\": \"paola@equipzilla.com\", \"name\": \"Paola\" }\n  ],\n  \"subject\": {{ JSON.stringify(($('⚙️ Configuración').item.json.TEST_MODE ? '[TEST→' + ($json.alquilador.email_comercial || 'no-email') + '] ' : '') + 'Recordatorio · ' + ($json.email.asunto || '')) }},\n  \"textContent\": {{ JSON.stringify('Hola,\\n\\nUn recordatorio rápido sobre la oportunidad que te enviamos ayer:\\n\\n· Máquina: ' + ($json.oferta_anonimizada.machine.descripcion_legible || 'maquinaria solicitada') + '\\n· Zona: ' + ($json.oferta_anonimizada.location.city || '') + ' (' + ($json.oferta_anonimizada.location.postal_code || '') + ')\\n· Fechas: ' + ($json.oferta_anonimizada.dates.start || '') + ' al ' + ($json.oferta_anonimizada.dates.end || '') + '\\n\\nLa operación sigue abierta y el cliente espera cobertura. Si tienes la máquina, comparte tus datos (empresa, persona, teléfono) y te llamamos.\\n\\nCondiciones: 15% comisión Equipzilla · contrato directo alquilador-cliente · presupuesto aceptado.\\n\\nPara darte de baja responde BAJA.\\n\\nGracias,\\nEquipo Equipzilla\\nrent@equipzilla.com\\n\\n[ref:' + $json.tracking_id + ']') }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $json.tracking_id }}\" }\n}",
         "options": {}
       },
       "continueOnFail": true
@@ -1490,7 +1490,7 @@
         "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":bell: **Recordatorio #1 enviado** (24h sin respuesta)\",\n  \"embeds\": [{ \"color\": 16763904, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":bell: **Recordatorio #1 enviado** (24h sin respuesta)\",\n  \"embeds\": [{ \"color\": 16763904, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
         "options": {}
       },
       "continueOnFail": true
@@ -1581,7 +1581,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"{{ $('⚙️ Configuración').item.json.TEST_MODE ? $('⚙️ Configuración').item.json.TEST_REDIRECT_EMAIL : $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}\", \"name\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\" }],\n  \"bcc\": [\n    { \"email\": \"maikel@equipzilla.com\", \"name\": \"Maikel\" },\n    { \"email\": \"david@equipzilla.com\", \"name\": \"David\" },\n    { \"email\": \"andres@equipzilla.com\", \"name\": \"Andres\" },\n    { \"email\": \"lorenzo@equipzilla.com\", \"name\": \"Lorenzo\" },\n    { \"email\": \"paola@equipzilla.com\", \"name\": \"Paola\" }\n  ],\n  \"subject\": {{ JSON.stringify(($('⚙️ Configuración').item.json.TEST_MODE ? '[TEST→' + ($('Parsear respuesta Claude').item.json.alquilador.email_comercial || 'no-email') + '] ' : '') + 'Último seguimiento · ' + ($('Parsear respuesta Claude').item.json.email.asunto || '')) }},\n  \"textContent\": {{ JSON.stringify('Hola,\\n\\nÚltimo seguimiento sobre la oportunidad que te enviamos esta semana.\\n\\nSi tienes la máquina disponible para ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.location.city || 'la zona indicada') + ' del ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.start || '') + ' al ' + ($('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.end || '') + ', responde con tus datos de contacto y cerramos.\\n\\nSi no te interesa, no te molestaremos más con esta operación.\\n\\nCondiciones: 15% comisión · contrato directo alquilador-cliente · presupuesto del cliente aceptado.\\n\\nResponde BAJA para no recibir más comunicaciones de Equipzilla.\\n\\nGracias,\\nEquipo Equipzilla\\nrent@equipzilla.com | +34 621 273 810\\n\\n[ref:' + $('Parsear respuesta Claude').item.json.tracking_id + ']') }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $('Parsear respuesta Claude').item.json.tracking_id }}\" }\n}",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"{{ $('⚙️ Configuración').item.json.TEST_MODE ? $('⚙️ Configuración').item.json.TEST_REDIRECT_EMAIL : $json.alquilador.email_comercial }}\", \"name\": \"{{ $json.alquilador.nombre_comercial }}\" }],\n  \"bcc\": [\n    { \"email\": \"maikel@equipzilla.com\", \"name\": \"Maikel\" },\n    { \"email\": \"david@equipzilla.com\", \"name\": \"David\" },\n    { \"email\": \"andres@equipzilla.com\", \"name\": \"Andres\" },\n    { \"email\": \"lorenzo@equipzilla.com\", \"name\": \"Lorenzo\" },\n    { \"email\": \"paola@equipzilla.com\", \"name\": \"Paola\" }\n  ],\n  \"subject\": {{ JSON.stringify(($('⚙️ Configuración').item.json.TEST_MODE ? '[TEST→' + ($json.alquilador.email_comercial || 'no-email') + '] ' : '') + 'Último seguimiento · ' + ($json.email.asunto || '')) }},\n  \"textContent\": {{ JSON.stringify('Hola,\\n\\nÚltimo seguimiento sobre la oportunidad que te enviamos esta semana.\\n\\nSi tienes la máquina disponible para ' + ($json.oferta_anonimizada.location.city || 'la zona indicada') + ' del ' + ($json.oferta_anonimizada.dates.start || '') + ' al ' + ($json.oferta_anonimizada.dates.end || '') + ', responde con tus datos de contacto y cerramos.\\n\\nSi no te interesa, no te molestaremos más con esta operación.\\n\\nCondiciones: 15% comisión · contrato directo alquilador-cliente · presupuesto del cliente aceptado.\\n\\nResponde BAJA para no recibir más comunicaciones de Equipzilla.\\n\\nGracias,\\nEquipo Equipzilla\\nrent@equipzilla.com | +34 621 273 810\\n\\n[ref:' + $json.tracking_id + ']') }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $json.tracking_id }}\" }\n}",
         "options": {}
       },
       "continueOnFail": true
@@ -1600,7 +1600,7 @@
         "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":bell: **Recordatorio #2 (final) enviado** (72h sin respuesta)\",\n  \"embeds\": [{ \"color\": 15105570, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $('Parsear respuesta Claude').item.json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":bell: **Recordatorio #2 (final) enviado** (72h sin respuesta)\",\n  \"embeds\": [{ \"color\": 15105570, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
         "options": {}
       },
       "continueOnFail": true
@@ -1630,7 +1630,7 @@
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const SYSTEM_PROMPT = \"Eres A04 Availability Resolver, agente de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en Espa\\u00f1a.\\n\\n== MISI\\u00d3N ==\\nCuando un trato no tiene cobertura del alquilador asignado, generas el email dirigido a alquiladores alternativos para conseguir cobertura SIN exponer datos del cliente final.\\n\\n== PROTOCOLO DE PRIVACIDAD (CR\\u00cdTICO) ==\\nNUNCA incluyas: nombre/raz\\u00f3n social/NIF del cliente, tel\\u00e9fono/email/web del cliente, nombre exacto de obra, nombres propios, ni direcci\\u00f3n exacta del trabajo (solo ciudad o CP).\\nS\\u00cd puedes incluir: tipo y especificaciones t\\u00e9cnicas de la m\\u00e1quina, fechas, duraci\\u00f3n, urgencia, zona aproximada, condiciones de acceso, y datos econ\\u00f3micos disponibles.\\nSi detectas datos sensibles del cliente que deber\\u00edan anonimizarse y NO est\\u00e1n anonimizados, devuelve validacion_privacidad=bloqueado.\\n\\n== DATOS ECON\\u00d3MICOS ==\\nSi presupuesto.total_eur o presupuesto.tarifa_diaria_eur est\\u00e1n presentes (valor num\\u00e9rico), mu\\u00e9stralos en el email para transparencia:\\n- Importe TOTAL: X \\u20ac\\n- Tarifa diaria: X \\u20ac/d\\u00eda\\n- Duraci\\u00f3n: X d\\u00edas\\n- Estado: presupuesto aceptado por el cliente\\n\\nSi NO est\\u00e1n presentes (null/0), OMITE esa secci\\u00f3n y simplemente di que el presupuesto se acordar\\u00e1 al contactar. NO bloquees el env\\u00edo por falta de datos econ\\u00f3micos \\u2014 solo bloqu\\u00e9alo por fugas de PII.\\n\\n== CONDICIONES COMERCIALES (siempre) ==\\n1. Comisi\\u00f3n Equipzilla 15% sobre lo que paga el cliente\\n2. Contrato directo alquilador-cliente\\n3. Presupuesto del cliente ya aceptado (operaci\\u00f3n lista para cerrar)\\n4. SIN RIESGO FINANCIERO: Equipzilla solo factura al alquilador cuando el cliente final haya pagado\\n\\n== CTA ==\\nPide datos de contacto (empresa, persona, tel\\u00e9fono) para que Equipzilla llame.\\n\\n== TONO ==\\nProfesional, B2B, formal sin emojis. Estructurado.\\n\\n== TIER ==\\nTIER_3 \\u2014 Cold. Presentaci\\u00f3n corporativa breve, base legal RGPD art. 6.1.f y opt-out BAJA. Enlace a pol\\u00edtica de privacidad.\\n\\n== SALIDA ==\\nSolo JSON sin markdown:\\nvalidacion_privacidad: ok | bloqueado\\nrazon_bloqueo: null o string (solo si hay fuga PII)\\nwhatsapp: { texto }\\nemail: { asunto, cuerpo }\\ntier_aplicado: TIER_1 | TIER_2 | TIER_3\\ntracking_id: string\\n\\nPRIORIDAD: Generar el email salvo que haya fuga real de PII. Datos econ\\u00f3micos faltantes NO son raz\\u00f3n de bloqueo.\";\n\nconst cfg = $('⚙️ Configuración').item.json;\nconst equipzilla = {\n  web: cfg.WEB_URL,\n  contact_email: cfg.CONTACT_EMAIL,\n  telefono: cfg.WA_DISPLAY_PHONE,\n  privacy_url: cfg.PRIVACY_POLICY_URL\n};\n\nconst userPayload = JSON.stringify({\n  oferta_anonimizada: $json.oferta_anonimizada,\n  alquilador: $json.alquilador,\n  equipzilla\n});\n\nconst body = {\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 1600,\n  temperature: 0.4,\n  system: SYSTEM_PROMPT,\n  messages: [{ role: 'user', content: userPayload }]\n};\n\nreturn [{ json: { claude_body: body, alquilador: $json.alquilador, oferta_anonimizada: $json.oferta_anonimizada, deal_id: $json.deal_id, raw_payload: $json.raw_payload } }];"
+        "jsCode": "const SYSTEM_PROMPT = \"Eres un asistente que redacta emails comerciales B2B en nombre del equipo de Equipzilla, marketplace B2B de alquiler de maquinaria industrial en Espa\\u00f1a.\\n\\n== IDENTIDAD EN EL EMAIL ==\\nSIEMPRE pres\\u00e9ntate al destinatario como \\\"Soy del equipo de Equipzilla\\\" o \\\"Te escribimos desde el equipo de Equipzilla\\\".\\nNUNCA digas \\\"Soy A04\\\", \\\"Availability Resolver\\\" ni cualquier referencia a tu identidad t\\u00e9cnica de bot. Para el alquilador eres una persona del equipo comercial de Equipzilla.\\n\\n== MISI\\u00d3N ==\\nCuando un trato no tiene cobertura del alquilador asignado, generas el email dirigido a alquiladores alternativos para conseguir cobertura SIN exponer datos del cliente final.\\n\\n== PROTOCOLO DE PRIVACIDAD (CR\\u00cdTICO) ==\\nNUNCA incluyas: nombre/raz\\u00f3n social/NIF del cliente, tel\\u00e9fono/email/web del cliente, nombre exacto de obra, nombres propios, ni direcci\\u00f3n exacta del trabajo (solo ciudad o CP).\\nS\\u00cd puedes incluir: tipo y especificaciones t\\u00e9cnicas de la m\\u00e1quina, fechas, duraci\\u00f3n, urgencia, zona aproximada, condiciones de acceso, y datos econ\\u00f3micos disponibles.\\nSi detectas datos sensibles del cliente que deber\\u00edan anonimizarse y NO est\\u00e1n anonimizados, devuelve validacion_privacidad=bloqueado.\\n\\n== DATOS ECON\\u00d3MICOS ==\\nSi presupuesto.total_eur o presupuesto.tarifa_diaria_eur est\\u00e1n presentes (valor num\\u00e9rico), mu\\u00e9stralos en el email para transparencia:\\n- Importe TOTAL: X \\u20ac\\n- Tarifa diaria: X \\u20ac/d\\u00eda\\n- Duraci\\u00f3n: X d\\u00edas\\n- Estado: presupuesto aceptado por el cliente\\n\\nSi NO est\\u00e1n presentes (null/0), OMITE esa secci\\u00f3n y simplemente di que el presupuesto se acordar\\u00e1 al contactar. NO bloquees el env\\u00edo por falta de datos econ\\u00f3micos \\u2014 solo bloqu\\u00e9alo por fugas de PII.\\n\\n== CONDICIONES COMERCIALES (siempre) ==\\n1. Comisi\\u00f3n Equipzilla 15% sobre lo que paga el cliente\\n2. Contrato directo alquilador-cliente\\n3. Presupuesto del cliente ya aceptado (operaci\\u00f3n lista para cerrar)\\n4. SIN RIESGO FINANCIERO: Equipzilla solo factura al alquilador cuando el cliente final haya pagado\\n\\n== CTA ==\\nPide datos de contacto (empresa, persona, tel\\u00e9fono) para que el equipo de Equipzilla llame.\\n\\n== TONO ==\\nProfesional, B2B, formal sin emojis. Estructurado. Escribe en plural (\\\"nosotros\\\", \\\"te contactamos\\\", \\\"te llamamos\\\") porque hablas como equipo.\\n\\n== TIER ==\\nTIER_3 \\u2014 Cold. Presentaci\\u00f3n corporativa breve (Equipzilla, marketplace B2B de alquiler de maquinaria), base legal RGPD art. 6.1.f y opt-out BAJA. Enlace a pol\\u00edtica de privacidad.\\n\\n== SALIDA ==\\nSolo JSON sin markdown:\\nvalidacion_privacidad: ok | bloqueado\\nrazon_bloqueo: null o string (solo si hay fuga PII)\\nwhatsapp: { texto }\\nemail: { asunto, cuerpo }\\ntier_aplicado: TIER_1 | TIER_2 | TIER_3\\ntracking_id: string\\n\\nPRIORIDAD: Generar el email salvo que haya fuga real de PII. Datos econ\\u00f3micos faltantes NO son raz\\u00f3n de bloqueo. Nunca menciones 'A04' ni 'Availability Resolver' en el contenido del email.\";\n\nconst cfg = $('⚙️ Configuración').item.json;\nconst equipzilla = {\n  web: cfg.WEB_URL,\n  contact_email: cfg.CONTACT_EMAIL,\n  telefono: cfg.WA_DISPLAY_PHONE,\n  privacy_url: cfg.PRIVACY_POLICY_URL\n};\n\nconst userPayload = JSON.stringify({\n  oferta_anonimizada: $json.oferta_anonimizada,\n  alquilador: $json.alquilador,\n  equipzilla\n});\n\nconst body = {\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 1600,\n  temperature: 0.4,\n  system: SYSTEM_PROMPT,\n  messages: [{ role: 'user', content: userPayload }]\n};\n\nreturn [{ json: { claude_body: body, alquilador: $json.alquilador, oferta_anonimizada: $json.oferta_anonimizada, deal_id: $json.deal_id, raw_payload: $json.raw_payload } }];"
       }
     },
     {
@@ -1728,6 +1728,63 @@
         "specifyBody": "json",
         "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":mag: **Sin candidatos automatizados** — gestionar manualmente\",\n  \"embeds\": [{ \"color\": 15844367, \"fields\": [\n    { \"name\": \"Deal\", \"value\": \"`{{ $json.deal_id }}`\", \"inline\": true },\n    { \"name\": \"Zona\", \"value\": \"{{ $json.oferta_anonimizada.location.city || '—' }} ({{ $json.oferta_anonimizada.location.postal_code || '—' }})\", \"inline\": true },\n    { \"name\": \"Máquina\", \"value\": \"{{ $json.oferta_anonimizada.machine.descripcion_legible }}\", \"inline\": false },\n    { \"name\": \"Fechas\", \"value\": \"{{ $json.oferta_anonimizada.dates.start }} → {{ $json.oferta_anonimizada.dates.end }}\", \"inline\": true },\n    { \"name\": \"Tier 1+2 / Tier 3\", \"value\": \"{{ $json.tier12_count }} / {{ $json.tier3_count }}\", \"inline\": true },\n    { \"name\": \"Pipedrive\", \"value\": \"https://equipzilla.pipedrive.com/deal/{{ $json.deal_id }}\", \"inline\": false }\n  ] }]\n}",
         "options": {}
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-webhook-reminder-trigger",
+      "name": "Webhook A04 Reminder IN",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        4640,
+        600
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a04-reminder-schedule",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "e1a8639d-2888-4126-b666-2102271ac859"
+    },
+    {
+      "id": "node-reminder-unpack",
+      "name": "Unpack reminder data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4860,
+        600
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Recibe { tracking_id, alquilador, deal_id, email, oferta_anonimizada } por webhook\nconst body = $('Webhook A04 Reminder IN').first().json.body || $('Webhook A04 Reminder IN').first().json;\nreturn [{ json: body }];"
+      }
+    },
+    {
+      "id": "node-reminder-dispatch",
+      "name": "Schedule reminders (fire+forget)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4420,
+        320
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://equipzillaproduccion.app.n8n.cloud/webhook/a04-reminder-schedule",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tracking_id\": \"{{ $('Parsear respuesta Claude').item.json.tracking_id }}\",\n  \"deal_id\": \"{{ $('Parsear respuesta Claude').item.json.deal_id }}\",\n  \"alquilador\": {{ JSON.stringify($('Parsear respuesta Claude').item.json.alquilador) }},\n  \"oferta_anonimizada\": {{ JSON.stringify($('Parsear respuesta Claude').item.json.oferta_anonimizada) }},\n  \"tier_aplicado\": \"{{ $('Parsear respuesta Claude').item.json.tier_aplicado }}\",\n  \"email\": {{ JSON.stringify($('Parsear respuesta Claude').item.json.email) }}\n}",
+        "options": {
+          "timeout": 5000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
       },
       "continueOnFail": true
     }
@@ -2018,7 +2075,7 @@
             "index": 0
           },
           {
-            "node": "Discord · email enviado",
+            "node": "Schedule reminders (fire+forget)",
             "type": "main",
             "index": 0
           }
@@ -2475,6 +2532,33 @@
         [
           {
             "node": "Split por alquilador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule reminders (fire+forget)": {
+      "main": [
+        []
+      ]
+    },
+    "Webhook A04 Reminder IN": {
+      "main": [
+        [
+          {
+            "node": "Unpack reminder data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unpack reminder data": {
+      "main": [
+        [
+          {
+            "node": "Discord · email enviado",
             "type": "main",
             "index": 0
           }
