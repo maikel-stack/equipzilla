@@ -1,0 +1,9 @@
+# Equipzilla - Pipeline de procesamiento de fotos de maquinaria
+# Python 3.11+
+
+google-genai>=1.0.0      # SDK oficial de Google Gemini (Nano Banana / Gemini Flash Image)
+Pillow>=10.0.0           # Manejo y guardado de imagenes
+python-dotenv>=1.0.0     # Carga de variables desde .env
+PyYAML>=6.0              # Lectura de config.yaml
+tqdm>=4.66.0             # Barra de progreso por lotes
+tenacity>=8.2.0          # Reintentos con backoff exponencial

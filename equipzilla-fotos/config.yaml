@@ -1,0 +1,76 @@
+# ═══════════════════════════════════════════════════════════════
+# Equipzilla - Configuracion de prompts del pipeline de fotos
+# ═══════════════════════════════════════════════════════════════
+# Edita aqui los prompts de cada version SIN tocar el codigo.
+# Cada entrada de "versions" genera un archivo:
+#     output/<id_maquina>/<id_maquina>_<clave>.jpg
+#
+# Variables disponibles dentro de los prompts (formato {variable}):
+#   {machine_id}  -> id/nombre de la maquina
+# ───────────────────────────────────────────────────────────────
+
+# Calidad de salida JPG (1-100)
+output:
+  format: jpg
+  quality: 92
+
+# ───────────────────────────────────────────────────────────────
+# REGLA CRITICA aplicada a TODAS las versiones.
+# Se antepone automaticamente a cada prompt para preservar la
+# identidad real de la maquina. No la quites.
+# ───────────────────────────────────────────────────────────────
+global_constraint: >-
+  REGLA CRITICA DE PRECISION: Preserva con exactitud la identidad real de la
+  maquina que aparece en la foto original: misma marca, mismo modelo, mismo
+  color exacto, misma forma, mismas proporciones, mismos adhesivos/logos y el
+  mismo estado real (desgaste, suciedad, golpes, oxido si los hay). Esta
+  TERMINANTEMENTE PROHIBIDO inventar partes que no se ven en el original,
+  cambiar el modelo o la marca, alterar el color, "embellecer" o reparar la
+  maquina. No agregues ni quites componentes de la maquina. Edita unicamente
+  el entorno/escena segun las instrucciones, manteniendo la maquina intacta
+  con iluminacion y sombras fisicamente coherentes.
+
+# Negative prompt comun (lo que NO debe aparecer)
+negative_prompt: >-
+  texto superpuesto, marcas de agua, logos falsos, deformaciones, maquina
+  distinta a la original, cambio de color, partes inventadas, artefactos,
+  baja resolucion.
+
+# ───────────────────────────────────────────────────────────────
+# LAS 3 VERSIONES
+# ───────────────────────────────────────────────────────────────
+versions:
+
+  operador:
+    description: "La maquina con un operador realista usandola."
+    prompt: >-
+      Anade un operador humano realista usando o conduciendo esta maquina de
+      forma natural y segura (en la cabina, asiento o puesto de mando segun
+      corresponda al tipo de maquina). El operador debe llevar equipo de
+      proteccion adecuado (casco, chaleco reflectante). Integra al operador con
+      iluminacion, escala, perspectiva y sombras totalmente coherentes con la
+      foto original. NO modifiques en absoluto la maquina: ni su forma, ni su
+      color, ni sus piezas. El resultado debe parecer una fotografia real.
+
+  ficha_tecnica:
+    description: "Foto de catalogo sobre fondo neutro uniforme."
+    prompt: >-
+      Coloca la maquina sobre un fondo de estudio neutro y uniforme (gris claro
+      o blanco liso, tipo catalogo de producto). Encuadre limpio, centrado y
+      consistente, con la maquina completa visible y un margen libre alrededor
+      para sobreponer datos tecnicos despues. Iluminacion de estudio suave y
+      homogenea, sombra de contacto sutil bajo la maquina. Sin elementos de
+      fondo, sin texto, sin distracciones. Mantén la maquina exactamente igual
+      que en el original.
+
+  en_faena:
+    description: "La misma maquina trabajando en un contexto de obra realista."
+    prompt: >-
+      Coloca esta MISMA maquina en un contexto de trabajo realista y apropiado
+      para su tipo (por ejemplo: una excavadora en una obra con tierra y
+      escombros; una plataforma elevadora junto a la fachada de un edificio; un
+      manipulador telescopico en un terreno de construccion). El entorno debe
+      ser verosimil, con profundidad, iluminacion exterior natural y sombras
+      coherentes. La maquina debe permanecer identica al original; solo cambia
+      el escenario que la rodea. El resultado debe parecer una fotografia real
+      tomada en faena.

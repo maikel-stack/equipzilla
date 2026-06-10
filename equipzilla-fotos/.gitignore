@@ -1,0 +1,17 @@
+# Entorno y secretos
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Datos de trabajo (no versionar imagenes ni logs)
+input/*
+output/*
+processed/*
+logs/
+
+# Mantener las carpetas en git
+!input/.gitkeep
+!output/.gitkeep
+!processed/.gitkeep
