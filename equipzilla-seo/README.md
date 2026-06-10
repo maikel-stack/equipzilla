@@ -62,7 +62,27 @@ Sustituye `data/directorio.csv` por tu export de Apollo manteniendo estas column
 `empresa, pais, region, especialidad, ciudad, email, web, telefono, contacto, cargo`.
 La columna **ciudad** es la que dispara las combinaciones por localidad; asegúrate de rellenarla.
 
+## Datos reales de Search Console (API)
+`scripts/gsc_pull.py` conecta con la **Search Console API** mediante una cuenta de servicio
+y descarga el informe de Rendimiento (por consulta y por página) a `output/gsc_queries.csv`
+y `output/gsc_pages.csv`. Sobre esos datos reales, `keyword-research` decide qué keywords
+atacar y qué páginas crear/mejorar.
+
+```bash
+pip install rsa                       # firma JWT sin depender de cryptography
+GSC_KEY=/ruta/cuenta-servicio.json \
+  python scripts/gsc_pull.py --site sc-domain:equipzilla.com --months 12
+```
+
+Requisitos:
+1. Habilitar **Google Search Console API** en el proyecto de Google Cloud.
+2. Crear una **cuenta de servicio** con clave JSON.
+3. Añadir el email de la cuenta de servicio como **usuario (Restringido)** en la propiedad
+   de Search Console.
+4. La clave NUNCA se versiona: pásala por la variable `GSC_KEY` o guárdala fuera del repo.
+
 ## Notas
 - Requiere Node.js y Claude Code instalado (`npm install -g @anthropic-ai/claude-code`).
-- El script de páginas no consume tokens: corre en local con Python 3 (sin dependencias externas).
-- `keyword-research` y `auditoria-tecnica` usan búsqueda/fetch web, así que sí consumen tokens.
+- El generador de páginas (`generar_paginas_seo.py`) no consume tokens y no tiene dependencias.
+- `gsc_pull.py` necesita `rsa` (pura Python). `keyword-research` y `auditoria-tecnica` usan
+  búsqueda/fetch web, así que sí consumen tokens.
