@@ -168,6 +168,30 @@
               "name": "OWN_SUPPLIERS_KEYWORDS",
               "value": "agritrasa,airmax,alcogrupo,almalift,alquidelsaz,alquileres garbayo,alquileresgarbayo,axor rentals,axor-rentals,axorrentals,cedecar,delta elevacion,deltaelevacion,ega malaga,egamalaga,electrogrup,elevaciones archipielago,elevaciones rama,elevacionesarchipielago,elevacionesrama,elevat,euro plataformas,eurogruas,europlataformas,gam,gamrentals,gerpasa,gomariz,gruas adolfo alvarez,gruas eugenio,gruaseugenio,grupo maenar,grupomaenar,ibisate,ibizamodular,impulso maquinaria,impulsomaquinaria,inclean,itt rent,ittrent,jose zarrias,josezarrias,kyorent,lahita,libercieza,logismaq,maenar,manain,maqlift,maquinsa,masur agricola,masuragricola,maxim domenech,maximdomenech,mazasca,momentum alquiler,momentumalquiler,morato,parsecotech,plataformas lozano,plataformaslozano,provaldima,raloga,riwal,sanibrun,setecar,tcr logismaq,tecarral,triplex iberica,triplexiberica,tstservicios,valquiven",
               "type": "string"
+            },
+            {
+              "id": "GSHEETS_SA_CLIENT_EMAIL",
+              "name": "GSHEETS_SA_CLIENT_EMAIL",
+              "value": "GSHEETS_SA_CLIENT_EMAIL_REDACTED",
+              "type": "string"
+            },
+            {
+              "id": "GSHEETS_SA_PRIVATE_KEY",
+              "name": "GSHEETS_SA_PRIVATE_KEY",
+              "value": "GSHEETS_SA_PRIVATE_KEY_REDACTED",
+              "type": "string"
+            },
+            {
+              "id": "GSHEETS_SA_TOKEN_URI",
+              "name": "GSHEETS_SA_TOKEN_URI",
+              "value": "https://oauth2.googleapis.com/token",
+              "type": "string"
+            },
+            {
+              "id": "GSHEETS_SHEET_ID",
+              "name": "GSHEETS_SHEET_ID",
+              "value": "1gyhTaqHCui4xXQzKaqUaxDAej5Nea7q6kr6uO1FeE08",
+              "type": "string"
             }
           ]
         },
@@ -1793,6 +1817,193 @@
         }
       },
       "continueOnFail": true
+    },
+    {
+      "id": "node-sheet-log-webhook",
+      "name": "Webhook A04 Sheet Log IN",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        1700
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a04-sheet-log",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "d63b5d46-0c2a-41ab-ac42-428e289af716"
+    },
+    {
+      "id": "node-sheet-log-write",
+      "name": "Escribir en Google Sheet",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        1700
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const crypto = require('crypto');\nconst body = $('Webhook A04 Sheet Log IN').first().json.body || $('Webhook A04 Sheet Log IN').first().json;\n\nconst SA_EMAIL = \"SA_EMAIL_REDACTED\";\nconst SA_KEY = \"SA_KEY_REDACTED\";\nconst TOKEN_URI = \"https://oauth2.googleapis.com/token\";\nconst SHEET_ID = \"SHEET_ID_REDACTED\";\n\nfunction b64url(buf) {\n  return Buffer.from(buf).toString('base64').replace(/=+$/,'').replace(/\\+/g,'-').replace(/\\//g,'_');\n}\n\nasync function getAccessToken() {\n  const now = Math.floor(Date.now()/1000);\n  const header = b64url(JSON.stringify({alg:'RS256', typ:'JWT'}));\n  const claim = b64url(JSON.stringify({iss: SA_EMAIL, scope:'https://www.googleapis.com/auth/spreadsheets', aud: TOKEN_URI, exp: now+3600, iat: now}));\n  const msg = header + '.' + claim;\n  const signer = crypto.createSign('RSA-SHA256');\n  signer.update(msg);\n  const sig = b64url(signer.sign(SA_KEY));\n  const jwt = msg + '.' + sig;\n  const resp = await this.helpers.httpRequest({\n    method: 'POST', url: TOKEN_URI,\n    headers: {'Content-Type':'application/x-www-form-urlencoded'},\n    body: 'grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=' + encodeURIComponent(jwt),\n    json: false, returnFullResponse: false\n  });\n  const parsed = typeof resp === 'string' ? JSON.parse(resp) : resp;\n  return parsed.access_token;\n}\n\nasync function gsRequest(method, path, body) {\n  const opts = {\n    method, url: `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}${path}`,\n    headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},\n    json: true, returnFullResponse: false\n  };\n  if (body) opts.body = body;\n  try { return await this.helpers.httpRequest(opts); } catch (e) { return { _err: String(e).slice(0,200) }; }\n}\n\nconst token = await getAccessToken();\nconst now = new Date().toISOString().replace('T',' ').slice(0,19);\n\nconst evRow = [\n  now, body.event||'', String(body.deal_id||''), body.url||'', body.title||'',\n  body.machine||'', body.city||'', body.postal_code||'', body.date_start||'', body.date_end||'',\n  body.duration_days||'', body.total_eur||'', body.daily_rate_eur||'',\n  body.alquilador||'', body.alquilador_email||'', body.tier||'',\n  body.tracking_id||'', body.reply_category||'', body.notes||''\n];\nawait gsRequest('POST', `/values/${encodeURIComponent('Eventos!A1')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, {values:[evRow]});\n\nif (body.deal_id) {\n  const did = String(body.deal_id);\n  const colRange = encodeURIComponent('Por deal!A2:A');\n  const colResp = await gsRequest('GET', `/values/${colRange}`);\n  const ids = ((colResp && colResp.values) || []).map(r => r[0]);\n  const idx = ids.indexOf(did);\n  const ev = body.event || '';\n\n  let row;\n  if (idx >= 0) {\n    const rowRange = encodeURIComponent(`Por deal!A${idx+2}:M${idx+2}`);\n    const rowResp = await gsRequest('GET', `/values/${rowRange}`);\n    row = (rowResp && rowResp.values && rowResp.values[0]) || [];\n    while (row.length < 13) row.push('');\n  } else {\n    row = [did, body.url||'', body.title||'', body.city||'', body.machine||'',\n           now, body.candidates_count||0, 0, 0, 0, 'outreach_iniciado', body.tracking_id||'', now];\n  }\n  const toInt = x => parseInt(x,10) || 0;\n  if (ev === 'outreach_sent') row[7] = toInt(row[7]) + 1;\n  if (ev === 'reminder_1' || ev === 'reminder_2') row[8] = toInt(row[8]) + 1;\n  if (ev === 'reply_received') row[9] = toInt(row[9]) + 1;\n  if (ev === 'no_candidates') row[10] = 'sin_candidatos';\n  if (ev === 'contact_shared') row[10] = 'contacto_recibido';\n  if (ev === 'deal_recovered') row[10] = 'cobertura_recuperada';\n  if (body.tracking_id) row[11] = body.tracking_id;\n  row[12] = now;\n\n  if (idx >= 0) {\n    const r = encodeURIComponent(`Por deal!A${idx+2}`);\n    await gsRequest('PUT', `/values/${r}?valueInputOption=USER_ENTERED`, {values:[row]});\n  } else {\n    await gsRequest('POST', `/values/${encodeURIComponent('Por deal!A1')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, {values:[row]});\n  }\n}\n\nreturn [{ json: { ok: true, event: body.event, deal_id: body.deal_id } }];"
+      }
+    },
+    {
+      "id": "node-sheet-dispatch-outreach",
+      "name": "Sheet log · outreach_sent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4640,
+        480
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://equipzillaproduccion.app.n8n.cloud/webhook/a04-sheet-log",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event\": \"outreach_sent\",\n  \"deal_id\": \"{{ $('Parsear respuesta Claude').item.json.deal_id }}\",\n  \"url\": \"https://equipzilla.pipedrive.com/deal/{{ $('Parsear respuesta Claude').item.json.deal_id }}\",\n  \"title\": \"{{ $('Parsear respuesta Claude').item.json.raw_payload && $('Parsear respuesta Claude').item.json.raw_payload.title || '' }}\",\n  \"machine\": \"{{ $('Parsear respuesta Claude').item.json.oferta_anonimizada.machine.descripcion_legible }}\",\n  \"city\": \"{{ $('Parsear respuesta Claude').item.json.oferta_anonimizada.location.city }}\",\n  \"postal_code\": \"{{ $('Parsear respuesta Claude').item.json.oferta_anonimizada.location.postal_code }}\",\n  \"date_start\": \"{{ $('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.start }}\",\n  \"date_end\": \"{{ $('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.end }}\",\n  \"duration_days\": {{ $('Parsear respuesta Claude').item.json.oferta_anonimizada.dates.duration_days || 0 }},\n  \"total_eur\": {{ $('Parsear respuesta Claude').item.json.oferta_anonimizada.presupuesto && $('Parsear respuesta Claude').item.json.oferta_anonimizada.presupuesto.total_eur || 0 }},\n  \"daily_rate_eur\": {{ $('Parsear respuesta Claude').item.json.oferta_anonimizada.presupuesto && $('Parsear respuesta Claude').item.json.oferta_anonimizada.presupuesto.tarifa_diaria_eur || 0 }},\n  \"alquilador\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.nombre_comercial }}\",\n  \"alquilador_email\": \"{{ $('Parsear respuesta Claude').item.json.alquilador.email_comercial }}\",\n  \"tier\": \"{{ $('Parsear respuesta Claude').item.json.tier_aplicado }}\",\n  \"tracking_id\": \"{{ $('Parsear respuesta Claude').item.json.tracking_id }}\"\n}",
+        "options": {
+          "timeout": 5000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-sheet-dispatch-rem1",
+      "name": "Sheet log · reminder_1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5740,
+        440
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://equipzillaproduccion.app.n8n.cloud/webhook/a04-sheet-log",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event\": \"reminder_1\",\n  \"deal_id\": \"{{ $json.deal_id }}\",\n  \"url\": \"https://equipzilla.pipedrive.com/deal/{{ $json.deal_id }}\",\n  \"alquilador\": \"{{ $json.alquilador.nombre_comercial }}\",\n  \"alquilador_email\": \"{{ $json.alquilador.email_comercial }}\",\n  \"tier\": \"{{ $json.tier_aplicado }}\",\n  \"tracking_id\": \"{{ $json.tracking_id }}\"\n}",
+        "options": {
+          "timeout": 5000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-sheet-dispatch-rem2",
+      "name": "Sheet log · reminder_2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6840,
+        400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://equipzillaproduccion.app.n8n.cloud/webhook/a04-sheet-log",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event\": \"reminder_2\",\n  \"deal_id\": \"{{ $json.deal_id }}\",\n  \"url\": \"https://equipzilla.pipedrive.com/deal/{{ $json.deal_id }}\",\n  \"alquilador\": \"{{ $json.alquilador.nombre_comercial }}\",\n  \"alquilador_email\": \"{{ $json.alquilador.email_comercial }}\",\n  \"tier\": \"{{ $json.tier_aplicado }}\",\n  \"tracking_id\": \"{{ $json.tracking_id }}\"\n}",
+        "options": {
+          "timeout": 5000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-sheet-dispatch-nocand",
+      "name": "Sheet log · no_candidates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2990,
+        240
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://equipzillaproduccion.app.n8n.cloud/webhook/a04-sheet-log",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event\": \"no_candidates\",\n  \"deal_id\": \"{{ $json.deal_id }}\",\n  \"url\": \"https://equipzilla.pipedrive.com/deal/{{ $json.deal_id }}\",\n  \"city\": \"{{ $json.oferta_anonimizada.location.city || '' }}\",\n  \"postal_code\": \"{{ $json.oferta_anonimizada.location.postal_code || '' }}\",\n  \"machine\": \"{{ $json.oferta_anonimizada.machine.descripcion_legible }}\",\n  \"date_start\": \"{{ $json.oferta_anonimizada.dates.start }}\",\n  \"date_end\": \"{{ $json.oferta_anonimizada.dates.end }}\",\n  \"duration_days\": {{ $json.oferta_anonimizada.dates.duration_days || 0 }},\n  \"candidates_count\": 0\n}",
+        "options": {
+          "timeout": 5000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-sheet-dispatch-reply",
+      "name": "Sheet log · reply_received",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1340,
+        900
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://equipzillaproduccion.app.n8n.cloud/webhook/a04-sheet-log",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event\": \"reply_received\",\n  \"deal_id\": \"{{ ($json.tracking_id || '').replace(/^TRK-/, '').split('-')[0] }}\",\n  \"tracking_id\": \"{{ $json.tracking_id }}\",\n  \"reply_category\": \"{{ $json.categoria }}\",\n  \"notes\": \"canal: {{ $json.canal }}; sender: {{ $json.sender }}\"\n}",
+        "options": {
+          "timeout": 5000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-sheet-dispatch-contact",
+      "name": "Sheet log · contact_shared",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2660,
+        640
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://equipzillaproduccion.app.n8n.cloud/webhook/a04-sheet-log",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event\": \"contact_shared\",\n  \"deal_id\": \"{{ ($('Parsear clasificación').item.json.tracking_id || '').replace(/^TRK-/, '').split('-')[0] }}\",\n  \"tracking_id\": \"{{ $('Parsear clasificación').item.json.tracking_id }}\",\n  \"alquilador\": \"{{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.empresa) || '' }}\",\n  \"alquilador_email\": \"{{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.email) || '' }}\",\n  \"reply_category\": \"{{ $('Parsear clasificación').item.json.categoria }}\",\n  \"notes\": \"contacto: {{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.nombre_contacto) || '' }}; tel: {{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.telefono) || '' }}\"\n}",
+        "options": {
+          "timeout": 5000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true
     }
   ],
   "connections": {
@@ -2082,6 +2293,11 @@
           },
           {
             "node": "Schedule reminders (fire+forget)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheet log · outreach_sent",
             "type": "main",
             "index": 0
           }
@@ -2432,6 +2648,11 @@
             "node": "Wait 48h (recordatorio 2)",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Sheet log · reminder_1",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -2488,6 +2709,11 @@
             "node": "Switch por categoría",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Sheet log · reply_received",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -2508,6 +2734,11 @@
         [
           {
             "node": "Logger eventos a04_events",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheet log · contact_shared",
             "type": "main",
             "index": 0
           }
@@ -2565,6 +2796,39 @@
         [
           {
             "node": "Discord · email enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook A04 Sheet Log IN": {
+      "main": [
+        [
+          {
+            "node": "Escribir en Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord · recordatorio 2 enviado": {
+      "main": [
+        [
+          {
+            "node": "Sheet log · reminder_2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord · sin candidatos": {
+      "main": [
+        [
+          {
+            "node": "Sheet log · no_candidates",
             "type": "main",
             "index": 0
           }
