@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "apollo": {
+      "type": "http",
+      "url": "https://apollo-io-mcp-server.example/mcp",
+      "headers": {
+        "Authorization": "Bearer ${APOLLO_API_KEY}"
+      }
+    }
+  }
+}
