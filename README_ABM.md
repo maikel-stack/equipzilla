@@ -127,6 +127,26 @@ inventan contactos.
 
 ---
 
+## Exportar la priorización a Google Sheets
+
+`scripts/volcar_a_sheet.py` vuelca la tabla de seguimiento (empresa, score, tier, decisor,
+contacto, ángulo de mensaje y estado) a una Google Sheet, leyendo
+`output/cuentas_priorizadas.csv` y `data/cuentas.csv`.
+
+Requisitos: una **cuenta de servicio de Google** con la API de Sheets habilitada, y la hoja
+**compartida** con el email de esa cuenta de servicio (permiso de edición). La clave JSON
+**nunca se versiona**: se pasa por variable de entorno.
+
+```bash
+pip install google-api-python-client google-auth   # solo la primera vez
+GOOGLE_SA_KEY=/ruta/a/tu/clave.json \
+ABM_SHEET_ID=<id_de_la_hoja> \
+python3 scripts/volcar_a_sheet.py
+```
+
+El script limpia la primera pestaña y reescribe la tabla con la cabecera en negrita y la fila
+fijada. El `<id_de_la_hoja>` es la parte de la URL entre `/d/` y `/edit`.
+
 ## Sustituir el CSV de muestra por el export real
 
 `data/cuentas.csv` incluye datos **de muestra** (empresas ficticias) para que el sistema
