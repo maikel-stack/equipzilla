@@ -1,0 +1,5 @@
+# Artefactos generados por el script y los agentes
+output/*
+!output/.gitkeep
+__pycache__/
+*.pyc
