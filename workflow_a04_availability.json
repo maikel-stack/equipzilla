@@ -1413,7 +1413,8 @@
         "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":outbox_tray: **Email enviado a alquilador** {{ $('⚙️ Configuración').item.json.TEST_MODE ? '(modo TEST)' : '' }}\",\n  \"embeds\": [{ \"color\": 5814783, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Deal\", \"value\": \"`{{ $json.deal_id }}`\", \"inline\": true },\n    { \"name\": \"Tier\", \"value\": \"{{ $json.tier_aplicado }}\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
         "options": {}
       },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "disabled": true
     },
     {
       "id": "node-wait-24h",
@@ -1428,7 +1429,8 @@
         "amount": 24,
         "unit": "hours"
       },
-      "webhookId": "ef099716-b3c7-4b7d-906b-9a8ccd8f0de6"
+      "webhookId": "ef099716-b3c7-4b7d-906b-9a8ccd8f0de6",
+      "disabled": true
     },
     {
       "id": "node-check-replied-1",
@@ -1442,7 +1444,8 @@
       "parameters": {
         "language": "javaScript",
         "jsCode": "const sd = $getWorkflowStaticData('global');\nconst tid = $json.tracking_id;\nconst already = sd[`replied:${tid}`];\nreturn [{ json: { ...$json, should_remind: !already, replied_at: already?.ts || null } }];"
-      }
+      },
+      "disabled": true
     },
     {
       "id": "node-if-not-replied-1",
@@ -1472,7 +1475,8 @@
           ],
           "combinator": "and"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "id": "node-send-reminder-1",
@@ -1504,7 +1508,8 @@
         "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"{{ $('⚙️ Configuración').item.json.TEST_MODE ? $('⚙️ Configuración').item.json.TEST_REDIRECT_EMAIL : $json.alquilador.email_comercial }}\", \"name\": \"{{ $json.alquilador.nombre_comercial }}\" }],\n  \"bcc\": [\n    { \"email\": \"maikel@equipzilla.com\", \"name\": \"Maikel\" },\n    { \"email\": \"david@equipzilla.com\", \"name\": \"David\" },{ \"email\": \"lorenzo@equipzilla.com\", \"name\": \"Lorenzo\" },\n    { \"email\": \"paola@equipzilla.com\", \"name\": \"Paola\" }\n  ],\n  \"subject\": {{ JSON.stringify(($('⚙️ Configuración').item.json.TEST_MODE ? '[TEST→' + ($json.alquilador.email_comercial || 'no-email') + '] ' : '') + 'Recordatorio · ' + ($json.email.asunto || '')) }},\n  \"textContent\": {{ JSON.stringify('Hola,\\n\\nUn recordatorio rápido sobre la oportunidad que te enviamos ayer:\\n\\n· Máquina: ' + ($json.oferta_anonimizada.machine.descripcion_legible || 'maquinaria solicitada') + '\\n· Zona: ' + ($json.oferta_anonimizada.location.city || '') + ' (' + ($json.oferta_anonimizada.location.postal_code || '') + ')\\n· Fechas: ' + ($json.oferta_anonimizada.dates.start || '') + ' al ' + ($json.oferta_anonimizada.dates.end || '') + '\\n\\nLa operación sigue abierta y el cliente espera cobertura. Si tienes la máquina, comparte tus datos (empresa, persona, teléfono) y te llamamos.\\n\\nCondiciones: 15% comisión Equipzilla · contrato directo alquilador-cliente · presupuesto aceptado.\\n\\nPara darte de baja responde BAJA.\\n\\nGracias,\\nEquipo Equipzilla\\nrent@equipzilla.com\\n\\n[ref:' + $json.tracking_id + ']') }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $json.tracking_id }}\" }\n}",
         "options": {}
       },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "disabled": true
     },
     {
       "id": "node-discord-reminder-1",
@@ -1523,7 +1528,8 @@
         "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":bell: **Recordatorio #1 enviado** (24h sin respuesta)\",\n  \"embeds\": [{ \"color\": 16763904, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
         "options": {}
       },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "disabled": true
     },
     {
       "id": "node-wait-48h",
@@ -1538,7 +1544,8 @@
         "amount": 48,
         "unit": "hours"
       },
-      "webhookId": "29ea195c-1feb-4142-9b47-ebde35845191"
+      "webhookId": "29ea195c-1feb-4142-9b47-ebde35845191",
+      "disabled": true
     },
     {
       "id": "node-check-replied-2",
@@ -1552,7 +1559,8 @@
       "parameters": {
         "language": "javaScript",
         "jsCode": "const sd = $getWorkflowStaticData('global');\nconst tid = $json.tracking_id;\nconst already = sd[`replied:${tid}`];\nreturn [{ json: { ...$json, should_remind: !already, replied_at: already?.ts || null } }];"
-      }
+      },
+      "disabled": true
     },
     {
       "id": "node-if-not-replied-2",
@@ -1582,7 +1590,8 @@
           ],
           "combinator": "and"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "id": "node-send-reminder-2",
@@ -1614,7 +1623,8 @@
         "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"{{ $('⚙️ Configuración').item.json.TEST_MODE ? $('⚙️ Configuración').item.json.TEST_REDIRECT_EMAIL : $json.alquilador.email_comercial }}\", \"name\": \"{{ $json.alquilador.nombre_comercial }}\" }],\n  \"bcc\": [\n    { \"email\": \"maikel@equipzilla.com\", \"name\": \"Maikel\" },\n    { \"email\": \"david@equipzilla.com\", \"name\": \"David\" },{ \"email\": \"lorenzo@equipzilla.com\", \"name\": \"Lorenzo\" },\n    { \"email\": \"paola@equipzilla.com\", \"name\": \"Paola\" }\n  ],\n  \"subject\": {{ JSON.stringify(($('⚙️ Configuración').item.json.TEST_MODE ? '[TEST→' + ($json.alquilador.email_comercial || 'no-email') + '] ' : '') + 'Último seguimiento · ' + ($json.email.asunto || '')) }},\n  \"textContent\": {{ JSON.stringify('Hola,\\n\\nÚltimo seguimiento sobre la oportunidad que te enviamos esta semana.\\n\\nSi tienes la máquina disponible para ' + ($json.oferta_anonimizada.location.city || 'la zona indicada') + ' del ' + ($json.oferta_anonimizada.dates.start || '') + ' al ' + ($json.oferta_anonimizada.dates.end || '') + ', responde con tus datos de contacto y cerramos.\\n\\nSi no te interesa, no te molestaremos más con esta operación.\\n\\nCondiciones: 15% comisión · contrato directo alquilador-cliente · presupuesto del cliente aceptado.\\n\\nResponde BAJA para no recibir más comunicaciones de Equipzilla.\\n\\nGracias,\\nEquipo Equipzilla\\nrent@equipzilla.com | +34 621 273 810\\n\\n[ref:' + $json.tracking_id + ']') }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $json.tracking_id }}\" }\n}",
         "options": {}
       },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "disabled": true
     },
     {
       "id": "node-discord-reminder-2",
@@ -1633,7 +1643,8 @@
         "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":bell: **Recordatorio #2 (final) enviado** (72h sin respuesta)\",\n  \"embeds\": [{ \"color\": 15105570, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $json.alquilador.nombre_comercial }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $json.alquilador.email_comercial }}`\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
         "options": {}
       },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "disabled": true
     },
     {
       "id": "node-mark-replied",
@@ -1772,11 +1783,12 @@
       ],
       "parameters": {
         "httpMethod": "POST",
-        "path": "a04-reminder-schedule",
+        "path": "a04-rem-sched-v2",
         "responseMode": "onReceived",
         "options": {}
       },
-      "webhookId": "e1a8639d-2888-4126-b666-2102271ac859"
+      "webhookId": "57ecdd97-ca87-4ade-b709-2854dca56216",
+      "disabled": true
     },
     {
       "id": "node-reminder-unpack",
@@ -1790,33 +1802,22 @@
       "parameters": {
         "language": "javaScript",
         "jsCode": "// Recibe { tracking_id, alquilador, deal_id, email, oferta_anonimizada } por webhook\nconst body = $('Webhook A04 Reminder IN').first().json.body || $('Webhook A04 Reminder IN').first().json;\nreturn [{ json: body }];"
-      }
+      },
+      "disabled": true
     },
     {
       "id": "node-reminder-dispatch",
       "name": "Schedule reminders (fire+forget)",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         4420,
         320
       ],
       "parameters": {
-        "method": "POST",
-        "url": "=https://equipzillaproduccion.app.n8n.cloud/webhook/a04-reminder-schedule",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"tracking_id\": \"{{ $('Parsear respuesta Claude').item.json.tracking_id }}\",\n  \"deal_id\": \"{{ $('Parsear respuesta Claude').item.json.deal_id }}\",\n  \"alquilador\": {{ JSON.stringify($('Parsear respuesta Claude').item.json.alquilador) }},\n  \"oferta_anonimizada\": {{ JSON.stringify($('Parsear respuesta Claude').item.json.oferta_anonimizada) }},\n  \"tier_aplicado\": \"{{ $('Parsear respuesta Claude').item.json.tier_aplicado }}\",\n  \"email\": {{ JSON.stringify($('Parsear respuesta Claude').item.json.email) }}\n}",
-        "options": {
-          "timeout": 5000,
-          "response": {
-            "response": {
-              "neverError": true
-            }
-          }
-        }
-      },
-      "continueOnFail": true
+        "language": "javaScript",
+        "jsCode": "// Append reminder to staticData queue (procesado por cron cada hora)\nconst sd = $getWorkflowStaticData('global');\nif (!sd.pending_reminders) sd.pending_reminders = [];\nconst src = $('Parsear respuesta Claude').item.json;\nconst now = Date.now();\nsd.pending_reminders.push({\n  tracking_id: src.tracking_id,\n  deal_id: src.deal_id,\n  alquilador_email: src.alquilador && src.alquilador.email_comercial,\n  alquilador_name: src.alquilador && src.alquilador.nombre_comercial,\n  oferta_anonimizada: src.oferta_anonimizada,\n  tier_aplicado: src.tier_aplicado,\n  email_subject: src.email && src.email.asunto,\n  scheduled_at: now,\n  due_r1: now + 24 * 3600 * 1000,\n  due_r2: now + 72 * 3600 * 1000,\n  fired_r1: false,\n  fired_r2: false\n});\n// Cleanup: keep only last 5000\nif (sd.pending_reminders.length > 5000) sd.pending_reminders = sd.pending_reminders.slice(-5000);\nreturn [{ json: { queued: true, total_pending: sd.pending_reminders.length } }];"
+      }
     },
     {
       "id": "node-sheet-log-webhook",
@@ -1899,7 +1900,8 @@
           }
         }
       },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "disabled": true
     },
     {
       "id": "node-sheet-dispatch-rem2",
@@ -1925,7 +1927,8 @@
           }
         }
       },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "disabled": true
     },
     {
       "id": "node-sheet-dispatch-nocand",
@@ -1996,6 +1999,128 @@
         "jsonBody": "={\n  \"event\": \"contact_shared\",\n  \"deal_id\": \"{{ ($('Parsear clasificación').item.json.tracking_id || '').replace(/^TRK-/, '').split('-')[0] }}\",\n  \"tracking_id\": \"{{ $('Parsear clasificación').item.json.tracking_id }}\",\n  \"alquilador\": \"{{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.empresa) || '' }}\",\n  \"alquilador_email\": \"{{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.email) || '' }}\",\n  \"reply_category\": \"{{ $('Parsear clasificación').item.json.categoria }}\",\n  \"notes\": \"contacto: {{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.nombre_contacto) || '' }}; tel: {{ ($('Parsear clasificación').item.json.datos_contacto_alquilador && $('Parsear clasificación').item.json.datos_contacto_alquilador.telefono) || '' }}\"\n}",
         "options": {
           "timeout": 5000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-reminder-cron",
+      "name": "Cron · Procesar recordatorios",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        2400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-reminder-process",
+      "name": "Procesar cola recordatorios",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        2400
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const sd = $getWorkflowStaticData('global');\nconst queue = sd.pending_reminders || [];\nconst now = Date.now();\nconst due = [];\n\nfor (let i = 0; i < queue.length; i++) {\n  const r = queue[i];\n  // Skip if already responded (staticData replied marker)\n  const replied = sd[`replied:${r.tracking_id}`];\n  if (replied) { r.fired_r1 = true; r.fired_r2 = true; continue; }\n  \n  if (!r.fired_r1 && now >= r.due_r1) {\n    due.push({ ...r, fire_type: 'reminder_1', queue_idx: i });\n    r.fired_r1 = true;\n  }\n  if (!r.fired_r2 && now >= r.due_r2) {\n    due.push({ ...r, fire_type: 'reminder_2', queue_idx: i });\n    r.fired_r2 = true;\n  }\n}\n\n// Cleanup completed reminders\nsd.pending_reminders = queue.filter(r => !r.fired_r2);\n\nreturn due.map(d => ({ json: d }));"
+      }
+    },
+    {
+      "id": "node-reminder-brevo-send",
+      "name": "Brevo · Enviar recordatorio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        2400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $('⚙️ Configuración').item.json.BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_NAME }}\", \"email\": \"{{ $('⚙️ Configuración').item.json.BREVO_FROM_EMAIL }}\" },\n  \"to\": [{ \"email\": \"{{ $json.alquilador_email }}\", \"name\": \"{{ $json.alquilador_name }}\" }],\n  \"bcc\": [\n    { \"email\": \"maikel@equipzilla.com\", \"name\": \"Maikel\" },\n    { \"email\": \"david@equipzilla.com\", \"name\": \"David\" },\n    { \"email\": \"lorenzo@equipzilla.com\", \"name\": \"Lorenzo\" },\n    { \"email\": \"paola@equipzilla.com\", \"name\": \"Paola\" }\n  ],\n  \"subject\": {{ JSON.stringify(($json.fire_type === 'reminder_2' ? 'Último seguimiento · ' : 'Recordatorio · ') + ($json.email_subject || '')) }},\n  \"textContent\": {{ JSON.stringify($json.fire_type === 'reminder_2' \n    ? ('Hola,\\n\\nÚltimo seguimiento sobre la oportunidad que te enviamos esta semana.\\n\\nSi tienes la máquina disponible para ' + ($json.oferta_anonimizada.location.city || 'la zona') + ' del ' + $json.oferta_anonimizada.dates.start + ' al ' + $json.oferta_anonimizada.dates.end + ', responde con tus datos de contacto y cerramos.\\n\\nSi no te interesa, no te molestaremos más con esta operación.\\n\\nCondiciones: 15% comisión Equipzilla · contrato directo alquilador-cliente · presupuesto del cliente aceptado · sin riesgo financiero (solo facturamos cuando el cliente te haya pagado).\\n\\nResponde BAJA para no recibir más comunicaciones.\\n\\nEquipo Equipzilla\\nclientes@equipzilla.com | +34 621 273 810\\n\\n[ref:' + $json.tracking_id + ']')\n    : ('Hola,\\n\\nRecordatorio rápido sobre la oportunidad que te enviamos ayer:\\n\\n· Máquina: ' + ($json.oferta_anonimizada.machine.descripcion_legible || 'maquinaria solicitada') + '\\n· Zona: ' + ($json.oferta_anonimizada.location.city || '') + ' (' + ($json.oferta_anonimizada.location.postal_code || '') + ')\\n· Fechas: ' + $json.oferta_anonimizada.dates.start + ' al ' + $json.oferta_anonimizada.dates.end + '\\n\\nLa operación sigue abierta y el cliente espera cobertura. Si tienes la máquina, comparte tus datos (empresa, persona, teléfono) y te llamamos.\\n\\nCondiciones: 15% comisión Equipzilla · contrato directo alquilador-cliente · presupuesto aceptado · sin riesgo financiero.\\n\\nPara darte de baja responde BAJA.\\n\\nGracias,\\nEquipo Equipzilla\\nclientes@equipzilla.com\\n\\n[ref:' + $json.tracking_id + ']')) }},\n  \"headers\": { \"X-Equipzilla-Tracking\": \"{{ $json.tracking_id }}\" }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-reminder-discord",
+      "name": "Discord · recordatorio enviado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        2400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuración').item.json.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"username\": \"A04 Availability Resolver\",\n  \"content\": \":bell: **Recordatorio enviado** ({{ $json.fire_type }})\",\n  \"embeds\": [{ \"color\": 16763904, \"fields\": [\n    { \"name\": \"Alquilador\", \"value\": \"{{ $json.alquilador_name }}\", \"inline\": true },\n    { \"name\": \"Email\", \"value\": \"`{{ $json.alquilador_email }}`\", \"inline\": true },\n    { \"name\": \"Tracking\", \"value\": \"`{{ $json.tracking_id }}`\", \"inline\": false }\n  ] }]\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-reminder-sheet-log",
+      "name": "Sheet log · recordatorio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        2400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://equipzillaproduccion.app.n8n.cloud/webhook/a04-sheet-log",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event\": \"{{ $json.fire_type }}\",\n  \"deal_id\": \"{{ $json.deal_id }}\",\n  \"url\": \"https://equipzilla.pipedrive.com/deal/{{ $json.deal_id }}\",\n  \"alquilador\": \"{{ $json.alquilador_name }}\",\n  \"alquilador_email\": \"{{ $json.alquilador_email }}\",\n  \"tier\": \"{{ $json.tier_aplicado }}\",\n  \"tracking_id\": \"{{ $json.tracking_id }}\"\n}",
+        "options": {
           "response": {
             "response": {
               "neverError": true
@@ -2829,6 +2954,50 @@
         [
           {
             "node": "Sheet log · no_candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron · Procesar recordatorios": {
+      "main": [
+        [
+          {
+            "node": "Procesar cola recordatorios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procesar cola recordatorios": {
+      "main": [
+        [
+          {
+            "node": "Brevo · Enviar recordatorio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brevo · Enviar recordatorio": {
+      "main": [
+        [
+          {
+            "node": "Discord · recordatorio enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord · recordatorio enviado": {
+      "main": [
+        [
+          {
+            "node": "Sheet log · recordatorio",
             "type": "main",
             "index": 0
           }
