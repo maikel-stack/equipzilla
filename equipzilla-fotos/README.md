@@ -182,6 +182,77 @@ Para añadir un proveedor nuevo: implementa `ImageProvider` y regístralo en
 
 ---
 
+## 6. Automatización: subir foto a Drive → procesar solo (n8n)
+
+El pipeline puede dispararse **automáticamente cada vez que alguien sube una
+foto a una carpeta de Google Drive**, usando n8n (el mismo stack de workflows
+que ya usamos). El flujo es:
+
+```
+[Drive: carpeta Entrada]
+        │  (alguien sube EXC-001.jpg)
+        ▼
+ Google Drive Trigger (n8n)  ── detecta archivo nuevo
+        ▼
+ Descargar foto (n8n)
+        ▼
+ POST /procesar  ─────────────▶  Servicio del pipeline (src/serve.py)
+                                  genera operador + ficha_tecnica + en_faena
+        ◀───────────────────────  devuelve las 3 imágenes (base64)
+        ▼
+ Separar versiones a binario (n8n Code)
+        ▼
+ Subir a [Drive: carpeta Salida]  ── EXC-001_operador.jpg, ...
+```
+
+La lógica de edición (prompts, regla crítica, reintentos, proveedor) vive **solo
+en el pipeline**: n8n únicamente orquesta Drive ↔ pipeline. La autenticación de
+Drive se queda en n8n.
+
+### 6.1 Levantar el servicio del pipeline
+
+```bash
+# (con el .venv activado y GEMINI_API_KEY en .env)
+uvicorn src.serve:app --host 0.0.0.0 --port 8080
+# o:  python -m src.serve
+```
+
+Endpoints:
+- `GET /salud` → healthcheck (proveedor, modelo, versiones).
+- `POST /procesar` → multipart `file=<imagen>` + `machine_id` (opcional);
+  devuelve JSON con las 3 versiones en base64.
+
+Opcional: protege el endpoint exportando `EQUIPZILLA_API_TOKEN=...`; entonces
+n8n debe enviar la cabecera `X-API-Token` con ese valor (el workflow ya la
+incluye, leyéndola de `$env.EQUIPZILLA_API_TOKEN`).
+
+Prueba rápida con curl:
+
+```bash
+curl -F "file=@input/EXC-001.jpg" -F "machine_id=EXC-001" \
+     http://localhost:8080/procesar | jq '.versions[].filename'
+```
+
+### 6.2 Importar el workflow en n8n
+
+1. En n8n: **Import from File** → `n8n/workflow_fotos_drive.json`.
+2. Rellena los huecos marcados con `PEGA_AQUI_...`:
+   - **`PEGA_AQUI_ID_CARPETA_ENTRADA`** → ID de la carpeta de Drive que se vigila.
+   - **`PEGA_AQUI_ID_CARPETA_SALIDA`** → ID de la carpeta donde se suben los resultados.
+   - **`PIPELINE_HOST`** en la URL del nodo *Pipeline* → host/IP donde corre el
+     servicio (p. ej. `http://10.0.0.5:8080/procesar`).
+3. Asigna tu credencial de Google Drive (OAuth2) en los 3 nodos de Drive
+   (sustituye `REEMPLAZA_CRED_DRIVE`).
+4. Activa el workflow. El *Google Drive Trigger* sondea cada minuto; al detectar
+   una foto nueva, genera y sube las 3 versiones.
+
+> **Nota (tiempos):** Gemini puede tardar varios segundos por imagen, por eso el
+> nodo HTTP tiene `timeout` alto (180 s). Si esperáis mucho volumen, conviene
+> hacerlo **asíncrono** (que `/procesar` encole y devuelva un job id, y subir los
+> resultados cuando estén listos). Queda como mejora futura.
+
+---
+
 ## Comando para ejecutar
 
 ```bash

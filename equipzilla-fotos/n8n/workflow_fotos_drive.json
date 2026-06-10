@@ -1,0 +1,195 @@
+{
+  "name": "Equipzilla · Fotos maquinaria (Drive → Pipeline → Drive)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "PEGA_AQUI_ID_CARPETA_ENTRADA",
+          "mode": "id"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "trigger-drive",
+      "name": "Foto nueva en Drive",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REEMPLAZA_CRED_DRIVE",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data"
+        }
+      },
+      "id": "drive-download",
+      "name": "Descargar foto",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        480,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REEMPLAZA_CRED_DRIVE",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://PIPELINE_HOST:8080/procesar",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Token",
+              "value": "={{ $env.EQUIPZILLA_API_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "machine_id",
+              "value": "={{ $('Foto nueva en Drive').item.json.name.split('.').slice(0, -1).join('.') }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "http-pipeline",
+      "name": "Pipeline · generar 3 versiones",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convierte cada version (base64) devuelta por el pipeline en un item con binario\nconst resp = $input.first().json;\nconst out = [];\nfor (const v of resp.versions) {\n  out.push({\n    json: {\n      machine_id: resp.machine_id,\n      key: v.key,\n      filename: v.filename,\n      model: resp.model,\n      estimated_cost_usd: resp.estimated_cost_usd,\n    },\n    binary: {\n      data: await this.helpers.prepareBinaryData(\n        Buffer.from(v.data_base64, 'base64'),\n        v.filename,\n        v.mime,\n      ),\n    },\n  });\n}\nreturn out;"
+      },
+      "id": "code-split",
+      "name": "Separar versiones a binario",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $json.filename }}",
+        "folderId": {
+          "__rl": true,
+          "value": "PEGA_AQUI_ID_CARPETA_SALIDA",
+          "mode": "id"
+        },
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "id": "drive-upload",
+      "name": "Subir version a Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REEMPLAZA_CRED_DRIVE",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Foto nueva en Drive": {
+      "main": [
+        [
+          {
+            "node": "Descargar foto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Descargar foto": {
+      "main": [
+        [
+          {
+            "node": "Pipeline · generar 3 versiones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pipeline · generar 3 versiones": {
+      "main": [
+        [
+          {
+            "node": "Separar versiones a binario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar versiones a binario": {
+      "main": [
+        [
+          {
+            "node": "Subir version a Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

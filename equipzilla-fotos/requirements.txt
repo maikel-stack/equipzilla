@@ -7,3 +7,8 @@ python-dotenv>=1.0.0     # Carga de variables desde .env
 PyYAML>=6.0              # Lectura de config.yaml
 tqdm>=4.66.0             # Barra de progreso por lotes
 tenacity>=8.2.0          # Reintentos con backoff exponencial
+
+# --- Servicio HTTP (solo si usas la integracion con n8n / Drive) ---
+fastapi>=0.110.0         # API web para src/serve.py
+uvicorn>=0.27.0          # Servidor ASGI
+python-multipart>=0.0.9  # Subida de archivos multipart

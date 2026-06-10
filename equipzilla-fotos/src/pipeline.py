@@ -67,13 +67,21 @@ def _build_prompt(config: AppConfig, version: VersionConfig, machine_id: str) ->
     return "\n\n".join(parts)
 
 
-def _save_as_jpg(image_bytes: bytes, dest: Path, quality: int) -> None:
-    """Convierte bytes de imagen a JPG y los guarda en ``dest``."""
+def _to_jpg_bytes(image_bytes: bytes, quality: int) -> bytes:
+    """Convierte bytes de imagen (PNG/JPEG/...) a bytes JPEG RGB."""
     with Image.open(io.BytesIO(image_bytes)) as img:
         if img.mode != "RGB":
             img = img.convert("RGB")
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        img.save(dest, format="JPEG", quality=quality)
+        out = io.BytesIO()
+        img.save(out, format="JPEG", quality=quality)
+        return out.getvalue()
+
+
+def _save_as_jpg(image_bytes: bytes, dest: Path, quality: int) -> None:
+    """Convierte bytes de imagen a JPG y los guarda en ``dest``."""
+    data = _to_jpg_bytes(image_bytes, quality)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(data)
 
 
 class Pipeline:
@@ -97,6 +105,33 @@ class Pipeline:
     )
     def _edit_with_retry(self, request: EditRequest):
         return self.provider.edit(request)
+
+    # --- generacion en memoria (usada por el servicio HTTP / n8n) ------
+    def generate_versions(
+        self, image_path: Path, machine_id: str
+    ) -> dict[str, bytes]:
+        """Genera todas las versiones en memoria y devuelve {clave: jpg_bytes}.
+
+        No escribe en output/ ni mueve el original; pensado para invocarse
+        desde el servicio HTTP (n8n descarga la foto de Drive, llama aqui y
+        sube los resultados de vuelta a Drive). Aplica la misma construccion de
+        prompt y los mismos reintentos con backoff que el procesado por lotes.
+        """
+        results: dict[str, bytes] = {}
+        for version in self.config.versions:
+            prompt = _build_prompt(self.config, version, machine_id)
+            request = EditRequest(
+                image_path=image_path,
+                prompt=prompt,
+                negative_prompt=self.config.negative_prompt,
+                version_key=version.key,
+            )
+            logger.info("  → generando '%s' para '%s'...", version.key, machine_id)
+            edit = self._edit_with_retry(request)
+            results[version.key] = _to_jpg_bytes(
+                edit.image_bytes, self.config.output_quality
+            )
+        return results
 
     # --- procesado de una maquina --------------------------------------
     def process_machine(
