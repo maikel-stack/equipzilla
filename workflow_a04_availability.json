@@ -1,5 +1,6 @@
 {
   "name": "A04 · Availability Resolver · Equipzilla",
+  "active": true,
   "nodes": [
     {
       "id": "node-config",
@@ -100,7 +101,7 @@
             {
               "id": "TIER12_ENABLED",
               "name": "TIER12_ENABLED",
-              "value": false,
+              "value": true,
               "type": "boolean"
             },
             {
@@ -112,7 +113,7 @@
             {
               "id": "SEARCH_RADIUS_KM",
               "name": "SEARCH_RADIUS_KM",
-              "value": 50,
+              "value": 70,
               "type": "number"
             },
             {
@@ -172,13 +173,13 @@
             {
               "id": "GSHEETS_SA_CLIENT_EMAIL",
               "name": "GSHEETS_SA_CLIENT_EMAIL",
-              "value": "GSHEETS_SA_CLIENT_EMAIL_REDACTED",
+              "value": "SA_EMAIL_REDACTED",
               "type": "string"
             },
             {
               "id": "GSHEETS_SA_PRIVATE_KEY",
               "name": "GSHEETS_SA_PRIVATE_KEY",
-              "value": "GSHEETS_SA_PRIVATE_KEY_REDACTED",
+              "value": "-----BEGIN PRIVATE KEY-----\nREDACTED\n-----END PRIVATE KEY-----\n",
               "type": "string"
             },
             {
@@ -190,8 +191,14 @@
             {
               "id": "GSHEETS_SHEET_ID",
               "name": "GSHEETS_SHEET_ID",
-              "value": "1gyhTaqHCui4xXQzKaqUaxDAej5Nea7q6kr6uO1FeE08",
+              "value": "SHEET_ID_REDACTED",
               "type": "string"
+            },
+            {
+              "id": "TIER12_RADIUS_KM",
+              "name": "TIER12_RADIUS_KM",
+              "type": "number",
+              "value": 70
             }
           ]
         },
@@ -359,21 +366,16 @@
     {
       "id": "node-search-tier12",
       "name": "Buscar Tier 1+2 (BBDD)",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         1560,
         240
       ],
       "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT\n  s.id AS alquilador_id,\n  s.nombre_comercial,\n  s.email_comercial,\n  s.whatsapp,\n  s.lat, s.lng,\n  s.categorias_servicio,\n  s.especialidad,\n  s.ciudad,\n  s.ultima_operacion_fecha,\n  CASE\n    WHEN s.ultima_operacion_fecha >= NOW() - INTERVAL '6 months' THEN 'TIER_1'\n    ELSE 'TIER_2'\n  END AS tier,\n  (\n    6371 * acos(\n      cos(radians($1::float8)) * cos(radians(s.lat)) *\n      cos(radians(s.lng) - radians($2::float8)) +\n      sin(radians($1::float8)) * sin(radians(s.lat))\n    )\n  ) AS distancia_km\nFROM alquiladores s\nWHERE\n  s.activo = true\n  AND s.opt_out_comercial = false\n  AND ($3::text = '' OR s.id <> $3::text)\n  AND $4::text = ANY(s.categorias_servicio)\n  AND (\n    6371 * acos(\n      cos(radians($1::float8)) * cos(radians(s.lat)) *\n      cos(radians(s.lng) - radians($2::float8)) +\n      sin(radians($1::float8)) * sin(radians(s.lat))\n    )\n  ) <= $5::float8\nORDER BY tier ASC, distancia_km ASC\nLIMIT 50",
-        "options": {
-          "queryReplacement": "={{ $json.oferta_anonimizada.location.lat }},{{ $json.oferta_anonimizada.location.lng }},{{ $json.oferta_anonimizada.original_supplier_id || '' }},{{ $json.oferta_anonimizada.machine.category }},{{ $('⚙️ Configuración').item.json.SEARCH_RADIUS_KM }}"
-        }
-      },
-      "continueOnFail": true,
-      "disabled": true
+        "language": "javaScript",
+        "jsCode": "// Lee la pestaña \"Ubicaciones\" del Google Sheet de Equipzilla,\n// filtra alquiladores con coordenadas válidas y email dentro de TIER12_RADIUS_KM\n// del lat/lng del deal y devuelve la lista ordenada por distancia.\nconst cfg = $('⚙️ Configuración').item.json;\nconst tier12Enabled = cfg.TIER12_ENABLED === true || cfg.TIER12_ENABLED === 'true';\nif (!tier12Enabled) {\n  return [];\n}\n\nconst src = $('Validación anti-fugas').first().json;\nconst oferta = src.oferta_anonimizada || {};\nconst loc = oferta.location || {};\nconst dealLat = parseFloat(loc.lat);\nconst dealLng = parseFloat(loc.lng);\nif (!Number.isFinite(dealLat) || !Number.isFinite(dealLng)) {\n  return [];\n}\n\nconst RADIUS_KM = parseFloat(cfg.TIER12_RADIUS_KM) || 70;\nconst TAB = 'Ubicaciones';\nconst RANGE = `${TAB}!A2:P2000`;\n\nconst crypto = require('crypto');\nconst SA_EMAIL = cfg.GSHEETS_SA_CLIENT_EMAIL;\nconst SA_KEY = cfg.GSHEETS_SA_PRIVATE_KEY;\nconst TOKEN_URI = cfg.GSHEETS_SA_TOKEN_URI || 'https://oauth2.googleapis.com/token';\nconst SHEET_ID = cfg.GSHEETS_SHEET_ID;\n\nfunction b64url(buf) {\n  return Buffer.from(buf).toString('base64').replace(/=+$/, '').replace(/\\+/g, '-').replace(/\\//g, '_');\n}\n\nconst now = Math.floor(Date.now() / 1000);\nconst header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));\nconst claim = b64url(JSON.stringify({\n  iss: SA_EMAIL,\n  scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',\n  aud: TOKEN_URI,\n  exp: now + 3600,\n  iat: now,\n}));\nconst msg = header + '.' + claim;\nconst signer = crypto.createSign('RSA-SHA256');\nsigner.update(msg);\nconst sig = b64url(signer.sign(SA_KEY));\nconst jwt = msg + '.' + sig;\n\nconst tokenResp = await this.helpers.httpRequest({\n  method: 'POST',\n  url: TOKEN_URI,\n  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },\n  body: 'grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=' + encodeURIComponent(jwt),\n  json: false,\n  returnFullResponse: false,\n});\nconst parsed = typeof tokenResp === 'string' ? JSON.parse(tokenResp) : tokenResp;\nconst token = parsed.access_token;\n\nconst sheetResp = await this.helpers.httpRequest({\n  method: 'GET',\n  url: `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(RANGE)}`,\n  headers: { Authorization: 'Bearer ' + token },\n  json: true,\n  returnFullResponse: false,\n});\n\nconst rows = sheetResp.values || [];\nconst toRad = (d) => (d * Math.PI) / 180;\nfunction haversine(lat1, lng1, lat2, lng2) {\n  const R = 6371;\n  const dLat = toRad(lat2 - lat1);\n  const dLng = toRad(lng2 - lng1);\n  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;\n  return 2 * R * Math.asin(Math.sqrt(a));\n}\n\nconst parseNum = (s) => {\n  const m = String(s == null ? '' : s).match(/-?\\d+\\.?\\d*/);\n  return m ? parseFloat(m[0]) : NaN;\n};\n\nconst seenEmail = new Set();\nconst out = [];\nfor (const r of rows) {\n  const c = [...r];\n  while (c.length < 16) c.push('');\n  const cp = String(c[0] || '').trim();\n  const name = String(c[1] || '').trim();\n  const trabaja = String(c[2] || '').trim().toUpperCase();\n  const email = String(c[3] || '').trim().toLowerCase();\n  const tel = String(c[4] || '').trim();\n  const addr = String(c[5] || '').trim();\n  const deleg = String(c[6] || '').trim();\n  const lat = parseNum(c[9]);\n  const lng = parseNum(c[10]);\n  const pdid = String(c[13] || '').trim();\n\n  if (!name) continue;\n  if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;\n  if (!email || !email.includes('@')) continue;\n  if (seenEmail.has(email)) continue;\n\n  const dist = haversine(dealLat, dealLng, lat, lng);\n  if (dist > RADIUS_KM) continue;\n\n  seenEmail.add(email);\n\n  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');\n  out.push({\n    alquilador_id: pdid || `bbdd-${cp}-${slug}`,\n    nombre_comercial: name,\n    email_comercial: email,\n    whatsapp: tel || null,\n    lat,\n    lng,\n    ciudad: deleg || cp,\n    direccion: addr,\n    codigo_postal: cp,\n    pipedrive_person_id: pdid || null,\n    tier: trabaja === 'SI' || trabaja === 'SÍ' ? 'TIER_1' : 'TIER_2',\n    distancia_km: Math.round(dist * 10) / 10,\n    origen: 'bbdd_alquiladores',\n  });\n}\n\nout.sort((a, b) => a.distancia_km - b.distancia_km);\nreturn out.map((json) => ({ json }));\n"
+      }
     },
     {
       "id": "node-aggregate-tier12",
@@ -386,7 +388,7 @@
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const cfg = $('⚙️ Configuración').item.json;\nconst tier12Enabled = cfg.TIER12_ENABLED === true || cfg.TIER12_ENABLED === 'true';\nconst src = $('Validación anti-fugas').first().json;\n\n// Feature flag: si Tier 1+2 está deshabilitado, devolvemos pool vacío para que\n// el IF '¿Pool < 5?' siempre rute a la fase Tier 3 (cold outreach).\nconst items = tier12Enabled\n  ? $input.all().map(i => i.json).filter(r => r && r.alquilador_id)\n  : [];\n\nreturn [{ json: {\n  oferta_anonimizada: src.oferta_anonimizada,\n  raw_payload: src.raw_payload,\n  deal_id: src.deal_id,\n  tier12_results: items,\n  tier12_count: items.length,\n  tier12_enabled: tier12Enabled\n} }];"
+        "jsCode": "const cfg = $('⚙️ Configuración').item.json;\nconst tier12Enabled = cfg.TIER12_ENABLED === true || cfg.TIER12_ENABLED === 'true';\nconst src = $('Validación anti-fugas').first().json;\n\n// Items vienen de \"Buscar Tier 1+2 (BBDD)\" ya filtrados por radio + email válido\nconst items = tier12Enabled\n  ? $input.all().map(i => i.json).filter(r => r && r.alquilador_id && r.email_comercial)\n  : [];\n\nreturn [{ json: {\n  oferta_anonimizada: src.oferta_anonimizada,\n  raw_payload: src.raw_payload,\n  deal_id: src.deal_id,\n  tier12_results: items,\n  tier12_count: items.length,\n  tier12_enabled: tier12Enabled\n} }];\n"
       }
     },
     {
@@ -407,11 +409,11 @@
           },
           "conditions": [
             {
-              "leftValue": "={{ $json.tier12_count }}",
-              "rightValue": 5,
+              "leftValue": "={{ true }}",
+              "rightValue": true,
               "operator": {
-                "type": "number",
-                "operation": "lt"
+                "type": "boolean",
+                "operation": "equals"
               }
             }
           ],
@@ -449,6 +451,14 @@
             {
               "name": "key",
               "value": "={{ $('⚙️ Configuración').item.json.GOOGLE_PLACES_API_KEY }}"
+            },
+            {
+              "name": "location",
+              "value": "={{ $json.oferta_anonimizada.location.lat }},{{ $json.oferta_anonimizada.location.lng }}"
+            },
+            {
+              "name": "radius",
+              "value": "70000"
             }
           ]
         },
@@ -525,7 +535,7 @@
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const items = $input.all();\nconst pool = $('Agrupar Tier 1+2').first().json;\nconst cfg = $('⚙️ Configuración').item.json;\n\n// Lista de \"nuestros alquiladores\" para excluir (no contactar)\nconst ownKeywords = String(cfg.OWN_SUPPLIERS_KEYWORDS || '')\n  .split(',')\n  .map(s => s.trim().toLowerCase())\n  .filter(s => s.length >= 4); // min 4 chars para evitar falsos positivos\n\n// Para keywords cortos (4-5 chars como 'gam') uso word boundary; para los demás substring\nconst normalizeMatch = (text) => String(text || '').toLowerCase().replace(/[^a-z0-9 ]/g, '');\n\nconst isOwnSupplier = (name, website) => {\n  const nName = normalizeMatch(name);\n  const nWeb = normalizeMatch(website || '');\n  for (const kw of ownKeywords) {\n    const k = normalizeMatch(kw);\n    if (!k) continue;\n    if (k.length <= 5) {\n      // Word boundary match para evitar false-positive (gam dentro de igamba, etc.)\n      const re = new RegExp('(^|[^a-z0-9])' + k + '([^a-z0-9]|$)');\n      if (re.test(nName) || re.test(nWeb)) return kw;\n    } else {\n      if (nName.includes(k) || nWeb.includes(k)) return kw;\n    }\n  }\n  return null;\n};\n\nconst deriveEmail = (website) => {\n  if (!website) return null;\n  const m = String(website).match(/^https?:\\/\\/(?:www\\.)?([a-z0-9.-]+\\.(?:es|com|cat|net|org|eu))/i);\n  if (!m) return null;\n  const host = m[1].toLowerCase();\n  if (host.includes('equipzilla')) return null;\n  return `info@${host}`;\n};\n\nconst enriched = items\n  .map(it => {\n    const r = (it.json && it.json.result) || {};\n    const baseFromInput = $('Normalizar Tier 3').all().find(x => x.json.place_id === r.place_id);\n    const base = (baseFromInput && baseFromInput.json) || {};\n    const phone = r.international_phone_number || r.formatted_phone_number || null;\n    const website = r.website || null;\n    const derivedEmail = deriveEmail(website);\n    const ownMatch = isOwnSupplier(r.name || base.nombre_comercial, website);\n    return {\n      alquilador_id: 'PROSPECT-' + (r.place_id || base.place_id || 'unknown'),\n      nombre_comercial: r.name || base.nombre_comercial,\n      ciudad: base.ciudad,\n      whatsapp: phone ? phone.replace(/[^0-9+]/g, '') : null,\n      website,\n      email_comercial: derivedEmail,\n      email_derivado: !!derivedEmail,\n      formatted_address: r.formatted_address || base.formatted_address,\n      tier: 'TIER_3',\n      origen: 'cold_enrichment',\n      raw_name: r.name,\n      own_supplier_match: ownMatch\n    };\n  })\n  .filter((r, i, arr) => arr.findIndex(x => x.email_comercial === r.email_comercial) === i)\n  .filter(r => !/equipzilla/i.test(r.raw_name || ''))\n  .filter(r => !r.own_supplier_match)  // excluir nuestros\n  .filter(r => r.email_comercial);\n\nconst excluded = items\n  .map(it => {\n    const r = (it.json && it.json.result) || {};\n    const baseFromInput = $('Normalizar Tier 3').all().find(x => x.json.place_id === r.place_id);\n    const base = (baseFromInput && baseFromInput.json) || {};\n    const own = isOwnSupplier(r.name || base.nombre_comercial, r.website);\n    return own ? { name: r.name, match: own } : null;\n  })\n  .filter(Boolean);\n\nreturn [{ json: {\n  oferta_anonimizada: pool.oferta_anonimizada,\n  raw_payload: pool.raw_payload,\n  deal_id: pool.deal_id,\n  tier12_results: pool.tier12_results,\n  tier3_results_enriched: enriched,\n  tier3_enriched_count: enriched.length,\n  excluded_own_suppliers: excluded\n} }];"
+        "jsCode": "const items = $input.all();\nconst pool = $('Merge lat/lng en oferta').first().json;\n\nconst deriveEmail = (website) => {\n  if (!website) return null;\n  const m = String(website).match(/^https?:\\/\\/(?:www\\.)?([a-z0-9.-]+\\.(?:es|com|cat|net|org|eu))/i);\n  if (!m) return null;\n  const host = m[1].toLowerCase();\n  if (host.includes('equipzilla')) return null; // Solo excluimos Equipzilla\n  return `info@${host}`;\n};\n\nconst enriched = items\n  .map(it => {\n    const r = (it.json && it.json.result) || {};\n    const baseFromInput = $('Normalizar Tier 3').all().find(x => x.json.place_id === r.place_id);\n    const base = (baseFromInput && baseFromInput.json) || {};\n    const phone = r.international_phone_number || r.formatted_phone_number || null;\n    const website = r.website || null;\n    const derivedEmail = deriveEmail(website);\n    return {\n      alquilador_id: 'PROSPECT-' + (r.place_id || base.place_id || 'unknown'),\n      nombre_comercial: r.name || base.nombre_comercial,\n      ciudad: base.ciudad,\n      whatsapp: phone ? phone.replace(/[^0-9+]/g, '') : null,\n      website,\n      email_comercial: derivedEmail,\n      email_derivado: !!derivedEmail,\n      formatted_address: r.formatted_address || base.formatted_address,\n      tier: 'TIER_3',\n      origen: 'cold_enrichment',\n      raw_name: r.name\n    };\n  })\n  // Dedupe por dominio dentro de Tier 3\n  .filter((r, i, arr) => arr.findIndex(x => x.email_comercial === r.email_comercial) === i)\n  // Solo excluimos Equipzilla mismo\n  .filter(r => !/equipzilla/i.test(r.raw_name || ''))\n  // Solo con email derivado\n  .filter(r => r.email_comercial);\n\nreturn [{ json: {\n  oferta_anonimizada: pool.oferta_anonimizada,\n  raw_payload: pool.raw_payload,\n  deal_id: pool.deal_id,\n  tier12_results: pool.tier12_results,\n  tier3_results_enriched: enriched,\n  tier3_enriched_count: enriched.length\n} }];"
       }
     },
     {
@@ -553,7 +563,7 @@
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "const src = $json;\nconst tier12 = src.tier12_results || [];\nconst tier3 = (src.tier3_results_enriched || []).map(r => ({\n  alquilador_id: r.alquilador_id,\n  nombre_comercial: r.nombre_comercial,\n  email_comercial: r.email_comercial,\n  whatsapp: r.whatsapp,\n  ciudad: r.ciudad,\n  website: r.website,\n  tier: 'TIER_3',\n  origen: 'cold_enrichment'\n}));\n\nconst seen = new Set();\nconst pool = [];\nfor (const a of [...tier12, ...tier3]) {\n  const key = (a.alquilador_id || '') + '|' + (a.email_comercial || '') + '|' + (a.whatsapp || '');\n  if (seen.has(key)) continue;\n  seen.add(key);\n  if (!a.email_comercial) continue;\n  pool.push(a);\n}\n\nif (pool.length === 0) {\n  return [{ json: {\n    empty_pool: true,\n    deal_id: src.deal_id,\n    oferta_anonimizada: src.oferta_anonimizada,\n    raw_payload: src.raw_payload,\n    tier12_count: tier12.length,\n    tier3_count: (src.tier3_results_enriched || []).length\n  } }];\n}\n\nreturn pool.map(a => ({ json: {\n  empty_pool: false,\n  alquilador: a,\n  oferta_anonimizada: src.oferta_anonimizada,\n  deal_id: src.deal_id,\n  raw_payload: src.raw_payload\n} }));"
+        "jsCode": "const src = $json;\nconst tier12 = (src.tier12_results || []).filter(a => a.email_comercial);\nconst tier3 = (src.tier3_results_enriched || []).filter(a => a.email_comercial);\n\n// Domains de Tier 1+2 (para dedupe contra Tier 3)\nconst tier12Domains = new Set(tier12.map(a => (a.email_comercial || '').split('@')[1].toLowerCase()));\nconst tier12Emails = new Set(tier12.map(a => a.email_comercial.toLowerCase()));\n\nconst pool = [];\n// Add all Tier 1+2 first (prioridad)\nfor (const a of tier12) {\n  pool.push({\n    alquilador_id: a.alquilador_id,\n    nombre_comercial: a.nombre_comercial,\n    nombre_contacto: a.nombre_contacto || null,\n    email_comercial: a.email_comercial,\n    whatsapp: a.whatsapp,\n    ciudad: a.ciudad,\n    tier: 'TIER_1',\n    origen: a.origen\n  });\n}\n// Add Tier 3 que NO solapen con Tier 1+2\nfor (const a of tier3) {\n  const email = (a.email_comercial || '').toLowerCase();\n  const domain = email.split('@')[1] || '';\n  if (tier12Emails.has(email) || tier12Domains.has(domain)) continue;\n  pool.push({\n    alquilador_id: a.alquilador_id,\n    nombre_comercial: a.nombre_comercial,\n    nombre_contacto: null,\n    email_comercial: a.email_comercial,\n    whatsapp: a.whatsapp,\n    ciudad: a.ciudad,\n    website: a.website,\n    tier: 'TIER_3',\n    origen: a.origen\n  });\n}\n\nif (pool.length === 0) {\n  return [{ json: {\n    empty_pool: true,\n    deal_id: src.deal_id,\n    oferta_anonimizada: src.oferta_anonimizada,\n    raw_payload: src.raw_payload,\n    tier12_count: tier12.length,\n    tier3_count: tier3.length\n  } }];\n}\n\nreturn pool.map(a => ({ json: {\n  empty_pool: false,\n  alquilador: a,\n  oferta_anonimizada: src.oferta_anonimizada,\n  deal_id: src.deal_id,\n  raw_payload: src.raw_payload\n} }));"
       }
     },
     {
@@ -2159,6 +2169,72 @@
           "combinator": "and"
         }
       }
+    },
+    {
+      "id": "node-geocode-zip",
+      "name": "Geocodificar zip (Nominatim)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2110,
+        100
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://nominatim.openstreetmap.org/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "postalcode",
+              "value": "={{ $json.oferta_anonimizada.location.postal_code }}"
+            },
+            {
+              "name": "country",
+              "value": "Spain"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "EquipzillaA04/1.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "id": "node-geocode-merge",
+      "name": "Merge lat/lng en oferta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2110,
+        220
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const geo = $input.first().json;\nconst pool = $('Agrupar Tier 1+2').first().json;\nlet lat = null, lng = null;\nif (Array.isArray(geo) && geo.length > 0) {\n  lat = parseFloat(geo[0].lat);\n  lng = parseFloat(geo[0].lon);\n}\nconst oferta = { ...pool.oferta_anonimizada };\noferta.location = { ...oferta.location, lat, lng };\nreturn [{ json: { ...pool, oferta_anonimizada: oferta, geocode_ok: lat !== null } }];"
+      }
     }
   ],
   "connections": {
@@ -2253,17 +2329,6 @@
         ]
       ]
     },
-    "Buscar Tier 1+2 (BBDD)": {
-      "main": [
-        [
-          {
-            "node": "Agrupar Tier 1+2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Agrupar Tier 1+2": {
       "main": [
         [
@@ -2279,7 +2344,7 @@
       "main": [
         [
           {
-            "node": "Enriquecer Tier 3 (Google Places)",
+            "node": "Geocodificar zip (Nominatim)",
             "type": "main",
             "index": 0
           }
@@ -3045,11 +3110,1001 @@
         ],
         []
       ]
+    },
+    "Geocodificar zip (Nominatim)": {
+      "main": [
+        [
+          {
+            "node": "Merge lat/lng en oferta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge lat/lng en oferta": {
+      "main": [
+        [
+          {
+            "node": "Enriquecer Tier 3 (Google Places)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Tier 1+2 (BBDD)": {
+      "main": [
+        [
+          {
+            "node": "Agrupar Tier 1+2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1",
     "saveManualExecutions": true,
     "callerPolicy": "workflowsFromSameOwner"
-  }
+  },
+  "staticData": {
+    "node:Watchdog 4h (Cron)": {
+      "recurrenceRules": []
+    },
+    "global": {
+      "pending_reminders": [
+        {
+          "tracking_id": "TRK-52604-1781083335277",
+          "deal_id": "52604",
+          "alquilador_email": "info@servialqui.es",
+          "alquilador_name": "SERVIALQUI S.L. | Maquinaria y equipos industriales | Alquiler de Plataformas elevadoras, miniexcavadoras, dúmpers, etc.",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52604-1781083335277",
+            "deal_id_internal": "52604",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Plataforma articulada",
+              "subcategory_id": 94,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": "16",
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": null
+              },
+              "descripcion_legible": "Plataforma articulada 16 m altura"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-22",
+              "duration_days": 7,
+              "urgency": "high"
+            },
+            "location": {
+              "city": "Madrid",
+              "postal_code": "28001",
+              "zone_label": "Madrid",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": 2100,
+              "tarifa_diaria_eur": 300,
+              "tarifa_diaria_max_eur": 345,
+              "duracion_dias": 7,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": 300,
+              "daily_rate_max_eur": 345
+            },
+            "generated_at": "2026-06-10T09:22:15.277Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad de alquiler - Plataforma articulada 16m - Madrid - 2.100€",
+          "scheduled_at": 1781083349814,
+          "due_r1": 1781169749814,
+          "due_r2": 1781342549814,
+          "fired_r1": true,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52604-1781083335277",
+          "deal_id": "52604",
+          "alquilador_email": "info@muroelevaciones.com",
+          "alquilador_name": "Muro Elevaciones",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52604-1781083335277",
+            "deal_id_internal": "52604",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Plataforma articulada",
+              "subcategory_id": 94,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": "16",
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": null
+              },
+              "descripcion_legible": "Plataforma articulada 16 m altura"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-22",
+              "duration_days": 7,
+              "urgency": "high"
+            },
+            "location": {
+              "city": "Madrid",
+              "postal_code": "28001",
+              "zone_label": "Madrid",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": 2100,
+              "tarifa_diaria_eur": 300,
+              "tarifa_diaria_max_eur": 345,
+              "duracion_dias": 7,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": 300,
+              "daily_rate_max_eur": 345
+            },
+            "generated_at": "2026-06-10T09:22:15.277Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad comercial - Plataforma articulada 16m Madrid (junio)",
+          "scheduled_at": 1781083362766,
+          "due_r1": 1781169762766,
+          "due_r2": 1781342562766,
+          "fired_r1": true,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52604-1781083335277",
+          "deal_id": "52604",
+          "alquilador_email": "info@ibp-sl.com",
+          "alquilador_name": "Ibérica de Plataformas S.L.",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52604-1781083335277",
+            "deal_id_internal": "52604",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Plataforma articulada",
+              "subcategory_id": 94,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": "16",
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": null
+              },
+              "descripcion_legible": "Plataforma articulada 16 m altura"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-22",
+              "duration_days": 7,
+              "urgency": "high"
+            },
+            "location": {
+              "city": "Madrid",
+              "postal_code": "28001",
+              "zone_label": "Madrid",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": 2100,
+              "tarifa_diaria_eur": 300,
+              "tarifa_diaria_max_eur": 345,
+              "duracion_dias": 7,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": 300,
+              "daily_rate_max_eur": 345
+            },
+            "generated_at": "2026-06-10T09:22:15.277Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad alquiler - Plataforma articulada 16m Madrid (7 días)",
+          "scheduled_at": 1781083375602,
+          "due_r1": 1781169775602,
+          "due_r2": 1781342575602,
+          "fired_r1": true,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52604-1781083335277",
+          "deal_id": "52604",
+          "alquilador_email": "info@maxber.com",
+          "alquilador_name": "MAXBER Madrid. Alquiler de Plataformas y Carretillas Elevadores",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52604-1781083335277",
+            "deal_id_internal": "52604",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Plataforma articulada",
+              "subcategory_id": 94,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": "16",
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": null
+              },
+              "descripcion_legible": "Plataforma articulada 16 m altura"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-22",
+              "duration_days": 7,
+              "urgency": "high"
+            },
+            "location": {
+              "city": "Madrid",
+              "postal_code": "28001",
+              "zone_label": "Madrid",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": 2100,
+              "tarifa_diaria_eur": 300,
+              "tarifa_diaria_max_eur": 345,
+              "duracion_dias": 7,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": 300,
+              "daily_rate_max_eur": 345
+            },
+            "generated_at": "2026-06-10T09:22:15.277Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad alquiler - Plataforma articulada 16m Madrid - Presupuesto aceptado 2.100€",
+          "scheduled_at": 1781083388776,
+          "due_r1": 1781169788776,
+          "due_r2": 1781342588776,
+          "fired_r1": true,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52604-1781083335277",
+          "deal_id": "52604",
+          "alquilador_email": "info@liftisa.com",
+          "alquilador_name": "LIFTISA | Alquiler, Venta y Posventa de Plataformas Elevadoras",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52604-1781083335277",
+            "deal_id_internal": "52604",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Plataforma articulada",
+              "subcategory_id": 94,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": "16",
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": null
+              },
+              "descripcion_legible": "Plataforma articulada 16 m altura"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-22",
+              "duration_days": 7,
+              "urgency": "high"
+            },
+            "location": {
+              "city": "Madrid",
+              "postal_code": "28001",
+              "zone_label": "Madrid",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": 2100,
+              "tarifa_diaria_eur": 300,
+              "tarifa_diaria_max_eur": 345,
+              "duracion_dias": 7,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": 300,
+              "daily_rate_max_eur": 345
+            },
+            "generated_at": "2026-06-10T09:22:15.277Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad comercial - Plataforma articulada 16m Madrid (junio 2026)",
+          "scheduled_at": 1781083401584,
+          "due_r1": 1781169801584,
+          "due_r2": 1781342601584,
+          "fired_r1": true,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52604-1781083335277",
+          "deal_id": "52604",
+          "alquilador_email": "info@peysermaquinaria.com",
+          "alquilador_name": "Alquiler de maquinaria y herramientas en Madrid | Peyser Maquinaria",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52604-1781083335277",
+            "deal_id_internal": "52604",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Plataforma articulada",
+              "subcategory_id": 94,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": "16",
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": null
+              },
+              "descripcion_legible": "Plataforma articulada 16 m altura"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-22",
+              "duration_days": 7,
+              "urgency": "high"
+            },
+            "location": {
+              "city": "Madrid",
+              "postal_code": "28001",
+              "zone_label": "Madrid",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": 2100,
+              "tarifa_diaria_eur": 300,
+              "tarifa_diaria_max_eur": 345,
+              "duracion_dias": 7,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": 300,
+              "daily_rate_max_eur": 345
+            },
+            "generated_at": "2026-06-10T09:22:15.277Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad comercial - Plataforma articulada 16m Madrid (15-22 junio)",
+          "scheduled_at": 1781083414530,
+          "due_r1": 1781169814530,
+          "due_r2": 1781342614530,
+          "fired_r1": true,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52604-1781083335277",
+          "deal_id": "52604",
+          "alquilador_email": "info@alkimaki.com",
+          "alquilador_name": "Alkimaki | Alquiler de maquinaria de construcción",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52604-1781083335277",
+            "deal_id_internal": "52604",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Plataforma articulada",
+              "subcategory_id": 94,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": "16",
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": null
+              },
+              "descripcion_legible": "Plataforma articulada 16 m altura"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-22",
+              "duration_days": 7,
+              "urgency": "high"
+            },
+            "location": {
+              "city": "Madrid",
+              "postal_code": "28001",
+              "zone_label": "Madrid",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": 2100,
+              "tarifa_diaria_eur": 300,
+              "tarifa_diaria_max_eur": 345,
+              "duracion_dias": 7,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": 300,
+              "daily_rate_max_eur": 345
+            },
+            "generated_at": "2026-06-10T09:22:15.277Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad comercial - Plataforma articulada 16m Madrid (7 días)",
+          "scheduled_at": 1781083427517,
+          "due_r1": 1781169827517,
+          "due_r2": 1781342627517,
+          "fired_r1": true,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52604-1781083335277",
+          "deal_id": "52604",
+          "alquilador_email": "info@elevarteplataformas.com",
+          "alquilador_name": "Elevarte Alquiler Plataformas Elevadoras",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52604-1781083335277",
+            "deal_id_internal": "52604",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Plataforma articulada",
+              "subcategory_id": 94,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": "16",
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": null
+              },
+              "descripcion_legible": "Plataforma articulada 16 m altura"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-22",
+              "duration_days": 7,
+              "urgency": "high"
+            },
+            "location": {
+              "city": "Madrid",
+              "postal_code": "28001",
+              "zone_label": "Madrid",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": 2100,
+              "tarifa_diaria_eur": 300,
+              "tarifa_diaria_max_eur": 345,
+              "duracion_dias": 7,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": 300,
+              "daily_rate_max_eur": 345
+            },
+            "generated_at": "2026-06-10T09:22:15.277Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad comercial - Plataforma articulada 16m Madrid (15-22 junio)",
+          "scheduled_at": 1781083440784,
+          "due_r1": 1781169840784,
+          "due_r2": 1781342640784,
+          "fired_r1": true,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52604-1781083335277",
+          "deal_id": "52604",
+          "alquilador_email": "info@mateco.es",
+          "alquilador_name": "mateco Móstoles, Madrid - Toledo | Alquiler Plataformas Elevadoras",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52604-1781083335277",
+            "deal_id_internal": "52604",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Plataforma articulada",
+              "subcategory_id": 94,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": "16",
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": null
+              },
+              "descripcion_legible": "Plataforma articulada 16 m altura"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-22",
+              "duration_days": 7,
+              "urgency": "high"
+            },
+            "location": {
+              "city": "Madrid",
+              "postal_code": "28001",
+              "zone_label": "Madrid",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": 2100,
+              "tarifa_diaria_eur": 300,
+              "tarifa_diaria_max_eur": 345,
+              "duracion_dias": 7,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": 300,
+              "daily_rate_max_eur": 345
+            },
+            "generated_at": "2026-06-10T09:22:15.277Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad comercial - Plataforma articulada 16m Madrid (15-22 junio)",
+          "scheduled_at": 1781083453927,
+          "due_r1": 1781169853927,
+          "due_r2": 1781342653927,
+          "fired_r1": true,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52841-1781193587059",
+          "deal_id": "52841",
+          "alquilador_email": "info@montero.es",
+          "alquilador_name": "Montero Alquiler de Maquinaria — Madrid",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52841-1781193587059",
+            "deal_id_internal": "52841",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Grupo electrogeno",
+              "subcategory_id": 81,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": null,
+                "peso_kg": null,
+                "potencia_kva": "20-30KVA",
+                "extras": null,
+                "uso_previsto": "Necesito esto\n \nGrupo 20 Kvas STAGE 5 insonorizado\n\nPica toma tierra 1,5mt con cable 2mt\n\nCuadro de distribución eléct 5 enchufes 32A sop - Es para este viernes de 15 a 18h para un evento de una empresa con un food truck y barra de bebidas y música de fondo"
+              },
+              "descripcion_legible": "Grupo electrogeno 20-30KVA kVA"
+            },
+            "dates": {
+              "start": "2026-06-11",
+              "end": "2026-06-14",
+              "duration_days": 3,
+              "urgency": "high"
+            },
+            "location": {
+              "city": null,
+              "postal_code": "28914",
+              "zone_label": "28914",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": null,
+              "tarifa_diaria_eur": null,
+              "tarifa_diaria_max_eur": null,
+              "duracion_dias": 3,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": null,
+              "daily_rate_max_eur": null
+            },
+            "generated_at": "2026-06-11T15:59:47.059Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad de alquiler - Grupo electrógeno 20-30KVA (11-14 junio, zona 28914)",
+          "scheduled_at": 1781193602557,
+          "due_r1": 1781280002557,
+          "due_r2": 1781452802557,
+          "fired_r1": true,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52845-1781260133953",
+          "deal_id": "52845",
+          "alquilador_email": "info@alquicesmar.com",
+          "alquilador_name": "ALQUICESMAR",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52845-1781260133953",
+            "deal_id_internal": "52845",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Elevador de tijera",
+              "subcategory_id": 97,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": null,
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": "Plataforma Tijera Diésel 12m 4x4 para obra exterior o camión cesta  "
+              },
+              "descripcion_legible": "Elevador de tijera"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-15",
+              "duration_days": 1,
+              "urgency": "high"
+            },
+            "location": {
+              "city": null,
+              "postal_code": "38500",
+              "zone_label": "38500",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": null,
+              "tarifa_diaria_eur": null,
+              "tarifa_diaria_max_eur": null,
+              "duracion_dias": 1,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": null,
+              "daily_rate_max_eur": null
+            },
+            "generated_at": "2026-06-12T10:28:53.953Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Solicitud urgente elevador tijera 12m - 15 junio zona 38500",
+          "scheduled_at": 1781260148012,
+          "due_r1": 1781346548012,
+          "due_r2": 1781519348012,
+          "fired_r1": false,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52845-1781260133953",
+          "deal_id": "52845",
+          "alquilador_email": "info@kiloutou.com",
+          "alquilador_name": "Valser - Kiloutou Valencia - Alquiler de maquinaria",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52845-1781260133953",
+            "deal_id_internal": "52845",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Elevador de tijera",
+              "subcategory_id": 97,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": null,
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": "Plataforma Tijera Diésel 12m 4x4 para obra exterior o camión cesta  "
+              },
+              "descripcion_legible": "Elevador de tijera"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-15",
+              "duration_days": 1,
+              "urgency": "high"
+            },
+            "location": {
+              "city": null,
+              "postal_code": "38500",
+              "zone_label": "38500",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": null,
+              "tarifa_diaria_eur": null,
+              "tarifa_diaria_max_eur": null,
+              "duracion_dias": 1,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": null,
+              "daily_rate_max_eur": null
+            },
+            "generated_at": "2026-06-12T10:28:53.953Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad alquiler - Elevador tijera 12m - 15/06/2026 - Zona 38500",
+          "scheduled_at": 1781260160142,
+          "due_r1": 1781346560142,
+          "due_r2": 1781519360142,
+          "fired_r1": false,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52845-1781260133953",
+          "deal_id": "52845",
+          "alquilador_email": "info@ngbmaquinaria.com",
+          "alquilador_name": "NGB Alquiler de maquinaria S.L",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52845-1781260133953",
+            "deal_id_internal": "52845",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Elevador de tijera",
+              "subcategory_id": 97,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": null,
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": "Plataforma Tijera Diésel 12m 4x4 para obra exterior o camión cesta  "
+              },
+              "descripcion_legible": "Elevador de tijera"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-15",
+              "duration_days": 1,
+              "urgency": "high"
+            },
+            "location": {
+              "city": null,
+              "postal_code": "38500",
+              "zone_label": "38500",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": null,
+              "tarifa_diaria_eur": null,
+              "tarifa_diaria_max_eur": null,
+              "duracion_dias": 1,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": null,
+              "daily_rate_max_eur": null
+            },
+            "generated_at": "2026-06-12T10:28:53.953Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad comercial urgente - Elevador tijera 12m - 15 junio zona 38500",
+          "scheduled_at": 1781260173739,
+          "due_r1": 1781346573739,
+          "due_r2": 1781519373739,
+          "fired_r1": false,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52845-1781260133953",
+          "deal_id": "52845",
+          "alquilador_email": "info@xmaq.es",
+          "alquilador_name": "Xmaq - Alquiler Plataformas Elevadoras",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52845-1781260133953",
+            "deal_id_internal": "52845",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Elevador de tijera",
+              "subcategory_id": 97,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": null,
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": "Plataforma Tijera Diésel 12m 4x4 para obra exterior o camión cesta  "
+              },
+              "descripcion_legible": "Elevador de tijera"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-15",
+              "duration_days": 1,
+              "urgency": "high"
+            },
+            "location": {
+              "city": null,
+              "postal_code": "38500",
+              "zone_label": "38500",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": null,
+              "tarifa_diaria_eur": null,
+              "tarifa_diaria_max_eur": null,
+              "duracion_dias": 1,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": null,
+              "daily_rate_max_eur": null
+            },
+            "generated_at": "2026-06-12T10:28:53.953Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad comercial urgente - Plataforma tijera diésel 12m 4x4 - Zona 38500",
+          "scheduled_at": 1781260188479,
+          "due_r1": 1781346588479,
+          "due_r2": 1781519388479,
+          "fired_r1": false,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52845-1781260133953",
+          "deal_id": "52845",
+          "alquilador_email": "info@homsrentals.com",
+          "alquilador_name": "Homs Rentals - Mataró",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52845-1781260133953",
+            "deal_id_internal": "52845",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Elevador de tijera",
+              "subcategory_id": 97,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": null,
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": "Plataforma Tijera Diésel 12m 4x4 para obra exterior o camión cesta  "
+              },
+              "descripcion_legible": "Elevador de tijera"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-15",
+              "duration_days": 1,
+              "urgency": "high"
+            },
+            "location": {
+              "city": null,
+              "postal_code": "38500",
+              "zone_label": "38500",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": null,
+              "tarifa_diaria_eur": null,
+              "tarifa_diaria_max_eur": null,
+              "duracion_dias": 1,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": null,
+              "daily_rate_max_eur": null
+            },
+            "generated_at": "2026-06-12T10:28:53.953Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad de alquiler - Elevador de tijera 15/06/2026 - 38500",
+          "scheduled_at": 1781260201824,
+          "due_r1": 1781346601824,
+          "due_r2": 1781519401824,
+          "fired_r1": false,
+          "fired_r2": false
+        },
+        {
+          "tracking_id": "TRK-52845-1781260133953",
+          "deal_id": "52845",
+          "alquilador_email": "info@maquinariasanantonio.es",
+          "alquilador_name": "MAQUINARIA SAN ANTONIO",
+          "oferta_anonimizada": {
+            "tracking_root_id": "TRK-52845-1781260133953",
+            "deal_id_internal": "52845",
+            "original_supplier_id": null,
+            "machine": {
+              "category": "elevacion",
+              "subcategory": "Elevador de tijera",
+              "subcategory_id": 97,
+              "specifications": {
+                "tipo_motor": null,
+                "altura_trabajo_m": null,
+                "peso_kg": null,
+                "potencia_kva": null,
+                "extras": null,
+                "uso_previsto": "Plataforma Tijera Diésel 12m 4x4 para obra exterior o camión cesta  "
+              },
+              "descripcion_legible": "Elevador de tijera"
+            },
+            "dates": {
+              "start": "2026-06-15",
+              "end": "2026-06-15",
+              "duration_days": 1,
+              "urgency": "high"
+            },
+            "location": {
+              "city": null,
+              "postal_code": "38500",
+              "zone_label": "38500",
+              "lat": null,
+              "lng": null
+            },
+            "constraints": [],
+            "presupuesto": {
+              "total_eur": null,
+              "tarifa_diaria_eur": null,
+              "tarifa_diaria_max_eur": null,
+              "duracion_dias": 1,
+              "moneda": "EUR",
+              "estado": "aceptado_por_cliente"
+            },
+            "budget_range": {
+              "daily_rate_target_eur": null,
+              "daily_rate_max_eur": null
+            },
+            "generated_at": "2026-06-12T10:28:53.953Z"
+          },
+          "tier_aplicado": "TIER_3",
+          "email_subject": "Oportunidad de negocio - Elevador de tijera 15/06/2026 zona 38500",
+          "scheduled_at": 1781260215411,
+          "due_r1": 1781346615411,
+          "due_r2": 1781519415411,
+          "fired_r1": false,
+          "fired_r2": false
+        }
+      ]
+    },
+    "node:Cron · Procesar recordatorios": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": null
 }
