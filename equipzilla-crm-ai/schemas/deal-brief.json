@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DealBrief",
+  "type": "object",
+  "required": ["price_assessment", "value_case", "objections", "negotiation", "next_best_action"],
+  "properties": {
+    "price_assessment": {
+      "type": "object",
+      "required": ["veredicto", "rango_estimado", "razonamiento", "confidence"],
+      "properties": {
+        "veredicto": { "type": "string", "enum": ["por_debajo_mercado", "en_mercado", "por_encima_mercado"] },
+        "rango_estimado": { "type": "string" },
+        "razonamiento": { "type": "string" },
+        "comparables": { "type": "array", "items": { "type": "string" } },
+        "confidence": { "type": "string", "enum": ["high", "medium", "low"] }
+      }
+    },
+    "value_case": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "argumento": { "type": "string" },
+          "detalle": { "type": "string" }
+        }
+      },
+      "minItems": 3
+    },
+    "objections": {
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "properties": {
+          "objecion": { "type": "string" },
+          "respuesta_sugerida": { "type": "string" }
+        }
+      }
+    },
+    "negotiation": {
+      "type": "object",
+      "properties": {
+        "suelo_estimado": { "type": "string" },
+        "concesiones_orden": { "type": "array", "items": { "type": "string" } },
+        "walk_away": { "type": "string" }
+      }
+    },
+    "next_best_action": { "type": "string" },
+    "mensaje_o_propuesta": { "type": "string" }
+  }
+}

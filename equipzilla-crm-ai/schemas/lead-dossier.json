@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LeadDossier",
+  "type": "object",
+  "required": ["empresa", "contacto", "scoring", "next_best_action", "mensaje_sugerido"],
+  "properties": {
+    "empresa": {
+      "type": "object",
+      "properties": {
+        "nombre": { "type": ["string", "null"] },
+        "dominio": { "type": ["string", "null"] },
+        "sector": { "type": ["string", "null"] },
+        "empleados": { "type": ["integer", "null"] },
+        "facturacion_estimada": { "type": ["string", "null"] },
+        "ubicacion": { "type": ["string", "null"] },
+        "source": { "type": "string", "enum": ["apollo", "web", "listing", "inferred"] },
+        "confidence": { "type": "string", "enum": ["high", "medium", "low"] }
+      }
+    },
+    "contacto": {
+      "type": "object",
+      "properties": {
+        "nombre": { "type": ["string", "null"] },
+        "cargo": { "type": ["string", "null"] },
+        "poder_decision": { "type": "string", "enum": ["decisor", "influencer", "usuario", "desconocido"] }
+      }
+    },
+    "decisores_adicionales": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": { "nombre": {}, "cargo": {}, "linkedin": {} }
+      }
+    },
+    "contexto_compra": {
+      "type": "object",
+      "properties": {
+        "caso_uso_probable": { "type": "string" },
+        "detonante_probable": { "type": "string" },
+        "confidence": { "type": "string", "enum": ["high", "medium", "low"] }
+      }
+    },
+    "senales": { "type": "array", "items": { "type": "string" } },
+    "scoring": {
+      "type": "object",
+      "required": ["fit", "intent", "grado"],
+      "properties": {
+        "fit": { "type": "integer", "minimum": 0, "maximum": 50 },
+        "intent": { "type": "integer", "minimum": 0, "maximum": 50 },
+        "total": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "grado": { "type": "string", "enum": ["A", "B", "C", "D"] }
+      }
+    },
+    "talking_points": { "type": "array", "items": { "type": "string" }, "minItems": 3 },
+    "risk_flags": { "type": "array", "items": { "type": "string" } },
+    "next_best_action": { "type": "string" },
+    "mensaje_sugerido": { "type": "string" },
+    "notas": { "type": "string" }
+  }
+}
