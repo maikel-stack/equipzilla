@@ -1,0 +1,29 @@
+<!--
+  Plantilla de HUB (listado) — Equipzilla compra.
+  Rellena con la salida de agents/hub-generator.md. El copy ÚNICO (intro + guia_compra + faq) es lo que evita
+  el contenido thin/duplicado. No publicar si num_unidades < 3.
+-->
+<main class="hub">
+  <nav class="breadcrumb"><!-- {{enlaces_internos.breadcrumb}} --></nav>
+  <h1>{{h1}}</h1>
+
+  <!-- Intro ÚNICO por nodo -->
+  <section class="intro">{{intro}}</section>
+
+  <!-- Filtros -->
+  <aside class="filtros"><!-- marca, año, horas, precio, ubicación; combinaciones sin valor -> canonical+noindex --></aside>
+
+  <!-- Listado de unidades -->
+  <section class="listado"><!-- tarjetas de ficha; paginación rel-next/prev --></section>
+
+  <!-- Guía de compra (valor + SEO + conversión) -->
+  <section class="guia-compra">{{guia_compra}}</section>
+
+  <!-- FAQ del nodo -->
+  <section class="faq">{{faq}}</section>
+
+  <!-- Malla de enlazado interno (estilo footer Clicars) -->
+  <section class="enlaces-internos"><!-- hubs hermanos, categoría padre, provincias vecinas --></section>
+
+  <script type="application/ld+json">{{jsonld}}</script>
+</main>

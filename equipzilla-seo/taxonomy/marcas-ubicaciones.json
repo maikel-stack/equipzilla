@@ -1,0 +1,13 @@
+{
+  "marcas_por_categoria": {
+    "maquinaria-construccion": ["Caterpillar", "Komatsu", "JCB", "Volvo", "Hitachi", "Kubota", "Bobcat", "Takeuchi", "Yanmar"],
+    "plataformas-elevadoras": ["Genie", "JLG", "Haulotte", "Manitou", "Snorkel"],
+    "manipulacion-elevacion-cargas": ["Toyota", "Linde", "Jungheinrich", "Still", "Hyster", "Manitou", "Mitsubishi"],
+    "energia-aire-agua": ["Atlas Copco", "Himoinsa", "Pramac", "Kohler", "Genelec"],
+    "casetas-contenedores-vallas": []
+  },
+  "marcas_premium": ["Caterpillar", "Komatsu", "JCB", "Volvo", "Manitou", "Genie", "JLG", "Toyota", "Linde", "Atlas Copco"],
+  "provincias_es": ["Madrid", "Barcelona", "Valencia", "Sevilla", "Zaragoza", "Málaga", "Murcia", "Bilbao", "Alicante", "Valladolid", "Vigo", "Gijón"],
+  "estados_mx": ["CDMX", "Estado de México", "Nuevo León", "Jalisco", "Guanajuato", "Querétaro", "Puebla"],
+  "nota": "Generar hub categoría×marca y categoría×provincia solo cuando haya ≥3 unidades en el cruce."
+}

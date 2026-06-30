@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ListingInput",
+  "description": "Esquema canónico de una unidad de maquinaria en venta. Fuente única que consumen ficha-generator, hub-generator, equipzilla-feed y los creativos.",
+  "type": "object",
+  "required": ["id", "marca", "modelo", "categoria", "precio", "moneda", "mercado"],
+  "properties": {
+    "id": { "type": "string" },
+    "marca": { "type": "string" },
+    "modelo": { "type": "string" },
+    "año": { "type": ["integer", "null"] },
+    "categoria": { "type": "string", "description": "slug de taxonomy/categorias.json" },
+    "subcategoria": { "type": ["string", "null"] },
+    "horas": { "type": ["integer", "null"], "description": "horas de uso (clave en maquinaria)" },
+    "potencia": { "type": ["string", "null"], "description": "p.ej. '75 CV' / '55 kW'" },
+    "peso_operativo": { "type": ["string", "null"], "description": "p.ej. '8.000 kg'" },
+    "estado": { "type": ["string", "null"], "enum": ["excelente", "muy_bueno", "bueno", "para_reparar", null] },
+    "inspeccionada": { "type": "boolean", "default": false },
+    "informe_inspeccion_url": { "type": ["string", "null"] },
+    "garantia_meses": { "type": ["integer", "null"] },
+    "precio": { "type": "number" },
+    "moneda": { "type": "string", "enum": ["EUR", "MXN"] },
+    "incluye_iva": { "type": ["boolean", "null"] },
+    "iva_deducible": { "type": ["boolean", "null"] },
+    "financiable": { "type": "boolean", "default": false },
+    "cuota_mensual_desde": { "type": ["number", "null"] },
+    "descuento": { "type": ["number", "null"] },
+    "descuento_hasta": { "type": ["string", "null"], "description": "fecha ISO" },
+    "ubicacion": {
+      "type": "object",
+      "properties": {
+        "provincia": { "type": ["string", "null"] },
+        "pais": { "type": ["string", "null"] }
+      }
+    },
+    "entrega_disponible": { "type": "boolean", "default": false },
+    "marcaje_ce": { "type": ["boolean", "null"] },
+    "numero_serie": { "type": ["string", "null"] },
+    "ultima_revision": { "type": ["string", "null"] },
+    "equipamiento": { "type": "array", "items": { "type": "string" } },
+    "mercado": { "type": "string", "enum": ["es-ES", "es-MX"] },
+    "imagenes": {
+      "type": "object",
+      "description": "URLs de las 3 versiones del pipeline de foto",
+      "properties": {
+        "operador": { "type": "array", "items": { "type": "string" } },
+        "catalogo_limpio": { "type": "array", "items": { "type": "string" } },
+        "escena_obra": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

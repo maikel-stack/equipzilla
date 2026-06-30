@@ -1,0 +1,69 @@
+<!--
+  Plantilla de FICHA (PDP) — Equipzilla compra.
+  HTML semántico framework-agnóstico con {{placeholders}}. Adaptar a Next.js/React del sitio.
+  El orden de bloques sigue la estructura que mejor convierte en ticket alto considerado (ref: Clicars),
+  adaptada a maquinaria. Los {{...}} los rellena la salida JSON de agents/ficha-generator.md.
+-->
+<article class="ficha" itemscope itemtype="https://schema.org/Product">
+
+  <!-- 1. Galería: 3 versiones del pipeline de foto -->
+  <section class="galeria">
+    <!-- {{#imagenes}} operador | catalogo_limpio | escena_obra con {{alt_imagenes}} -->
+  </section>
+
+  <!-- 2. Cabecera -->
+  <header>
+    <nav class="breadcrumb"><!-- {{enlaces_internos.breadcrumb}} --></nav>
+    <h1 itemprop="name">{{h1}}</h1>
+    <p class="spec-line">{{spec_line}}</p>
+    <ul class="badges-confianza"><!-- {{bloque_confianza}}: Inspeccionada · Garantía {{garantia_meses}}m · Entrega --></ul>
+  </header>
+
+  <!-- 3. Bloque de precio (sticky en móvil) -->
+  <aside class="precio" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+    <span class="precio-contado" itemprop="price">{{precio}}</span> <span itemprop="priceCurrency">{{moneda}}</span>
+    <p class="iva">{{#iva_deducible}}IVA deducible (B2B){{/iva_deducible}}</p>
+    {{#financiable}}<p class="cuota">Financiado desde <strong>{{cuota_mensual_desde}}/mes</strong></p>{{/financiable}}
+    {{#descuento}}<p class="descuento">-{{descuento}} · hasta el {{descuento_hasta}}</p>{{/descuento}}
+    <button class="cta-interes">Me interesa</button>
+    <a class="cta-whatsapp" href="https://wa.me/...">WhatsApp</a>
+  </aside>
+
+  <!-- 4. Descripción -->
+  <section class="descripcion">{{descripcion}}</section>
+
+  <!-- 5. Puntos fuertes / equipamiento -->
+  <section class="puntos-fuertes"><!-- {{puntos_fuertes}} --></section>
+
+  <!-- 6. Datos técnicos -->
+  <section class="datos-tecnicos">
+    <!-- Año, Horas, Potencia, Peso, Nº serie, Marcaje CE, Última revisión, Ubicación -->
+  </section>
+
+  <!-- 7. Informe de inspección (DIFERENCIAL de confianza vs particular) -->
+  {{#inspeccionada}}<section class="inspeccion"><a href="{{informe_inspeccion_url}}">Ver informe de inspección</a></section>{{/inspeccionada}}
+
+  <!-- 8. WIDGET coste-hora propiedad vs alquiler (DIFERENCIAL de conversión) -->
+  {{#widget_coste_hora}}<section class="roi-widget"><!-- comparador interactivo con {{widget_coste_hora}} --></section>{{/widget_coste_hora}}
+
+  <!-- 9. Financiación / leasing B2B -->
+  {{#financiable}}<section class="financiacion"><!-- simulador de cuota --></section>{{/financiable}}
+
+  <!-- 10. Garantía mecánica -->
+  {{#garantia_meses}}<section class="garantia"><!-- cobertura --></section>{{/garantia_meses}}
+
+  <!-- 11. Prueba social -->
+  <section class="confianza-global"><!-- operaciones cerradas, reseñas --></section>
+
+  <!-- 12. Sell-side capture -->
+  <section class="tasa-tu-maquina"><a href="/vende-tu-maquinaria">¿Tienes maquinaria parada? Tásala</a></section>
+
+  <!-- 13. FAQ -->
+  <section class="faq"><!-- {{faq}} (también en JSON-LD FAQPage) --></section>
+
+  <!-- 14. Relacionadas + enlaces SEO -->
+  <section class="relacionadas"><!-- {{enlaces_internos.relacionadas}} + hubs categoría/marca/provincia --></section>
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">{{jsonld}}</script>
+</article>

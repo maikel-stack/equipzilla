@@ -1,0 +1,133 @@
+{
+  "seo_title": "Kubota U48-4 2019 de ocasión | 3.200h | Equipzilla",
+  "meta_description": "Miniexcavadora Kubota U48-4 de 2019 con 3.200 h, inspeccionada y 6 meses de garantía. 32.500 € (IVA deducible). Entrega en toda España.",
+  "h1": "Kubota U48-4 2019",
+  "spec_line": "2019 · 3.200 h · 40 CV · 4.800 kg · Miniexcavadora",
+  "descripcion": "Miniexcavadora Kubota U48-4 del año 2019 con 3.200 horas de trabajo, una cifra contenida para una máquina de esta gama y propia de un uso profesional cuidado. Con 4.800 kg de peso operativo y un motor de 40 CV, encaja en obra urbana, jardinería, instalaciones y movimiento de tierras en espacios ajustados, donde su tamaño compacto y la oruga de goma permiten trabajar sin dañar pavimentos.\n\nLa unidad se entrega con cabina cerrada con aire acondicionado, cazo de limpieza y martillo hidráulico, por lo que está lista para entrar en tareas de excavación y demolición ligera desde el primer día. La oruga de goma es nueva, uno de los puntos de desgaste habituales en este tipo de máquina, lo que reduce gasto inmediato para el comprador.\n\nKubota es una de las marcas de referencia en miniexcavación por fiabilidad y disponibilidad de recambio. Esta unidad ha pasado inspección con informe disponible, tuvo su última revisión el 10/04/2026 y dispone de marcaje CE, además de 6 meses de garantía mecánica. Está ubicada en Madrid, con entrega disponible.",
+  "puntos_fuertes": [
+    "Oruga de goma nueva (uno de los puntos de mayor desgaste, ya renovado)",
+    "Cabina cerrada con aire acondicionado",
+    "Martillo hidráulico incluido para demolición ligera",
+    "Cazo de limpieza incluido",
+    "Marcaje CE",
+    "Inspeccionada con informe disponible",
+    "6 meses de garantía mecánica"
+  ],
+  "bloque_confianza": {
+    "inspeccionada": {
+      "texto": "Inspeccionada · informe disponible",
+      "informe_inspeccion_url": "https://equipzilla.com/inspecciones/44210.pdf"
+    },
+    "garantia": {
+      "texto": "6 meses de garantía mecánica"
+    },
+    "entrega": {
+      "texto": "Entrega disponible en toda España"
+    }
+  },
+  "widget_coste_hora": {
+    "precio": 32500,
+    "moneda": "EUR",
+    "valor_residual_estimado": 13000,
+    "años_amortizacion": 5,
+    "horas_año_tipicas": 900,
+    "tarifa_alquiler_ref": 26,
+    "coste_hora_propiedad": 4.3,
+    "ahorro_vs_alquiler": "≈ 21,7 €/h frente al alquiler",
+    "estimado": true,
+    "confianza": "media-baja",
+    "nota": "Cifras de amortización, valor residual, horas/año y tarifa de alquiler son estimaciones de referencia para el comparador propiedad vs. alquiler, no datos del listing. El coste/hora de propiedad refleja solo depreciación (no incluye combustible, mantenimiento ni seguro). Ajustar a uso real."
+  },
+  "faq": [
+    {
+      "pregunta": "¿Cuántas horas tiene esta Kubota U48-4 y son muchas?",
+      "respuesta": "Tiene 3.200 horas. Para una miniexcavadora de 2019 es un uso moderado; lo relevante es que viene inspeccionada con informe disponible y con la oruga de goma ya renovada."
+    },
+    {
+      "pregunta": "¿Está inspeccionada? ¿Puedo ver el informe?",
+      "respuesta": "Sí. La máquina ha pasado inspección y el informe está disponible para su consulta antes de la compra. Su última revisión fue el 10/04/2026."
+    },
+    {
+      "pregunta": "¿Tiene garantía?",
+      "respuesta": "Sí, incluye 6 meses de garantía mecánica. Dispone además de marcaje CE."
+    },
+    {
+      "pregunta": "¿Se puede financiar?",
+      "respuesta": "Sí, es financiable con cuotas desde 520 €/mes. El precio es de 32.500 € con IVA deducible (operación B2B)."
+    },
+    {
+      "pregunta": "¿Hacéis entrega? ¿Dónde está la máquina?",
+      "respuesta": "La unidad está en Madrid y hay entrega disponible en toda España."
+    }
+  ],
+  "alt_imagenes": {
+    "operador": "Operario trabajando con la miniexcavadora Kubota U48-4 de 2019 en obra",
+    "catalogo_limpio": "Miniexcavadora Kubota U48-4 2019 de ocasión, vista lateral sobre fondo limpio",
+    "escena_obra": "Kubota U48-4 con martillo hidráulico en escena de obra urbana"
+  },
+  "enlaces_internos": {
+    "breadcrumb": [
+      { "nombre": "Compra", "url": "/compra" },
+      { "nombre": "Miniexcavadoras", "url": "/compra/miniexcavadoras/segunda-mano" },
+      { "nombre": "Kubota", "url": "/compra/miniexcavadoras/kubota/segunda-mano" },
+      { "nombre": "Kubota U48-4 2019", "url": "/compra/kubota-u48-4-2019-44210" }
+    ],
+    "hub_categoria": { "nombre": "Miniexcavadoras de ocasión", "url": "/compra/miniexcavadoras/segunda-mano" },
+    "hub_marca": { "nombre": "Miniexcavadoras Kubota de segunda mano", "url": "/compra/miniexcavadoras/kubota/segunda-mano" },
+    "hub_provincia": { "nombre": "Miniexcavadoras de ocasión en Madrid", "url": "/compra/miniexcavadoras/segunda-mano/madrid" },
+    "relacionadas": [
+      "Otras miniexcavadoras Kubota disponibles",
+      "Miniexcavadoras de 4-5 t en rango 25.000-40.000 €",
+      "Miniexcavadoras con martillo hidráulico"
+    ]
+  },
+  "jsonld": {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Kubota U48-4 2019",
+        "sku": "44210",
+        "category": "Miniexcavadoras",
+        "brand": { "@type": "Brand", "name": "Kubota" },
+        "model": "U48-4",
+        "productionDate": "2019",
+        "itemCondition": "https://schema.org/UsedCondition",
+        "image": [
+          "https://.../44210-operador-1.avif",
+          "https://.../44210-catalogo-1.avif",
+          "https://.../44210-obra-1.avif"
+        ],
+        "offers": {
+          "@type": "Offer",
+          "price": 32500,
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock",
+          "priceValidUntil": "2026-07-15",
+          "itemCondition": "https://schema.org/UsedCondition",
+          "areaServed": "ES",
+          "seller": { "@type": "Organization", "name": "Equipzilla" }
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Compra", "item": "https://equipzilla.com/compra" },
+          { "@type": "ListItem", "position": 2, "name": "Miniexcavadoras", "item": "https://equipzilla.com/compra/miniexcavadoras/segunda-mano" },
+          { "@type": "ListItem", "position": 3, "name": "Kubota", "item": "https://equipzilla.com/compra/miniexcavadoras/kubota/segunda-mano" },
+          { "@type": "ListItem", "position": 4, "name": "Kubota U48-4 2019", "item": "https://equipzilla.com/compra/kubota-u48-4-2019-44210" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "¿Cuántas horas tiene esta Kubota U48-4 y son muchas?", "acceptedAnswer": { "@type": "Answer", "text": "Tiene 3.200 horas. Para una miniexcavadora de 2019 es un uso moderado; viene inspeccionada con informe disponible y con la oruga de goma ya renovada." } },
+          { "@type": "Question", "name": "¿Está inspeccionada? ¿Puedo ver el informe?", "acceptedAnswer": { "@type": "Answer", "text": "Sí. La máquina ha pasado inspección y el informe está disponible antes de la compra. Su última revisión fue el 10/04/2026." } },
+          { "@type": "Question", "name": "¿Tiene garantía?", "acceptedAnswer": { "@type": "Answer", "text": "Sí, incluye 6 meses de garantía mecánica y dispone de marcaje CE." } },
+          { "@type": "Question", "name": "¿Se puede financiar?", "acceptedAnswer": { "@type": "Answer", "text": "Sí, es financiable con cuotas desde 520 €/mes. Precio 32.500 € con IVA deducible (B2B)." } },
+          { "@type": "Question", "name": "¿Hacéis entrega? ¿Dónde está la máquina?", "acceptedAnswer": { "@type": "Answer", "text": "La unidad está en Madrid y hay entrega disponible en toda España." } }
+        ]
+      }
+    ]
+  }
+}
