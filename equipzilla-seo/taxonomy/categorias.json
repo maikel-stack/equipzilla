@@ -1,0 +1,46 @@
+{
+  "categorias": [
+    {
+      "slug": "maquinaria-construccion",
+      "nombre": "Maquinaria de Construcción",
+      "subcategorias": [
+        { "slug": "miniexcavadoras", "nombre": "Miniexcavadoras" },
+        { "slug": "excavadoras", "nombre": "Excavadoras" },
+        { "slug": "retroexcavadoras", "nombre": "Retroexcavadoras" },
+        { "slug": "dumpers", "nombre": "Dumpers" },
+        { "slug": "rodillos-compactadores", "nombre": "Rodillos y compactadores" }
+      ]
+    },
+    {
+      "slug": "plataformas-elevadoras",
+      "nombre": "Plataformas Elevadoras",
+      "subcategorias": [
+        { "slug": "tijera", "nombre": "Elevadores de tijera" },
+        { "slug": "brazo-articulado", "nombre": "Brazo articulado" }
+      ]
+    },
+    {
+      "slug": "manipulacion-elevacion-cargas",
+      "nombre": "Manipulación y Elevación de Cargas",
+      "subcategorias": [
+        { "slug": "carretillas-elevadoras", "nombre": "Carretillas elevadoras" },
+        { "slug": "transpaletas-electricas", "nombre": "Transpaletas eléctricas" },
+        { "slug": "manipuladores-telescopicos", "nombre": "Manipuladores telescópicos" }
+      ]
+    },
+    {
+      "slug": "energia-aire-agua",
+      "nombre": "Energía, Aire y Agua",
+      "subcategorias": [
+        { "slug": "grupos-electrogenos", "nombre": "Grupos electrógenos" },
+        { "slug": "compresores", "nombre": "Compresores" }
+      ]
+    },
+    {
+      "slug": "casetas-contenedores-vallas",
+      "nombre": "Casetas, Contenedores y Vallas",
+      "subcategorias": []
+    }
+  ],
+  "nota": "Alineado con las categorías actuales de equipzilla.com. Ampliar según inventario real de des-flote."
+}
