@@ -1,0 +1,20 @@
+{
+  "lead": {
+    "nombre": "Javier Morales",
+    "email": "jmorales@excavacionesmoralessl.es",
+    "telefono": "+34 622 14 88 03",
+    "empresa": "Excavaciones Morales S.L.",
+    "mensaje": "Hola, me interesa la miniexcavadora que tenéis anunciada. Necesitamos una para una obra que arrancamos en septiembre en Toledo. ¿Está disponible y entra financiación?",
+    "canal": "whatsapp"
+  },
+  "listing_interes": {
+    "id": "EZ-10472",
+    "marca": "Kubota",
+    "modelo": "U27-4",
+    "año": 2019,
+    "horas": 2850,
+    "precio": 28500,
+    "categoria": "miniexcavadora",
+    "ubicacion": "Getafe, Madrid"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "equipzilla-crm-ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Capa de inteligencia con IA para el CRM de Equipzilla: agentes Lead Intelligence y Deal Intelligence.",
+  "scripts": {
+    "lead": "node equipzilla-crm-ai/runner/run-agent.js lead",
+    "deal": "node equipzilla-crm-ai/runner/run-agent.js deal"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.65.0",
+    "ajv": "^8.17.1"
+  }
+}
