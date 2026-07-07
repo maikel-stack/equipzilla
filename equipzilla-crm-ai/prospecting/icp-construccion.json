@@ -1,0 +1,32 @@
+{
+  "_comment": "Perfil de cliente ideal (ICP) para prospección de empresas de construcción. Edita libremente.",
+
+  "person_titles": [
+    "gerente",
+    "director general",
+    "propietario",
+    "jefe de compras",
+    "responsable de compras",
+    "jefe de maquinaria",
+    "responsable de flota",
+    "jefe de obra"
+  ],
+
+  "person_locations": ["Spain"],
+
+  "organization_num_employees_ranges": ["1,10", "11,50"],
+
+  "q_organization_keyword_tags": ["construction", "excavation", "civil engineering", "earthworks"],
+
+  "per_page": 25,
+  "max_pages": 2,
+
+  "_notas": {
+    "person_titles": "Cargos a los que quieres llegar. Apollo hace match parcial (ES/EN).",
+    "person_locations": "Geografía de la PERSONA. Para provincias: 'Madrid, Spain', 'Toledo, Spain'...",
+    "organization_num_employees_ranges": "Rangos de plantilla. Formato 'min,max'. Ej: '1,10','11,50','51,200'.",
+    "q_organization_keyword_tags": "Palabras clave del sector de la empresa (en inglés funciona mejor en Apollo).",
+    "per_page": "Resultados por página (máx 100 en Apollo).",
+    "max_pages": "Cuántas páginas traer. per_page * max_pages = total de personas por tanda."
+  }
+}
