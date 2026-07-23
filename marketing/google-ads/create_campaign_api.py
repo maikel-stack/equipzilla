@@ -97,6 +97,13 @@ def main():
     c.status = client.enums.CampaignStatusEnum.PAUSED
     c.campaign_budget = budget_rn
     c.maximize_conversions = client.get_type("MaximizeConversions")
+    # Auto-declaracion UE (evita el bloqueo en cuentas nuevas)
+    try:
+        c.contains_eu_political_advertising = (
+            client.enums.EuPoliticalAdvertisingStatusEnum
+            .DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING)
+    except Exception:
+        pass
     c.network_settings.target_google_search = True
     c.network_settings.target_search_network = False
     c.network_settings.target_content_network = False
