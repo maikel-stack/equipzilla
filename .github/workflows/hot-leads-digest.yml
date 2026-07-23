@@ -34,7 +34,7 @@ jobs:
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
           PIPEDRIVE_TOKEN: ${{ secrets.PIPEDRIVE_TOKEN }}
           GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
-          DIGEST_SHEET_ID: "1b4O6PNRwd4QgkRymcxmN0NSRYi9mW57ZFtkQHLpfoCc"
+          DIGEST_SHEET_ID: "1KgVYP1jjQB8NbUSvfS9PLcaFEJDY4ldFH2vphW1sakI"
         run: python scripts/hot_leads_digest.py
 
       - name: Guardar estado (para no repetir avisos)
