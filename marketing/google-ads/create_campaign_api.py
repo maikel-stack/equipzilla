@@ -84,6 +84,7 @@ def main():
     b.name = f"Presupuesto {CAMPAIGN} {uuid.uuid4().hex[:6]}"
     b.amount_micros = BUDGET_MICROS
     b.delivery_method = client.enums.BudgetDeliveryMethodEnum.STANDARD
+    b.explicitly_shared = False
     budget_rn = budget_svc.mutate_campaign_budgets(
         customer_id=customer_id, operations=[b_op]).results[0].resource_name
     print(f"[OK] Presupuesto creado: {budget_rn}")
@@ -96,7 +97,9 @@ def main():
     c.advertising_channel_type = client.enums.AdvertisingChannelTypeEnum.SEARCH
     c.status = client.enums.CampaignStatusEnum.PAUSED
     c.campaign_budget = budget_rn
-    c.maximize_conversions = client.get_type("MaximizeConversions")
+    # Estrategia provisional: CPC manual (no requiere conversiones).
+    # Cambiar a "Maximizar conversiones" cuando GA4 este vinculado e importadas.
+    c.manual_cpc.enhanced_cpc_enabled = False
     # Auto-declaracion UE (evita el bloqueo en cuentas nuevas)
     try:
         c.contains_eu_political_advertising = (
@@ -149,6 +152,7 @@ def main():
         ag.campaign = campaign_rn
         ag.status = client.enums.AdGroupStatusEnum.ENABLED
         ag.type_ = client.enums.AdGroupTypeEnum.SEARCH_STANDARD
+        ag.cpc_bid_micros = 600_000  # 0,60 EUR puja por defecto (CPC manual)
         ag_rn = ag_svc.mutate_ad_groups(
             customer_id=customer_id, operations=[ag_op]).results[0].resource_name
 

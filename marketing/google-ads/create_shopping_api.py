@@ -51,6 +51,7 @@ def main():
     b.name = f"Presupuesto Shopping {uuid.uuid4().hex[:6]}"
     b.amount_micros = DAILY_BUDGET_EUR * 1_000_000
     b.delivery_method = client.enums.BudgetDeliveryMethodEnum.STANDARD
+    b.explicitly_shared = False
     budget_rn = budget_svc.mutate_campaign_budgets(
         customer_id=customer_id, operations=[b_op]).results[0].resource_name
     print(f"[OK] Presupuesto: {budget_rn}")
@@ -63,7 +64,8 @@ def main():
     c.advertising_channel_type = client.enums.AdvertisingChannelTypeEnum.SHOPPING
     c.status = client.enums.CampaignStatusEnum.PAUSED
     c.campaign_budget = budget_rn
-    c.maximize_conversions = client.get_type("MaximizeConversions")
+    # CPC manual provisional (sin conversiones aun); cambiar a Max. conversiones despues.
+    c.manual_cpc.enhanced_cpc_enabled = False
     c.shopping_setting.merchant_id = int(merchant_id)
     c.shopping_setting.campaign_priority = 0
     c.shopping_setting.enable_local = False
@@ -119,6 +121,7 @@ def main():
     lg.ad_group = ag_rn
     lg.status = client.enums.AdGroupCriterionStatusEnum.ENABLED
     lg.listing_group.type_ = client.enums.ListingGroupTypeEnum.UNIT
+    lg.cpc_bid_micros = 300_000  # 0,30 EUR puja por defecto (CPC manual)
     agc_svc.mutate_ad_group_criteria(customer_id=customer_id, operations=[lg_op])
     print("[OK] Grupo de fichas raiz (todos los productos)")
 
