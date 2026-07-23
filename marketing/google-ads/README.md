@@ -11,7 +11,10 @@ segunda mano de Equipzilla (mercado España).
 | `equipzilla_campana_import.csv` | Importar en **Google Ads Editor**: 1 campaña, 7 grupos, 39 keywords, 7 RSA |
 | `equipzilla_negativas.csv` | 35 palabras clave negativas |
 | `build_campaign.py` | Genera y **valida** los CSV (límites de caracteres) |
-| `create_campaign_api.py` | Crea la campaña **directamente por la Google Ads API** |
+| `create_campaign_api.py` | Crea la campaña de **búsqueda** por la Google Ads API |
+| `create_shopping_api.py` | Crea la campaña de **Shopping** por la API (Merchant Center) |
+| `feed_generator.py` | Genera el **feed de productos** desde el catálogo de la web |
+| `equipzilla_feed_shopping.tsv` | Feed listo para subir a Google Merchant Center |
 | `generate_refresh_token.py` | Genera el `refresh_token` de OAuth |
 | `.env.example` | Plantilla de credenciales (copiar a `.env`) |
 
@@ -43,3 +46,25 @@ verifica el seguimiento de conversiones y actívala cuando esté todo correcto.
 - **Developer token** aprobado (nivel Basic) en tu MCC.
 - ID de cliente OAuth tipo *Desktop* (client_id + client_secret).
 - Customer ID de la cuenta (10 dígitos sin guiones).
+
+## Google Shopping
+
+Merchant Center: **5828608786**.
+
+```bash
+# 1) Generar el feed desde el catálogo de la web
+python feed_generator.py            # -> equipzilla_feed_shopping.tsv
+
+# 2) Subir el feed a Merchant Center (Productos → Feeds → Subida) 
+#    o programar feed_generator.py para regenerarlo periódicamente.
+
+# 3) Vincular Merchant Center con Google Ads (una vez, aprobar el link).
+
+# 4) Crear la campaña de Shopping (EN PAUSA)
+python create_shopping_api.py --dry-run
+python create_shopping_api.py
+```
+
+El feed es maquinaria **usada sin GTIN**: `identifier_exists=no`, con `brand` y
+`mpn` (la referencia). Regenera el feed cuando cambie el stock — Merchant Center
+lo re-rastrea automáticamente si lo sirves por URL, o vuelve a subirlo.
