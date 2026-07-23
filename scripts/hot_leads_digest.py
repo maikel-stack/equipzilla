@@ -129,6 +129,33 @@ def pipe_enrich(email):
 
 import urllib.parse
 
+def append_sheet(rows):
+    """Añade los leads nuevos a la hoja de seguimiento de Google (si está configurada).
+    Requiere env: GOOGLE_SA_JSON (clave JSON de la cuenta de servicio) y DIGEST_SHEET_ID."""
+    sid = os.environ.get("DIGEST_SHEET_ID")
+    sa = os.environ.get("GOOGLE_SA_JSON")
+    if not (sid and sa):
+        return None
+    try:
+        from google.oauth2 import service_account
+        from googleapiclient.discovery import build
+        creds = service_account.Credentials.from_service_account_info(
+            json.loads(sa), scopes=["https://www.googleapis.com/auth/spreadsheets"])
+        svc = build("sheets", "v4", credentials=creds, cache_discovery=False)
+        meta = svc.spreadsheets().get(spreadsheetId=sid).execute()
+        tab = meta["sheets"][0]["properties"]["title"]
+        stamp = datetime.datetime.now().strftime("%d-%m-%Y %H:%M")
+        values = [[stamp, r["empresa"], r["contacto"], r["email"], r["telefono"],
+                   r["maquinas"], r["fecha"], r["campana"], "", ""] for r in rows]
+        svc.spreadsheets().values().append(
+            spreadsheetId=sid, range=f"'{tab}'!A1",
+            valueInputOption="USER_ENTERED", insertDataOption="INSERT_ROWS",
+            body={"values": values}).execute()
+        return f"https://docs.google.com/spreadsheets/d/{sid}"
+    except Exception as e:
+        print("aviso: no se pudo escribir en el Sheet:", e)
+        return None
+
 def main():
     state = {}
     if os.path.exists(STATE):
@@ -170,12 +197,34 @@ def main():
         })
     rows.sort(key=lambda r: (r["maquinas"] == "(catálogo/genérico)", r["empresa"]))
 
+    if os.environ.get("DIGEST_DUMP"):  # volcado local (no envía, no toca estado)
+        with open(os.environ["DIGEST_DUMP"], "w", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["Empresa", "Contacto", "Email", "Telefono", "Maquinas", "Fecha clic", "Campana"])
+            for r in rows:
+                w.writerow([r["empresa"], r["contacto"], r["email"], r["telefono"], r["maquinas"], r["fecha"], r["campana"]])
+        print("dump ->", os.environ["DIGEST_DUMP"], len(rows), "leads")
+        return
+
     # CSV attachment
     buf = io.StringIO(); w = csv.writer(buf)
     w.writerow(["Empresa", "Contacto", "Email", "Telefono", "Maquina(s) de interes", "Fecha clic", "Campana"])
     for r in rows:
         w.writerow([r["empresa"], r["contacto"], r["email"], r["telefono"], r["maquinas"], r["fecha"], r["campana"]])
     csv_b64 = base64.b64encode(buf.getvalue().encode()).decode()
+
+    # añade los leads nuevos a la hoja de seguimiento de Google (si está configurada)
+    sheet_link = append_sheet(rows)
+    if sheet_link:
+        cta = (f'<div style="margin-top:16px"><a href="{sheet_link}" style="display:inline-block;'
+               f'background:#1B1D21;color:#fff;font:700 14px Arial;padding:11px 22px;border-radius:8px;'
+               f'text-decoration:none">📊 Abrir hoja de seguimiento</a></div>')
+        note = "Todos los leads, con su estado de seguimiento, en la hoja de Google (botón arriba)."
+        attachments = None
+    else:
+        cta = ""
+        note = "Detalle completo en el CSV adjunto."
+        attachments = [{"name": "leads_calientes.csv", "content": csv_b64}]
 
     # HTML table
     trs = ""
@@ -197,17 +246,19 @@ def main():
             f'<tr style="background:#FAF9F6"><td style="padding:8px 12px;font-size:11px;color:#5B5F66;text-transform:uppercase">Contacto</td>'
             f'<td style="padding:8px 12px;font-size:11px;color:#5B5F66;text-transform:uppercase">Teléfono</td>'
             f'<td style="padding:8px 12px;font-size:11px;color:#5B5F66;text-transform:uppercase">Máquina(s)</td>'
-            f'<td style="padding:8px 12px;font-size:11px;color:#5B5F66;text-transform:uppercase">Cuándo</td></tr>{trs}</table>'
-            f'<p style="font-size:12px;color:#8A8F98;margin-top:14px">El clic abre WhatsApp con el mensaje escrito, pero no garantiza que lo enviaran — es intención de compra. Detalle completo en el CSV adjunto.</p></div>')
+            f'<td style="padding:8px 12px;font-size:11px;color:#5B5F66;text-transform:uppercase">Cuándo</td></tr>{trs}</table>{cta}'
+            f'<p style="font-size:12px;color:#8A8F98;margin-top:14px">El clic abre WhatsApp con el mensaje escrito, pero no garantiza que lo enviaran — es intención de compra. {note}</p></div>')
 
-    st, r = brevo("/smtp/email", "POST", {
+    payload = {
         "sender": {"id": SENDER_ID},
         "to": TO,
         "replyTo": {"email": "clientes@equipzilla.com", "name": "Equipzilla"},
         "subject": f"🔥 {len(rows)} leads calientes nuevos · compraventa Equipzilla",
         "htmlContent": html,
-        "attachment": [{"name": "leads_calientes.csv", "content": csv_b64}],
-    })
+    }
+    if attachments:
+        payload["attachment"] = attachments
+    st, r = brevo("/smtp/email", "POST", payload)
     print("Email digest ->", st, r)
     json.dump({"hashes": sorted(seen)}, open(STATE, "w"))
     print(f"Enviados {len(rows)} leads. Estado actualizado ({len(seen)} hashes).")

@@ -26,10 +26,15 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Instalar dependencias de Google Sheets
+        run: pip install --quiet google-api-python-client google-auth
+
       - name: Enviar digest de leads calientes
         env:
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
           PIPEDRIVE_TOKEN: ${{ secrets.PIPEDRIVE_TOKEN }}
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
+          DIGEST_SHEET_ID: "1KgVYP1jjQB8NbUSvfS9PLcaFEJDY4ldFH2vphW1sakI"
         run: python scripts/hot_leads_digest.py
 
       - name: Guardar estado (para no repetir avisos)
