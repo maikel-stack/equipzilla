@@ -12,15 +12,18 @@ Cada ejecución:
 
 Credenciales por variables de entorno (secrets):  BREVO_API_KEY  ·  PIPEDRIVE_TOKEN
 """
-import os, sys, json, csv, io, time, base64, hashlib, urllib.request, urllib.error, re
+import os, sys, json, csv, io, time, base64, hashlib, urllib.request, urllib.error, re, datetime
 
 BREVO = os.environ["BREVO_API_KEY"]
 PIPE  = os.environ.get("PIPEDRIVE_TOKEN", "")
-TO    = [{"email": "david@equipzilla.com", "name": "David"},
-         {"email": "andres@equipzilla.com", "name": "Andrés"}]
+if os.environ.get("DIGEST_TO"):
+    TO = [{"email": e.strip(), "name": e.split("@")[0]} for e in os.environ["DIGEST_TO"].split(",") if e.strip()]
+else:
+    TO = [{"email": "david@equipzilla.com", "name": "David"},
+          {"email": "andres@equipzilla.com", "name": "Andrés"}]
 SENDER_ID = 10
 DAYS = int(os.environ.get("DIGEST_DAYS", "10"))
-STATE = os.path.join(os.path.dirname(__file__), "state_notified.json")
+STATE = os.environ.get("DIGEST_STATE") or os.path.join(os.path.dirname(__file__), "state_notified.json")
 
 def brevo(path, method="GET", body=None):
     url = "https://api.brevo.com/v3" + path
@@ -98,7 +101,14 @@ def export_clickers(cid):
         if "@" not in email:
             continue
         machines = sorted({ref for i, ref in link_cols.items() if r[i].strip()})
-        res.append({"email": email, "machines": machines})
+        # fecha del clic: el timestamp más reciente que aparezca en la fila
+        tss = []
+        for c in r:
+            try:
+                tss.append(datetime.datetime.strptime(c.strip(), "%d-%m-%Y %H:%M:%S"))
+            except Exception:
+                pass
+        res.append({"email": email, "machines": machines, "fecha": (max(tss) if tss else None)})
     return res
 
 def pipe_enrich(email):
@@ -134,9 +144,11 @@ def main():
             if key in seen:
                 continue
             seen.add(key)
-            L = leads.setdefault(row["email"], {"machines": set(), "campaigns": set()})
+            L = leads.setdefault(row["email"], {"machines": set(), "campaigns": set(), "fecha": None})
             L["machines"].update(row["machines"])
             L["campaigns"].add(c["name"])
+            if row.get("fecha") and (L["fecha"] is None or row["fecha"] > L["fecha"]):
+                L["fecha"] = row["fecha"]
 
     if not leads:
         print("Sin clics nuevos. Nada que enviar.")
@@ -153,15 +165,16 @@ def main():
             "email": email,
             "telefono": info.get("phone") or "",
             "maquinas": " · ".join(sorted(L["machines"])) or "(catálogo/genérico)",
+            "fecha": L["fecha"].strftime("%d-%m-%Y %H:%M") if L.get("fecha") else "",
             "campana": " · ".join(sorted(L["campaigns"])),
         })
     rows.sort(key=lambda r: (r["maquinas"] == "(catálogo/genérico)", r["empresa"]))
 
     # CSV attachment
     buf = io.StringIO(); w = csv.writer(buf)
-    w.writerow(["Empresa", "Contacto", "Email", "Telefono", "Maquina(s) de interes", "Campana"])
+    w.writerow(["Empresa", "Contacto", "Email", "Telefono", "Maquina(s) de interes", "Fecha clic", "Campana"])
     for r in rows:
-        w.writerow([r["empresa"], r["contacto"], r["email"], r["telefono"], r["maquinas"], r["campana"]])
+        w.writerow([r["empresa"], r["contacto"], r["email"], r["telefono"], r["maquinas"], r["fecha"], r["campana"]])
     csv_b64 = base64.b64encode(buf.getvalue().encode()).decode()
 
     # HTML table
@@ -174,7 +187,8 @@ def main():
                 f'<div style="font-size:12px;color:#5B5F66">{r["contacto"]}</div>'
                 f'<div style="font-size:12px;color:#5B5F66">{r["email"]}</div></td>'
                 f'<td style="padding:9px 12px;border-bottom:1px solid #E3E1DB">{telcell}{wa}</td>'
-                f'<td style="padding:9px 12px;border-bottom:1px solid #E3E1DB">{r["maquinas"]}</td></tr>')
+                f'<td style="padding:9px 12px;border-bottom:1px solid #E3E1DB">{r["maquinas"]}</td>'
+                f'<td style="padding:9px 12px;border-bottom:1px solid #E3E1DB;white-space:nowrap;font-size:13px;color:#5B5F66">{r["fecha"] or "—"}</td></tr>')
     html = (f'<div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto">'
             f'<div style="background:#1B1D21;padding:18px 22px;border-radius:10px 10px 0 0">'
             f'<span style="font:800 17px Arial;color:#F5A623">🔥 {len(rows)} leads calientes nuevos</span>'
@@ -182,7 +196,8 @@ def main():
             f'<table style="width:100%;border-collapse:collapse;border:1px solid #E3E1DB;font-size:14px">'
             f'<tr style="background:#FAF9F6"><td style="padding:8px 12px;font-size:11px;color:#5B5F66;text-transform:uppercase">Contacto</td>'
             f'<td style="padding:8px 12px;font-size:11px;color:#5B5F66;text-transform:uppercase">Teléfono</td>'
-            f'<td style="padding:8px 12px;font-size:11px;color:#5B5F66;text-transform:uppercase">Máquina(s)</td></tr>{trs}</table>'
+            f'<td style="padding:8px 12px;font-size:11px;color:#5B5F66;text-transform:uppercase">Máquina(s)</td>'
+            f'<td style="padding:8px 12px;font-size:11px;color:#5B5F66;text-transform:uppercase">Cuándo</td></tr>{trs}</table>'
             f'<p style="font-size:12px;color:#8A8F98;margin-top:14px">El clic abre WhatsApp con el mensaje escrito, pero no garantiza que lo enviaran — es intención de compra. Detalle completo en el CSV adjunto.</p></div>')
 
     st, r = brevo("/smtp/email", "POST", {
