@@ -66,6 +66,12 @@ def main():
     c.campaign_budget = budget_rn
     # CPC manual provisional (sin conversiones aun); cambiar a Max. conversiones despues.
     c.manual_cpc.enhanced_cpc_enabled = False
+    try:
+        c.contains_eu_political_advertising = (
+            client.enums.EuPoliticalAdvertisingStatusEnum
+            .DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING)
+    except Exception:
+        pass
     c.shopping_setting.merchant_id = int(merchant_id)
     c.shopping_setting.campaign_priority = 0
     c.shopping_setting.enable_local = False
@@ -80,18 +86,13 @@ def main():
     print(f"[OK] Campana Shopping creada (EN PAUSA): {campaign_rn}")
 
     # 3) Ubicacion + idioma
+    # Nota: Shopping estandar NO admite criterio de idioma -> solo ubicacion.
     crit_svc = client.get_service("CampaignCriterionService")
-    ops = []
-    for setter in (
-        lambda cr: setattr(cr.location, "geo_target_constant", GEO_SPAIN),
-        lambda cr: setattr(cr.language, "language_constant", LANG_SPANISH),
-    ):
-        op = client.get_type("CampaignCriterionOperation")
-        op.create.campaign = campaign_rn
-        setter(op.create)
-        ops.append(op)
-    crit_svc.mutate_campaign_criteria(customer_id=customer_id, operations=ops)
-    print("[OK] Segmentacion: Espana + espanol")
+    op = client.get_type("CampaignCriterionOperation")
+    op.create.campaign = campaign_rn
+    op.create.location.geo_target_constant = GEO_SPAIN
+    crit_svc.mutate_campaign_criteria(customer_id=customer_id, operations=[op])
+    print("[OK] Segmentacion: Espana")
 
     # 4) Grupo de anuncios de producto
     ag_svc = client.get_service("AdGroupService")
