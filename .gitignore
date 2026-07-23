@@ -1,0 +1,9 @@
+# Credenciales y entorno — NUNCA subir al repo
+.env
+*.env
+!*.env.example
+google-ads.yaml
+credentials.json
+token.json
+__pycache__/
+*.pyc
