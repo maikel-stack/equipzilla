@@ -35,7 +35,7 @@ AD_GROUPS = {
             "Pide Info Sin Compromiso",
             "Financiacion a Consultar",
             "Equipzilla Maquinaria",
-            "Llama: 911 238 750",
+            "Atencion Personalizada",
         ],
         "descriptions": [
             "Excavadoras de segunda mano revisadas y operativas. Pide informacion sin compromiso.",
@@ -68,7 +68,7 @@ AD_GROUPS = {
             "Pide Info Sin Compromiso",
             "Mejor Precio Garantizado",
             "Equipzilla Maquinaria",
-            "Llama: 911 238 750",
+            "Atencion Personalizada",
         ],
         "descriptions": [
             "Miniexcavadoras de segunda mano revisadas. Kubota y mas marcas desde 13.900 EUR.",
@@ -100,7 +100,7 @@ AD_GROUPS = {
             "Pide Info Sin Compromiso",
             "Mejor Precio Garantizado",
             "Equipzilla Maquinaria",
-            "Llama: 911 238 750",
+            "Atencion Personalizada",
         ],
         "descriptions": [
             "Minicargadoras de segunda mano revisadas y operativas. Pide info sin compromiso.",
@@ -132,7 +132,7 @@ AD_GROUPS = {
             "Pide Info Sin Compromiso",
             "Mejor Precio Garantizado",
             "Equipzilla Maquinaria",
-            "Llama: 911 238 750",
+            "Atencion Personalizada",
         ],
         "descriptions": [
             "Dumpers de obra de segunda mano revisados y operativos. Pide info sin compromiso.",
@@ -164,7 +164,7 @@ AD_GROUPS = {
             "Pide Info Sin Compromiso",
             "Mejor Precio Garantizado",
             "Equipzilla Maquinaria",
-            "Llama: 911 238 750",
+            "Atencion Personalizada",
         ],
         "descriptions": [
             "Rodillos compactadores de segunda mano revisados. Pide informacion sin compromiso.",
@@ -197,7 +197,7 @@ AD_GROUPS = {
             "Pide Info Sin Compromiso",
             "Mejor Precio Garantizado",
             "Equipzilla Maquinaria",
-            "Llama: 911 238 750",
+            "Atencion Personalizada",
         ],
         "descriptions": [
             "Maquinaria de construccion de 2a mano revisada y operativa. Pide info sin compromiso.",
@@ -229,7 +229,7 @@ AD_GROUPS = {
             "Pide Info Sin Compromiso",
             "Mejor Precio Garantizado",
             "Equipzilla Maquinaria",
-            "Llama: 911 238 750",
+            "Atencion Personalizada",
         ],
         "descriptions": [
             "Doosan, Kubota y Develon de segunda mano revisadas. Pide info sin compromiso.",
