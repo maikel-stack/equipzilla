@@ -205,6 +205,28 @@ def main():
     else:
         L.append("_No hay páginas /compra en los datos del periodo (¿aún sin indexar/tráfico?)._")
 
+    if ga:
+        for r in ga:
+            r["sess"] = num(r.get("sesiones")); r["conv"] = num(r.get("conversiones"))
+            r["cr"] = (100 * r["conv"] / r["sess"]) if r["sess"] else 0.0
+        top_conv = sorted([r for r in ga if r.get("landing_page", "").startswith("/")],
+                          key=lambda r: r["conv"], reverse=True)[:20]
+        L.append("\n\n## 6. GA4 — páginas orgánicas que más convierten\n")
+        L.append("_Donde el SEO ya genera leads: protégelas y refuérzalas. Cruza con los buckets "
+                 "de arriba para priorizar (una quick-win sobre una página que ya convierte = "
+                 "doble palanca)._\n")
+        L.append(md_table(top_conv,
+            [("Landing (orgánico)", "landing_page"), ("Sesiones", "sess"),
+             ("Conversiones", "conv"), ("Tasa conv.%", "cr")],
+            lambda r, k: (f"{r[k]:.1f}" if k == "cr" else (f"{int(r[k])}" if k in ("sess", "conv")
+                          else str(r.get(k, ""))[:60]))))
+        tot_conv = int(sum(r["conv"] for r in ga))
+        L.append(f"\n_Total conversiones orgánicas en el periodo: **{tot_conv}** "
+                 f"(sobre {int(sum(r['sess'] for r in ga))} sesiones). "
+                 f"Nota: GA4 cuenta eventos clave, no sesiones únicas; en páginas con pocas "
+                 f"sesiones la tasa puede superar el 100% (ruido) — fíate del volumen absoluto "
+                 f"de conversiones, no del % en filas de bajo tráfico._")
+
     L.append("\n\n## Resumen de acciones\n")
     L.append(f"- **{len(qw)}** quick-wins detectadas → priorizar top 20 con enlazado interno.")
     L.append(f"- **{len(cb)}** keywords con CTR mejorable → aplicar title/meta optimizados "
