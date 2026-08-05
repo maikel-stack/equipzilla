@@ -42,6 +42,13 @@ def expected_ctr(pos):
         return 1.0
     return 0.5
 
+import re
+# Spam de casino/apuestas (posible contenido inyectado / hackeo SEO)
+SPAM_RE = re.compile(r"slot|gacor|situs|judi|togel|rajadewa|maxwin|scatter|"
+                     r"\bbola\b|thailand|pragmatic|\brtp\b|\btoto\b|\bdewa\b", re.I)
+def is_spam(s):
+    return bool(SPAM_RE.search(s or ""))
+
 def readcsv(name):
     path = OUT / name
     if not path.exists():
@@ -69,6 +76,10 @@ def main():
     for r in pg:
         r["clicks"] = num(r.get("clics")); r["imp"] = num(r.get("impresiones"))
         r["ctr"] = num(r.get("ctr_%")); r["pos"] = num(r.get("posicion"))
+
+    # Segrega spam (casino/apuestas) antes de analizar: no es negocio real
+    spam = [r for r in q if is_spam(r.get("query"))]
+    q = [r for r in q if not is_spam(r.get("query"))]
 
     tot_c = sum(r["clicks"] for r in q); tot_i = sum(r["imp"] for r in q)
 
@@ -142,6 +153,21 @@ def main():
              f"{len(q)} consultas · {len(pg)} páginas.\n")
     L.append("Prioriza de arriba abajo: cada bucket está ordenado por impacto estimado.\n")
 
+    if spam:
+        s_imp = int(sum(r["imp"] for r in spam)); s_clk = int(sum(r["clicks"] for r in spam))
+        L.append("\n## ⚠️ ALERTA — Spam de casino en el dominio (posible hackeo SEO)\n")
+        L.append(f"**{len(spam)} consultas** de apuestas/casino (patrón `slot/gacor/rajadewa138`) "
+                 f"por las que el dominio aparece en Google: **{s_imp} impresiones, {s_clk} clics** "
+                 f"en el periodo, muchas en **posiciones 1-5**. No hay páginas spam en el top por "
+                 f"clics → contenido probablemente **inyectado/oculto (cloaking)** o URLs de "
+                 f"búsqueda interna indexadas.\n")
+        L.append("**Acción urgente:** revisar Search Console → Seguridad y acciones manuales; "
+                 "buscar `site:equipzilla.com slot` en Google; auditar páginas/servidor por "
+                 "contenido inyectado; añadir `noindex` a resultados de búsqueda interna. "
+                 "(Excluidas del resto del análisis.)\n")
+        L.append(md_table(sorted(spam, key=lambda r: r["imp"], reverse=True)[:10],
+            [("Consulta", "query"), ("Pos", "pos"), ("Impres.", "imp"), ("Clics", "clicks")], cell))
+
     L.append("\n## 1. Quick-wins — a distancia de página 1 (posición 5-20)\n")
     L.append("_Empújalas con enlaces internos + refuerzo de contenido. ROI más rápido._\n")
     L.append(md_table(qw[:20],
@@ -150,8 +176,8 @@ def main():
 
     L.append("\n\n## 2. CTR bajo — reescribir title/meta (posición ≤10)\n")
     L.append("_Ya rankean; pierden clics por un snippet flojo. Conecta con el trabajo de "
-             "MetaTagTitle/MetaTagDescription. `clics_recuperables` = clics/mes estimados si "
-             "el CTR sube al esperado para su posición._\n")
+             "MetaTagTitle/MetaTagDescription. `clics_recuperables` = clics estimados **en el "
+             "periodo** si el CTR subiera al medio de su posición (techo teórico, optimista)._\n")
     L.append(md_table(cb[:20],
         [("Keyword", "query"), ("Pos", "pos"), ("CTR%", "ctr"),
          ("Esperado-gap", "gap"), ("Impres.", "imp"), ("Clics recup.", "clics_recuperables")], cell))
@@ -182,7 +208,10 @@ def main():
     L.append("\n\n## Resumen de acciones\n")
     L.append(f"- **{len(qw)}** quick-wins detectadas → priorizar top 20 con enlazado interno.")
     L.append(f"- **{len(cb)}** keywords con CTR mejorable → aplicar title/meta optimizados "
-             f"(~{int(sum(r['clics_recuperables'] for r in cb))} clics/mes recuperables estimados).")
+             f"(~{int(sum(r['clics_recuperables'] for r in cb))} clics recuperables en el periodo, "
+             f"techo teórico).")
+    if spam:
+        L.append(f"- ⚠️ **{len(spam)}** consultas de spam de casino en el dominio → investigar hackeo (ver alerta arriba).")
     L.append(f"- **{len(hu)}** huecos de contenido → nuevas páginas / expansión.")
     L.append(f"- **{len(compra)}** páginas de compra con datos → optimizar las de mayor impresión.")
 
