@@ -32,6 +32,20 @@ El objetivo SEO es convertir ese directorio en tráfico orgánico mediante:
 - No publiques páginas sin proveedores reales: cada landing necesita al menos una empresa
   del directorio.
 
+## Analítica por API (Search Console + GA4)
+Estrategia SEO basada en datos reales, todo por API con **una sola cuenta de servicio** de
+Google Cloud (misma clave JSON para ambos):
+- `scripts/gsc_pull.py` — Search Console (Search Analytics). Dar a la SA acceso a la
+  propiedad en Search Console → Configuración → Usuarios. `webmasters.readonly`.
+- `scripts/ga4_pull.py` — GA4 Data API. Dar a la SA rol *Viewer* en la propiedad GA4.
+  `analytics.readonly`. Requiere `--property <ID numérico>`.
+- `scripts/estrategia_seo.py` — motor que cruza ambos y genera `output/estrategia_seo.md`
+  + `output/oportunidades.csv` con buckets priorizados (quick-wins pos 5-20, CTR bajo
+  para reescribir title/meta, huecos de contenido, funnel de compra).
+- Clave por defecto en `GSC_KEY` (`/home/user/.gsc/equipzilla-sa.json`). Deps: `rsa`, `pyasn1`.
+
+Flujo: `gsc_pull.py` [+ `ga4_pull.py`] → `estrategia_seo.py`.
+
 ## Cómo trabajar con los agentes
 - Para generar las páginas a escala usa el script `scripts/generar_paginas_seo.py`
   (corre en local, sin dependencias externas y sin consumir tokens).
