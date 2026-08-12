@@ -1,0 +1,37 @@
+name: Métricas de envío al Sheet
+
+# Vuelca cada mañana las métricas de Brevo (compraventa) y Smartlead (frío)
+# a la pestaña "Métricas Envíos" del Sheet de seguimiento.
+# Necesita 3 secrets del repo: BREVO_API_KEY, SMARTLEAD_API_KEY y GOOGLE_SA_JSON.
+# OJO: los triggers 'schedule' solo se ejecutan desde la rama por defecto (main),
+# así que hay que fusionar este workflow a main para que se active.
+
+on:
+  schedule:
+    # GitHub usa UTC. En horario de verano España (CEST, UTC+2):
+    - cron: "5 7 * * *"   # 09:05 hora España
+  workflow_dispatch: {}   # permite lanzarlo a mano desde la pestaña Actions
+
+permissions:
+  contents: read
+
+jobs:
+  metricas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias de Google Sheets
+        run: pip install --quiet google-api-python-client google-auth
+
+      - name: Volcar métricas al Sheet
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          SMARTLEAD_API_KEY: ${{ secrets.SMARTLEAD_API_KEY }}
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
+          METRICS_SHEET_ID: "1KgVYP1jjQB8NbUSvfS9PLcaFEJDY4ldFH2vphW1sakI"
+        run: python scripts/metrics_to_sheet.py

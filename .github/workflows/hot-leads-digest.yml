@@ -1,0 +1,46 @@
+name: Hot Leads Digest
+
+# Manda a David y Andrés los leads que han hecho clic en las campañas de compraventa.
+# Corre solo 2 veces al día. Necesita 2 secrets del repo: BREVO_API_KEY y PIPEDRIVE_TOKEN.
+# OJO: los triggers 'schedule' solo se ejecutan desde la rama por defecto (main),
+# así que hay que fusionar este workflow a main para que se active.
+
+on:
+  schedule:
+    # GitHub usa UTC. En horario de verano España (CEST, UTC+2):
+    - cron: "8 7 * * *"    # 09:08 hora España
+    - cron: "8 10 * * *"   # 12:08 hora España
+    - cron: "8 15 * * *"   # 17:08 hora España
+  workflow_dispatch: {}    # permite lanzarlo a mano desde la pestaña Actions
+
+permissions:
+  contents: write
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias de Google Sheets
+        run: pip install --quiet google-api-python-client google-auth
+
+      - name: Enviar digest de leads calientes
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          PIPEDRIVE_TOKEN: ${{ secrets.PIPEDRIVE_TOKEN }}
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
+          DIGEST_SHEET_ID: "1KgVYP1jjQB8NbUSvfS9PLcaFEJDY4ldFH2vphW1sakI"
+        run: python scripts/hot_leads_digest.py
+
+      - name: Guardar estado (para no repetir avisos)
+        run: |
+          git config user.name "equipzilla-bot"
+          git config user.email "bot@equipzilla.com"
+          git add scripts/state_notified.json
+          git commit -m "chore: update hot-leads digest state [skip ci]" || echo "sin cambios"
+          git push || echo "push omitido"
