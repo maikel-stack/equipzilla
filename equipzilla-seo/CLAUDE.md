@@ -46,6 +46,14 @@ Google Cloud (misma clave JSON para ambos):
 
 Flujo: `gsc_pull.py` [+ `ga4_pull.py`] → `estrategia_seo.py`.
 
+## Contenidos de compraventa (clusters + editorial)
+- `scripts/clusters_compraventa.py` — keyword research + clustering de compraventa a partir
+  de `gsc_queries.csv`: clasifica por familia de máquina e intención (TRANSACCIONAL/PRECIO/
+  COMERCIAL/INFORMACIONAL) y genera `keyword_clusters_compraventa.csv` +
+  `clusters_resumen_compraventa.csv`. Filtra spam y alquiler puro.
+- `output/estrategia_contenidos_compraventa.md` — plan pillar/cluster, base editorial Notion,
+  pipeline Notion→WordPress y estrategia SEO para LLMs (GEO).
+
 ## Cómo trabajar con los agentes
 - Para generar las páginas a escala usa el script `scripts/generar_paginas_seo.py`
   (corre en local, sin dependencias externas y sin consumir tokens).
