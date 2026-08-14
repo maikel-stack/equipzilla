@@ -1,0 +1,33 @@
+name: Informe comercial diario
+
+# Envía cada mañana a David, Andrés y Maikel el informe comercial:
+# quién ha clicado en qué máquina (Brevo) y quién ha respondido (Smartlead),
+# con teléfonos de Pipedrive, más el resumen de números por campaña.
+# Necesita 3 secrets: BREVO_API_KEY, SMARTLEAD_API_KEY, PIPEDRIVE_TOKEN.
+# OJO: los cron solo corren desde la rama por defecto.
+
+on:
+  schedule:
+    # GitHub usa UTC. En horario de verano España (CEST, UTC+2):
+    - cron: "30 6 * * *"   # 08:30 hora España
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  informe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Enviar informe comercial
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          SMARTLEAD_API_KEY: ${{ secrets.SMARTLEAD_API_KEY }}
+          PIPEDRIVE_TOKEN: ${{ secrets.PIPEDRIVE_TOKEN }}
+        run: python scripts/daily_sales_report.py
