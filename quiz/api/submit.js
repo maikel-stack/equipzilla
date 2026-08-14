@@ -65,6 +65,12 @@ module.exports = async (req, res) => {
       `<td style="padding:6px 10px;border-bottom:1px solid #EEF1F4;color:#14181C">${esc(a[k])}</td></tr>`)
     .join("");
 
+  const reco = body.recomendacion
+    ? `<div style="background:#17323A;color:#D7E4E4;border-radius:10px;padding:14px 16px;margin:12px 0;font-size:13px">` +
+      `<div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8FD3C0;font-weight:700;margin-bottom:6px">Recomendación mostrada</div>` +
+      `${esc(body.recomendacion)}</div>`
+    : "";
+
   const machinesHtml = matches.length
     ? `<p style="margin:14px 0 6px"><strong>Máquinas que le hemos enseñado como encaje:</strong></p><ul>` +
       matches.map((m) => `<li>${esc(m)}</li>`).join("") + `</ul>`
@@ -75,6 +81,7 @@ module.exports = async (req, res) => {
 <p><strong>${esc(a.nombre || "?")}</strong>${a.empresa ? " · " + esc(a.empresa) : ""} · 📞 <strong>${esc(a.telefono || "—")}</strong>
 · Buyer Intent: <strong>${score}/100</strong>${score >= 61 ? " 🔥" : ""}</p>
 <table style="width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid #D9DEE4">${rows}</table>
+${reco}
 ${machinesHtml}
 <p style="font-size:12px;color:#8A93A0">Enviado automáticamente por el quiz asesor de compra (Vercel).</p></div>`;
 
