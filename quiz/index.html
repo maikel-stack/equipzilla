@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Encuentra tu máquina · Equipzilla</title>
+<meta name="description" content="Cuéntanos tu proyecto en 2 minutos y te proponemos la maquinaria de ocasión que mejor encaja — revisada, con garantía y financiación.">
+<style>
+  :root{
+    --bg:#F5F8F8; --card:#FFFFFF; --line:#DCE5E5;
+    --ink:#14181C; --ink2:#4A5C5E; --ink3:#788B8D;
+    --teal:#387E7F; --teal-soft:#E6EEEE; --teal-dark:#2C6465;
+    --brand:#F0523C; --wa:#25D366;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .top{height:5px;background:var(--teal)}
+  .wrap{max-width:600px;margin:0 auto;padding:28px 18px 60px}
+  .brand{font-weight:800;font-size:22px;letter-spacing:-.02em;margin-bottom:4px;color:var(--brand)}
+  .tag{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:22px}
+  .progress{height:6px;background:#E4E9EE;border-radius:4px;overflow:hidden;margin-bottom:26px}
+  .progress i{display:block;height:100%;background:var(--teal);border-radius:4px;transition:width .3s}
+  .step{display:none;background:var(--card);border:1px solid var(--line);border-radius:14px;
+        padding:26px 22px;box-shadow:0 2px 12px rgba(18,22,28,.06)}
+  .step.on{display:block;animation:in .25s ease forwards}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.step.on{animation:none}}
+  .q{font-size:19px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px;text-wrap:balance}
+  .hint{font-size:13.5px;color:var(--ink2);margin-bottom:18px}
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{display:block;width:100%;text-align:left;background:#FBFCFD;border:1.5px solid var(--line);
+       border-radius:10px;padding:13px 15px;font-size:15px;color:var(--ink);cursor:pointer;
+       transition:border-color .15s, background .15s;font-family:inherit}
+  .opt:hover{border-color:var(--teal)}
+  .opt:focus-visible{outline:3px solid var(--teal-soft);border-color:var(--teal)}
+  .opt.sel{border-color:var(--teal);background:var(--teal-soft);font-weight:600}
+  textarea,input[type=text],input[type=tel],input[type=email]{
+    width:100%;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;
+    font-size:15px;font-family:inherit;background:#FBFCFD;color:var(--ink)}
+  textarea:focus,input:focus{outline:none;border-color:var(--teal)}
+  textarea{min-height:96px;resize:vertical}
+  .row{display:flex;gap:10px;margin-top:24px}
+  .btn{flex:1;border:none;border-radius:10px;padding:14px 18px;font-size:15px;font-weight:700;
+       cursor:pointer;font-family:inherit}
+  .btn.next{background:var(--teal);color:#fff}
+  .btn.next:disabled{background:#B9C6C6;cursor:not-allowed}
+  .btn.back{background:#EEF1F4;color:var(--ink2);flex:0 0 auto;padding:14px 16px}
+  .btn.wa{background:var(--wa);color:#fff;font-size:16px}
+  label.fl{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin:14px 0 5px}
+  .multi-note{font-size:12px;color:var(--teal-dark);margin-bottom:10px;font-weight:600}
+  .small{font-size:12px;color:var(--ink3);margin-top:16px;text-align:center}
+  /* resultados */
+  .mcard{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;margin-bottom:14px}
+  .mcard img{width:100%;height:190px;object-fit:cover;display:block;background:#E4E9EE}
+  .mbody{padding:14px 16px}
+  .mtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .mname{font-weight:800;font-size:17px}
+  .mspec{font-size:12.5px;color:var(--teal);font-weight:600;margin-top:2px}
+  .mprice{font-weight:800;font-size:18px;white-space:nowrap}
+  .mprice small{display:block;font-weight:400;font-size:10.5px;color:var(--ink3);text-align:right}
+  .why{margin:10px 0 0;padding-left:18px;font-size:13px;color:var(--ink2)}
+  .why li{margin-bottom:3px}
+  .badge{display:inline-block;background:var(--teal);color:#fff;font-size:10.5px;font-weight:700;
+         letter-spacing:.06em;border-radius:5px;padding:3px 8px;margin-bottom:8px}
+  .nores{background:var(--teal-soft);border:1px solid #D3E0E0;border-radius:10px;padding:16px;
+         font-size:14px;color:var(--teal-dark);margin-bottom:14px}
+  .sentok{font-size:12.5px;color:var(--teal-dark);background:var(--teal-soft);border-radius:8px;
+          padding:9px 12px;margin-top:14px;text-align:center;display:none}
+</style>
+</head>
+<body>
+<div class="top"></div>
+<div class="wrap">
+  <div class="brand">Equipzilla</div>
+  <div class="tag">Asesor de compra · 2 minutos</div>
+  <div class="progress"><i id="bar" style="width:8%"></i></div>
+
+  <section class="step on" data-k="actividad">
+    <div class="q">¿A qué se dedica tu empresa?</div>
+    <div class="hint">Para proponerte la máquina adecuada, primero queremos entender tu negocio.</div>
+    <div class="opts" data-single>
+      <button class="opt">Construcción / obra civil</button>
+      <button class="opt">Movimiento de tierras / excavaciones</button>
+      <button class="opt">Demolición</button>
+      <button class="opt">Agrícola / forestal</button>
+      <button class="opt">Industria / logística / almacén</button>
+      <button class="opt">Alquiler de maquinaria</button>
+      <button class="opt">Otro</button>
+    </div>
+    <div class="row"><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="trabajo">
+    <div class="q">Cuéntanos el trabajo, no la máquina</div>
+    <div class="hint">Ej.: "zanjas de 2 m en calles estrechas", "palets a 8 m en almacén", "mantenimiento de naves a 20 m"… Muchas veces la máquina que encaja no es la que uno tenía en mente.</div>
+    <textarea placeholder="¿Qué necesitáis hacer con la máquina?"></textarea>
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="tipo">
+    <div class="q">¿Qué tipo de máquina crees que necesitas?</div>
+    <div class="hint">Si no lo tienes claro, no pasa nada — para eso estamos.</div>
+    <div class="opts" data-single>
+      <button class="opt">Miniexcavadora (hasta 8 t)</button>
+      <button class="opt">Excavadora grande (14-23 t)</button>
+      <button class="opt">Plataforma elevadora</button>
+      <button class="opt">Carretilla elevadora</button>
+      <button class="opt">Manipulador telescópico</button>
+      <button class="opt">Pala cargadora</button>
+      <button class="opt">No lo tengo claro</button>
+    </div>
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="hoy">
+    <div class="q">¿Cómo resolvéis ese trabajo hoy?</div>
+    <div class="opts" data-single>
+      <button class="opt">Alquilamos la máquina</button>
+      <button class="opt">Tenemos máquina propia (ya mayor)</button>
+      <button class="opt">Lo subcontratamos</button>
+      <button class="opt">No podemos hacerlo — rechazamos trabajos</button>
+      <button class="opt">Es una necesidad nueva</button>
+    </div>
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="gasto">
+    <div class="q">¿Cuánto os cuesta hoy, aproximadamente?</div>
+    <div class="hint">Alquiler mensual, mantenimiento de la máquina actual… una cifra aproximada nos vale.</div>
+    <div class="opts" data-single>
+      <button class="opt">Menos de 500 €/mes</button>
+      <button class="opt">500 – 1.500 €/mes</button>
+      <button class="opt">1.500 – 3.000 €/mes</button>
+      <button class="opt">Más de 3.000 €/mes</button>
+      <button class="opt">No aplica / no lo sé</button>
+    </div>
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="uso">
+    <div class="q">¿Cuánto uso le daríais?</div>
+    <div class="opts" data-single>
+      <button class="opt">Puntual — algunos días al mes</button>
+      <button class="opt">Regular — 1-2 semanas al mes</button>
+      <button class="opt">Intensivo — casi a diario</button>
+      <button class="opt">Crítico — sin ella se para el trabajo</button>
+    </div>
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="condiciones">
+    <div class="q">¿Alguna condición especial?</div>
+    <div class="multi-note">Puedes marcar varias.</div>
+    <div class="opts" data-multi>
+      <button class="opt">Trabajo en interior (sin humos)</button>
+      <button class="opt">Espacios estrechos / acceso difícil</button>
+      <button class="opt">Necesito llegar a cierta altura</button>
+      <button class="opt">Terreno complicado (barro, pendiente…)</button>
+      <button class="opt">La tengo que transportar a menudo</button>
+      <button class="opt">Ninguna en especial</button>
+    </div>
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="presupuesto">
+    <div class="q">¿Qué presupuesto manejáis?</div>
+    <div class="hint">Orientativo — trabajamos todas las gamas y también localizamos máquinas por encargo.</div>
+    <div class="opts" data-single>
+      <button class="opt">Menos de 20.000 €</button>
+      <button class="opt">20.000 – 50.000 €</button>
+      <button class="opt">50.000 – 100.000 €</button>
+      <button class="opt">Más de 100.000 €</button>
+      <button class="opt">Depende de lo que encaje</button>
+    </div>
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="pago">
+    <div class="q">¿Cómo preferirías pagarla?</div>
+    <div class="opts" data-single>
+      <button class="opt">Al contado</button>
+      <button class="opt">Con financiación</button>
+      <button class="opt">Aún no lo sé</button>
+    </div>
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="urgencia">
+    <div class="q">¿Para cuándo la necesitas?</div>
+    <div class="opts" data-single>
+      <button class="opt">Ya — cuanto antes</button>
+      <button class="opt">En menos de un mes</button>
+      <button class="opt">En 1-3 meses</button>
+      <button class="opt">Solo estoy explorando</button>
+    </div>
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="prioridades">
+    <div class="q">¿Qué es lo que más te importa?</div>
+    <div class="multi-note">Elige hasta 2.</div>
+    <div class="opts" data-multi data-max="2">
+      <button class="opt">El mejor precio</button>
+      <button class="opt">Pocas horas de uso</button>
+      <button class="opt">Que sea reciente</button>
+      <button class="opt">Marca de confianza</button>
+      <button class="opt">Garantía y mantenimiento</button>
+      <button class="opt">Disponibilidad inmediata</button>
+    </div>
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="contacto">
+    <div class="q">Ya casi está — ¿cómo te contactamos?</div>
+    <div class="hint">Te enseñamos ahora mismo las máquinas de nuestro stock que encajan, y un asesor te preparará la propuesta completa (sin compromiso).</div>
+    <label class="fl">Nombre *</label><input type="text" id="c-nombre" autocomplete="name">
+    <label class="fl">Empresa</label><input type="text" id="c-empresa" autocomplete="organization">
+    <label class="fl">Teléfono *</label><input type="tel" id="c-tel" autocomplete="tel">
+    <label class="fl">Zona / provincia</label><input type="text" id="c-zona">
+    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Ver mi propuesta</button></div>
+  </section>
+
+  <section class="step" data-final>
+    <div class="q" id="res-title">Esto es lo que te encaja de nuestro stock</div>
+    <div class="hint" id="res-hint">Según tu proyecto, estas máquinas — revisadas, con inspección presencial y opción de garantía y financiación — son las que tienen más sentido:</div>
+    <div id="matches"></div>
+    <div class="row" style="flex-direction:column">
+      <button class="btn wa" id="sendwa">Hablar con un asesor por WhatsApp</button>
+    </div>
+    <div class="sentok" id="sentok">✓ Hemos recibido tu proyecto — un asesor te contactará muy pronto.</div>
+    <div class="small">Equipzilla · Barcelona · 911 238 750 · Precios + IVA. Si ninguna te encaja, también localizamos máquinas por encargo.</div>
+  </section>
+</div>
+
+<script>
+(function(){
+  var IMG="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@7f1a7307d80db1639f05024cc720552c363df284/email_assets/machines/";
+  // Stock real (datos del panel; sin refs internas visibles)
+  var M=[
+    {img:"KB298",n:"Kubota KX 016-4 G",c:"mini",y:2024,h:250,p:18900,e:false,s:"0,8 t"},
+    {img:"KB210",n:"Kubota K 008-5",c:"mini",y:2023,h:700,p:13900,e:false,s:"1 t"},
+    {img:"DX279PT",n:"Develon DX 27 Z-7",c:"mini",y:2023,h:650,p:31900,e:false,s:"2,7 t · giro cero"},
+    {img:"KB284PT",n:"Kubota KX 030-4 GL",c:"mini",y:2023,h:700,p:35900,e:false,s:"3 t"},
+    {img:"KB313",n:"Kubota U 36-4 GL",c:"mini",y:2023,h:650,p:32500,e:false,s:"3,8 t"},
+    {img:"KB187",n:"Kubota KX 037-4 GL",c:"mini",y:2023,h:1150,p:32500,e:false,s:"3,8 t"},
+    {img:"KB176",n:"Kubota U 50-5",c:"mini",y:2023,h:1150,p:44500,e:false,s:"5 t"},
+    {img:"KB203OQ",n:"Kubota KX 060-5",c:"mini",y:2023,h:1100,p:65900,e:false,s:"6 t"},
+    {img:"KB121",n:"Kubota KX 080-4",c:"mini",y:2022,h:2150,p:56900,e:false,s:"8 t"},
+    {img:"KB212PT",n:"Kubota KX 080-4 V",c:"mini",y:2023,h:1750,p:71900,e:false,s:"8 t · pluma ajustable"},
+    {img:"DX1499OQPT",n:"Doosan DX 140 LCR-5",c:"exca",y:2020,h:2900,p:87500,e:false,s:"14 t"},
+    {img:"DX165OQBSG",n:"Doosan DX 165 WR-7",c:"exca",y:2022,h:3300,p:109500,e:false,s:"17 t · ruedas"},
+    {img:"DX2102OQ",n:"Doosan DX 210 LC-7",c:"exca",y:2022,h:810,p:116900,e:false,s:"22 t"},
+    {img:"D22529OQT",n:"Doosan DX 225 LC-7 Topcon",c:"exca",y:2022,h:800,p:139900,e:false,s:"23 t · GPS 3D"},
+    {img:"DL42010",n:"Doosan DL 420 CVT-7",c:"pala",y:2023,h:1700,p:197900,e:false,s:"23 t · cuchara 4,5 m³"},
+    {img:"GAM-MANITOU170",n:"Manitou 170 AETJL",c:"plat",y:2016,h:null,p:17100,e:true,s:"17 m · articulada bi-energía"},
+    {img:"GAM-HA20PX06",n:"Haulotte HA20PX",c:"plat",y:2006,h:7080,p:13500,e:false,s:"20 m · articulada diésel"},
+    {img:"GAM-GENIEZ3422",n:"Genie Z-34/22 IC",c:"plat",y:2007,h:6119,p:10500,e:false,s:"12 m · articulada diésel"},
+    {img:"GAM-COMPACT10",n:"Haulotte Compact 10",c:"plat",y:2011,h:1116,p:5500,e:true,s:"10 m · tijera eléctrica"},
+    {img:"TH-MAGNI",n:"Magni TH 5.5.15",c:"tele",y:2022,h:575,p:70000,e:false,s:"5,5 t · 15 m"},
+    {img:"TH-MERLO",n:"Merlo P 27.6 Plus",c:"tele",y:2023,h:1000,p:58500,e:false,s:"2,7 t · 6 m"},
+    {img:"TH-JCB535",n:"JCB 535-125",c:"tele",y:2010,h:null,p:34500,e:false,s:"3,5 t · 12,5 m"},
+    {img:"TH-JLG4013",n:"JLG 4013",c:"tele",y:2006,h:6627,p:26450,e:false,s:"4 t · 13 m"},
+    {img:"CL-EPX25",n:"Clark EPX25",c:"carr",y:2011,h:801,p:7000,e:true,s:"2,5 t · eléctrica"},
+    {img:"GAM-ERP16VT",n:"Yale ERP16VT",c:"carr",y:2018,h:6938,p:7800,e:true,s:"1,6 t · eléctrica"},
+    {img:"GAM-R14",n:"Hyster R1.4",c:"carr",y:2019,h:3283,p:6200,e:true,s:"1,4 t · retráctil 8,5 m"},
+    {img:"GAM-DFG320s",n:"Jungheinrich DFG320s",c:"carr",y:2017,h:12360,p:12400,e:false,s:"2 t · diésel"},
+    {img:"GAM-H25FT",n:"Hyster H2.5FT",c:"carr",y:2019,h:11503,p:15000,e:false,s:"2,5 t · GLP"},
+    {img:"GAM-H30FT",n:"Hyster H3.0FT",c:"carr",y:2021,h:13132,p:16000,e:false,s:"3 t · mástil 5,6 m"}
+  ];
+  var TYPE={"Miniexcavadora (hasta 8 t)":"mini","Excavadora grande (14-23 t)":"exca",
+    "Plataforma elevadora":"plat","Carretilla elevadora":"carr",
+    "Manipulador telescópico":"tele","Pala cargadora":"pala"};
+  var BUDGET={"Menos de 20.000 €":20000,"20.000 – 50.000 €":50000,
+    "50.000 – 100.000 €":100000,"Más de 100.000 €":Infinity,"Depende de lo que encaje":Infinity};
+
+  var steps=[].slice.call(document.querySelectorAll('.step'));
+  var bar=document.getElementById('bar');
+  var answers={}, idx=0, sent=false;
+
+  function show(i){
+    steps[idx].classList.remove('on');
+    idx=i; steps[idx].classList.add('on');
+    bar.style.width=Math.round(((i+1)/steps.length)*100)+'%';
+    window.scrollTo({top:0});
+    if(steps[idx].hasAttribute('data-final')) finish();
+  }
+
+  steps.forEach(function(st,i){
+    var next=st.querySelector('.btn.next');
+    var back=st.querySelector('.btn.back');
+    if(back) back.addEventListener('click',function(){show(i-1);});
+    var single=st.querySelector('[data-single]');
+    var multi=st.querySelector('[data-multi]');
+    if(single){
+      [].slice.call(single.children).forEach(function(b){
+        b.addEventListener('click',function(){
+          [].slice.call(single.children).forEach(function(x){x.classList.remove('sel');});
+          b.classList.add('sel');
+          answers[st.dataset.k]=b.textContent;
+          next.disabled=false;
+        });
+      });
+    }
+    if(multi){
+      var max=parseInt(multi.dataset.max||'9',10);
+      [].slice.call(multi.children).forEach(function(b){
+        b.addEventListener('click',function(){
+          if(b.classList.contains('sel')){b.classList.remove('sel');}
+          else{
+            var sel=multi.querySelectorAll('.sel');
+            if(sel.length>=max){sel[0].classList.remove('sel');}
+            b.classList.add('sel');
+          }
+          var vals=[].slice.call(multi.querySelectorAll('.sel')).map(function(x){return x.textContent;});
+          answers[st.dataset.k]=vals.join(', ');
+          next.disabled=vals.length===0;
+        });
+      });
+    }
+    var ta=st.querySelector('textarea');
+    if(ta){
+      ta.addEventListener('input',function(){
+        answers[st.dataset.k]=ta.value.trim();
+        next.disabled=ta.value.trim().length<3;
+      });
+    }
+    if(st.dataset.k==='contacto'){
+      var req=['c-nombre','c-tel'];
+      [].slice.call(st.querySelectorAll('input')).forEach(function(inp){
+        inp.addEventListener('input',function(){
+          next.disabled=!req.every(function(id){return document.getElementById(id).value.trim().length>1;});
+        });
+      });
+    }
+    if(next) next.addEventListener('click',function(){
+      if(st.dataset.k==='contacto'){
+        answers.nombre=val('c-nombre'); answers.empresa=val('c-empresa');
+        answers.telefono=val('c-tel'); answers.zona=val('c-zona');
+      }
+      show(i+1);
+    });
+  });
+  function val(id){return (document.getElementById(id).value||'').trim();}
+
+  function match(){
+    var cat=TYPE[answers.tipo]||null;
+    var budget=BUDGET[answers.presupuesto]||Infinity;
+    var cond=answers.condiciones||'';
+    var interior=cond.indexOf('interior')>-1;
+    var altura=cond.indexOf('altura')>-1;
+    var pool=M.slice();
+    if(cat){ pool=pool.filter(function(m){return m.c===cat;}); }
+    else if(altura){ pool=pool.filter(function(m){return m.c==='plat'||m.c==='tele';}); }
+    if(interior){
+      var el=pool.filter(function(m){return m.e;});
+      if(el.length) pool=el;
+    }
+    var inBudget=pool.filter(function(m){return m.p<=budget;});
+    if(inBudget.length) pool=inBudget;
+    var pr=answers.prioridades||'';
+    pool.sort(function(a,b){
+      if(pr.indexOf('Pocas horas')>-1) return (a.h||99999)-(b.h||99999);
+      if(pr.indexOf('reciente')>-1) return b.y-a.y;
+      return a.p-b.p;
+    });
+    return pool.slice(0,3);
+  }
+
+  function whyList(m){
+    var w=[];
+    var budget=BUDGET[answers.presupuesto]||Infinity;
+    if(m.p<=budget && budget!==Infinity) w.push("Dentro de tu presupuesto ("+fmt(m.p)+" + IVA)");
+    else w.push("Precio: "+fmt(m.p)+" + IVA");
+    if((answers.condiciones||'').indexOf('interior')>-1 && m.e) w.push("Eléctrica: apta para trabajar en interior sin humos");
+    if(m.h!==null && m.h<1500) w.push("Pocas horas de uso ("+m.h.toLocaleString('es-ES')+" h certificadas)");
+    if(m.y>=2020) w.push("Máquina reciente ("+m.y+")");
+    w.push("Revisada · inspección y prueba presencial antes de comprar");
+    return w.slice(0,4);
+  }
+  function fmt(p){return p.toLocaleString('es-ES')+" €";}
+
+  var finalMatches=[];
+  function finish(){
+    var ms=match();
+    finalMatches=ms.map(function(m){return m.n+" ("+fmt(m.p)+")";});
+    var box=document.getElementById('matches');
+    if(!ms.length){
+      document.getElementById('res-title').textContent="Tu proyecto necesita una búsqueda a medida";
+      box.innerHTML='<div class="nores">Ahora mismo no tenemos en stock la máquina exacta para lo que nos cuentas — pero <strong>localizamos máquinas por encargo</strong> constantemente. Cuéntanoslo por WhatsApp y te decimos qué podemos conseguirte y en qué plazo.</div>';
+    }else{
+      box.innerHTML=ms.map(function(m,i){
+        return '<div class="mcard">'+
+          '<img src="'+IMG+m.img+'.jpg" alt="'+m.n+'" loading="lazy">'+
+          '<div class="mbody">'+(i===0?'<span class="badge">MEJOR ENCAJE</span>':'')+
+          '<div class="mtop"><div><div class="mname">'+m.n+'</div>'+
+          '<div class="mspec">'+m.y+' · '+m.s+(m.h?' · '+m.h.toLocaleString('es-ES')+' h':'')+'</div></div>'+
+          '<div class="mprice">'+fmt(m.p)+'<small>+ IVA</small></div></div>'+
+          '<ul class="why">'+whyList(m).map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>'+
+          '</div></div>';
+      }).join('');
+    }
+    if(!sent){
+      sent=true;
+      try{
+        fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({answers:answers,matches:finalMatches})})
+          .then(function(r){if(r.ok){document.getElementById('sentok').style.display='block';}})
+          .catch(function(){});
+      }catch(e){}
+    }
+  }
+
+  document.getElementById('sendwa').addEventListener('click',function(){
+    var lines=['Hola, he completado el asesor de compra de Equipzilla.',''];
+    lines.push('Proyecto: '+(answers.trabajo||''));
+    lines.push('Actividad: '+(answers.actividad||''));
+    if(finalMatches.length) lines.push('Máquinas que me encajan: '+finalMatches.join(' · '));
+    lines.push('Soy '+(answers.nombre||'')+(answers.empresa?' de '+answers.empresa:''));
+    window.open('https://wa.me/34606836581?text='+encodeURIComponent(lines.join('\n')),'_blank');
+  });
+})();
+</script>
+</body>
+</html>
