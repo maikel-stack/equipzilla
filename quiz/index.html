@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Encuentra tu máquina · Equipzilla</title>
-<meta name="description" content="Cuéntanos tu proyecto en 2 minutos y te proponemos la maquinaria de ocasión que mejor encaja — revisada, con garantía y financiación.">
+<meta name="description" content="Maquinaria de ocasión revisada, directa de flota. Cuéntanos tu proyecto en 2 minutos y te proponemos las máquinas que de verdad te encajan.">
 <style>
+
   :root{
     --bg:#F5F8F8; --card:#FFFFFF; --line:#DCE5E5;
     --ink:#14181C; --ink2:#4A5C5E; --ink3:#788B8D;
@@ -67,13 +68,110 @@
          font-size:14px;color:var(--teal-dark);margin-bottom:14px}
   .sentok{font-size:12.5px;color:var(--teal-dark);background:var(--teal-soft);border-radius:8px;
           padding:9px 12px;margin-top:14px;text-align:center;display:none}
+
+  /* ===== landing ===== */
+  .nav{max-width:1020px;margin:0 auto;padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
+  .nav .brand{margin:0;font-size:22px}
+  .nav a.tel{color:var(--teal-dark);font-weight:700;text-decoration:none;font-size:14px}
+  .hero{max-width:1020px;margin:0 auto;padding:26px 18px 10px;display:grid;grid-template-columns:1.05fr .95fr;gap:34px;align-items:center}
+  @media (max-width:760px){.hero{grid-template-columns:1fr}}
+  .hero h1{font-size:clamp(30px,5vw,44px);line-height:1.06;letter-spacing:-.03em;font-weight:800}
+  .hero h1 em{font-style:normal;color:var(--teal)}
+  .hero p.lead{margin:16px 0 0;font-size:16.5px;color:var(--ink2);max-width:46ch}
+  .cta{display:inline-block;margin-top:22px;background:var(--brand);color:#fff;font-weight:800;font-size:16px;
+       padding:15px 28px;border-radius:10px;text-decoration:none;box-shadow:0 6px 18px rgba(240,82,60,.28)}
+  .cta:hover{filter:brightness(1.05)}
+  .subcta{display:block;margin-top:10px;font-size:12.5px;color:var(--ink3)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chip{background:var(--teal-soft);color:var(--teal-dark);font-size:12.5px;font-weight:700;border-radius:100px;padding:6px 13px}
+  .heroimg{position:relative}
+  .heroimg img{width:100%;border-radius:16px;display:block;box-shadow:0 18px 50px rgba(18,22,28,.18)}
+  .heroimg .price{position:absolute;bottom:14px;right:14px;background:#fff;border-radius:10px;padding:8px 14px;
+      font-weight:800;box-shadow:0 4px 14px rgba(18,22,28,.18)}
+  .heroimg .price small{display:block;font-weight:500;font-size:10.5px;color:var(--ink3)}
+  .band{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:40px}
+  .steps{max-width:1020px;margin:0 auto;padding:34px 18px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  @media (max-width:700px){.steps{grid-template-columns:1fr}}
+  .stp .num{width:34px;height:34px;border-radius:50%;background:var(--teal);color:#fff;font-weight:800;
+       display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+  .stp h3{font-size:16px;margin-bottom:4px}
+  .stp p{font-size:13.5px;color:var(--ink2)}
+  .sect{max-width:1020px;margin:0 auto;padding:44px 18px 8px}
+  .sect h2{font-size:clamp(22px,3.4vw,28px);letter-spacing:-.02em;font-weight:800;text-wrap:balance}
+  .sect .sub2{color:var(--ink2);font-size:14.5px;margin-top:6px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:22px}
+  @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:520px){.grid{grid-template-columns:1fr}}
+  .gcard{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .gcard img{width:100%;height:130px;object-fit:cover;display:block;background:#E4E9EE}
+  .gcard .gb{padding:11px 13px}
+  .gcard .gn{font-weight:700;font-size:14px}
+  .gcard .gs{font-size:11.5px;color:var(--teal);font-weight:600;margin-top:2px}
+  .gcard .gp{font-weight:800;margin-top:6px}
+  .gcard .gp small{font-weight:400;color:var(--ink3);font-size:10px}
+  .more{font-size:13px;color:var(--ink2);margin-top:14px}
+  .quizsect{max-width:640px;margin:0 auto;padding:50px 18px 70px}
+  .quizsect .qhead{text-align:center;margin-bottom:22px}
+  .quizsect .qhead h2{font-size:clamp(22px,3.4vw,28px);letter-spacing:-.02em;font-weight:800}
+  .quizsect .qhead p{color:var(--ink2);font-size:14.5px;margin-top:6px}
+  footer{background:var(--ink);color:#8A93A0;padding:26px 18px;font-size:12.5px}
+  footer .fin{max-width:1020px;margin:0 auto;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  footer b{color:#fff}
 </style>
 </head>
 <body>
 <div class="top"></div>
-<div class="wrap">
+
+<nav class="nav">
   <div class="brand">Equipzilla</div>
-  <div class="tag">Asesor de compra · 2 minutos</div>
+  <a class="tel" href="tel:+34911238750">911 238 750</a>
+</nav>
+
+<header class="hero">
+  <div>
+    <h1>La máquina adecuada,<br><em>no la más cara.</em></h1>
+    <p class="lead">Maquinaria de ocasión <strong>revisada y directa de flota</strong> — excavadoras, plataformas, carretillas y manipuladores — con un 30-40&nbsp;% de ahorro frente a nueva. Cuéntanos tu proyecto y te proponemos solo lo que de verdad te encaja.</p>
+    <a class="cta" href="#quiz">Encuentra tu máquina en 2 min →</a>
+    <span class="subcta">Sin compromiso · te responde una persona, no un bot</span>
+    <div class="chips">
+      <span class="chip">✓ Revisadas con horas reales</span>
+      <span class="chip">✓ Inspección presencial</span>
+      <span class="chip">✓ Opción de garantía</span>
+      <span class="chip">✓ Financiación</span>
+    </div>
+  </div>
+  <div class="heroimg">
+    <img src="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@7f1a7307d80db1639f05024cc720552c363df284/email_assets/machines/DX2102OQ.jpg" alt="Excavadora Doosan DX210 de ocasión revisada" fetchpriority="high">
+    <div class="price">Doosan DX 210 · 2022 · 810 h<small>116.900 € + IVA</small></div>
+  </div>
+</header>
+
+<div class="band">
+  <div class="steps">
+    <div class="stp"><div class="num">1</div><h3>Cuéntanos tu proyecto</h3><p>2 minutos: qué necesitas hacer, cómo lo resuelves hoy y qué presupuesto manejas. El trabajo primero, la máquina después.</p></div>
+    <div class="stp"><div class="num">2</div><h3>Te enseñamos lo que encaja</h3><p>Al momento ves las máquinas de nuestro stock que cuadran con tu caso — y el porqué. Si no hay encaje, te lo decimos y la localizamos por encargo.</p></div>
+    <div class="stp"><div class="num">3</div><h3>Compra con red</h3><p>Inspección y prueba presencial antes de comprar, documentación en regla y opción de garantía con mantenimiento y financiación.</p></div>
+  </div>
+</div>
+
+<section class="sect">
+  <h2>Algunas de las máquinas disponibles ahora</h2>
+  <p class="sub2">Stock propio directo de flota de alquiler, con horas certificadas.</p>
+  <div class="grid">
+    <div class="gcard"><img src="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@7f1a7307d80db1639f05024cc720552c363df284/email_assets/machines/GAM-MANITOU170.jpg" alt="Manitou 170 AETJL" loading="lazy"><div class="gb"><div class="gn">Manitou 170 AETJL</div><div class="gs">2016 · plataforma 17 m · bi-energía</div><div class="gp">17.100 € <small>+ IVA</small></div></div></div>
+    <div class="gcard"><img src="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@7f1a7307d80db1639f05024cc720552c363df284/email_assets/machines/KB313.jpg" alt="Kubota U 36-4" loading="lazy"><div class="gb"><div class="gn">Kubota U 36-4 GL</div><div class="gs">2023 · miniexcavadora 3,8 t · 650 h</div><div class="gp">32.500 € <small>+ IVA</small></div></div></div>
+    <div class="gcard"><img src="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@7f1a7307d80db1639f05024cc720552c363df284/email_assets/machines/TH-MAGNI.jpg" alt="Magni TH 5.5.15" loading="lazy"><div class="gb"><div class="gn">Magni TH 5.5.15</div><div class="gs">2022 · telescópico 5,5 t · 15 m</div><div class="gp">70.000 € <small>+ IVA</small></div></div></div>
+    <div class="gcard"><img src="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@7f1a7307d80db1639f05024cc720552c363df284/email_assets/machines/CL-EPX25.jpg" alt="Clark EPX25" loading="lazy"><div class="gb"><div class="gn">Clark EPX25</div><div class="gs">2011 · carretilla eléctrica · 801 h</div><div class="gp">7.000 € <small>+ IVA</small></div></div></div>
+  </div>
+  <p class="more">…y 25 máquinas más en stock. <a href="#quiz" style="color:var(--teal);font-weight:700">Haz el test y ve las que te encajan →</a></p>
+</section>
+
+<section class="quizsect" id="quiz">
+  <div class="qhead">
+    <h2>Encuentra tu máquina</h2>
+    <p>12 preguntas rápidas. Al final ves tu propuesta al momento.</p>
+  </div>
+<div class="wrap">
   <div class="progress"><i id="bar" style="width:8%"></i></div>
 
   <section class="step on" data-k="actividad">
@@ -231,7 +329,15 @@
     <div class="sentok" id="sentok">✓ Hemos recibido tu proyecto — un asesor te contactará muy pronto.</div>
     <div class="small">Equipzilla · Barcelona · 911 238 750 · Precios + IVA. Si ninguna te encaja, también localizamos máquinas por encargo.</div>
   </section>
-</div>
+
+</section>
+
+<footer>
+  <div class="fin">
+    <div><b>Equipzilla</b> · Barcelona · 911 238 750</div>
+    <div>Precios + IVA · Máquinas revisadas con inspección presencial · Garantía y financiación opcionales</div>
+  </div>
+</footer>
 
 <script>
 (function(){
