@@ -679,6 +679,39 @@ ARTICULOS = {
    ("¿Merece la pena pagar por un contrato de mantenimiento?", "En una máquina de trabajo diario, casi siempre: convierte averías imprevisibles en un coste planificado y alarga la vida de la máquina. Además protege su valor de reventa."),
   ],
  },
+ "financiacion-maquinaria-ocasion": {
+  "kw": "financiar maquinaria segunda mano",
+  "eyebrow": "Compra inteligente",
+  "title": "Financiar maquinaria de segunda mano: cómo convertir la compra en una cuota",
+  "h1": "Financiar maquinaria de ocasión: paga como un alquiler, quédate la máquina",
+  "stand": "Cómo funciona la financiación de maquinaria usada, qué documentación te van a pedir y los errores de plazo que convierten una buena compra en una mala deuda.",
+  "rapida": "Sí, la maquinaria de segunda mano se puede financiar: en Equipzilla, <b>casi todas las unidades tienen opción de financiación</b>, además de garantía y contrato de mantenimiento. La idea clave: la cuota mensual de una máquina de ocasión suele quedar en el orden de lo que ya pagas de alquiler — con una diferencia enorme: al acabar, la máquina es tuya y conserva valor de reventa.",
+  "sections": [
+   ("El modelo mental: alquílate la máquina a ti mismo", """
+<p>Si hoy pagas un alquiler recurrente, ya has demostrado dos cosas: que necesitas la máquina y que puedes pagar una cuota mensual por ella. La financiación redirige esa misma cuota hacia un activo tuyo. El alquiler compra disponibilidad; la financiación compra propiedad — y la propiedad se revende.</p>
+<p>Haz el número con tu caso real en la <a href="/alquilar-o-comprar-maquinaria.html">calculadora de alquiler vs compra</a>: mete tu cuota de alquiler actual y compárala con el coste neto de comprar.</p>"""),
+   ("Qué te van a pedir (prepáralo antes)", """
+<ul class="check">
+<li>CIF y escrituras o alta de autónomo</li>
+<li>Últimas declaraciones de impuestos (IVA / sociedades o IRPF)</li>
+<li>Balance o cuentas recientes, según el importe</li>
+<li>Extractos o posición bancaria básica</li>
+<li>Datos de la máquina: ficha, precio y factura proforma (esto lo ponemos nosotros)</li>
+</ul>
+<p>Con la documentación preparada, una operación estándar se resuelve en días, no en semanas. Nuestra parte — ficha técnica, precio cerrado y proforma — te la damos el mismo día.</p>"""),
+   ("Los errores de plazo que arruinan una buena compra", """
+<div class="block warn"><div class="bt">Error común</div><b class="t">Financiar a más plazo que la vida útil restante</b><p>Si a la máquina le quedan 4-5 años de trabajo serio y la financias a 7, acabarás pagando cuotas por una máquina que ya no produce. Ajusta el plazo a la vida útil que estás comprando — las horas y el estado lo dicen.</p></div>
+<div class="block warn"><div class="bt">Error común</div><b class="t">Mirar solo la cuota</b><p>Dos ofertas con la misma cuota pueden esconder costes totales muy distintos (intereses, comisiones de apertura, seguros vinculados). Compara el coste total de la operación, no el número cómodo.</p></div>
+<div class="block tip"><div class="bt">Consejo del asesor</div><p>La combinación que más tranquilidad da a una pyme: financiación ajustada a la vida útil + contrato de mantenimiento. Cuota predecible, taller predecible y una máquina que llega al final del plan con valor de reventa.</p></div>"""),
+  ],
+  "lm": {"type": "asesor",
+         "text": "Ahora ya sabes cómo se financia. El siguiente paso es saber QUÉ financiar: cuéntale tu proyecto al asesor y te propone unidades del stock con su precio — y si quieres, te preparamos la propuesta de financiación de la que te encaje."},
+  "faq": [
+   ("¿Se puede financiar una máquina usada?", "Sí. En Equipzilla casi todas las unidades en venta tienen opción de financiación, además de garantía y contrato de mantenimiento. Te preparamos la documentación de la máquina el mismo día."),
+   ("¿Qué plazo es razonable para financiar maquinaria?", "El que no supere la vida útil restante de la máquina: para una unidad reciente con pocas horas, plazos medios; para máquinas con más horas, plazos cortos. El objetivo es que la máquina siempre pague su propia cuota trabajando."),
+   ("¿Financiar o pagar al contado?", "Si el contado no descapitaliza tu operación, es la opción más barata. Si prefieres preservar caja para circulante, la financiación bien planteada mantiene la tesorería y la máquina se paga sola con su trabajo."),
+  ],
+ },
  "vender-maquinaria-usada": {
   "kw": "vender maquinaria usada",
   "eyebrow": "Vende tu máquina",
