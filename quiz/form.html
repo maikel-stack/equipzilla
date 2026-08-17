@@ -345,7 +345,8 @@
         });
       });
     }
-    if(next) next.addEventListener('click',function(){
+    // El paso final también contiene un ".btn.next" (Avisarme): no navegar desde él.
+    if(next && !st.hasAttribute('data-final')) next.addEventListener('click',function(){
       if(st.dataset.k==='contacto'){
         answers.nombre=val('c-nombre'); answers.empresa=val('c-empresa');
         answers.telefono=val('c-tel'); answers.zona=val('c-zona');
