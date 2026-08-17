@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Encuentra tu máquina · Equipzilla</title>
-<meta name="description" content="Cuéntanos tu proyecto en 2 minutos y te proponemos la maquinaria de ocasión que mejor encaja — revisada, con garantía y financiación.">
+<meta name="description" content="Cuéntanos tu proyecto en 1 minuto y te proponemos la maquinaria de ocasión que mejor encaja — revisada, con garantía y financiación.">
 <style>
   :root{
     --bg:#F5F8F8; --card:#FFFFFF; --line:#DCE5E5;
@@ -78,29 +78,7 @@
 <div class="wrap">
   <div class="progress"><i id="bar" style="width:8%"></i></div>
 
-  <section class="step on" data-k="actividad">
-    <div class="q">¿A qué se dedica tu empresa?</div>
-    <div class="hint">Para proponerte la máquina adecuada, primero queremos entender tu negocio.</div>
-    <div class="opts" data-single>
-      <button class="opt">Construcción / obra civil</button>
-      <button class="opt">Movimiento de tierras / excavaciones</button>
-      <button class="opt">Demolición</button>
-      <button class="opt">Agrícola / forestal</button>
-      <button class="opt">Industria / logística / almacén</button>
-      <button class="opt">Alquiler de maquinaria</button>
-      <button class="opt">Otro</button>
-    </div>
-    <div class="row"><button class="btn next" disabled>Siguiente</button></div>
-  </section>
-
-  <section class="step" data-k="trabajo">
-    <div class="q">Cuéntanos el trabajo, no la máquina</div>
-    <div class="hint">Ej.: "zanjas de 2 m en calles estrechas", "palets a 8 m en almacén", "mantenimiento de naves a 20 m"… Muchas veces la máquina que encaja no es la que uno tenía en mente.</div>
-    <textarea placeholder="¿Qué necesitáis hacer con la máquina?"></textarea>
-    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
-  </section>
-
-  <section class="step" data-k="tipo">
+  <section class="step on" data-k="tipo">
     <div class="q">¿Qué tipo de máquina crees que necesitas?</div>
     <div class="hint">Si no lo tienes claro, no pasa nada — para eso estamos.</div>
     <div class="opts" data-single>
@@ -112,6 +90,13 @@
       <button class="opt">Pala cargadora</button>
       <button class="opt">No lo tengo claro</button>
     </div>
+    <div class="row"><button class="btn next" disabled>Siguiente</button></div>
+  </section>
+
+  <section class="step" data-k="trabajo">
+    <div class="q">Cuéntanos el trabajo, no la máquina</div>
+    <div class="hint">Ej.: "zanjas de 2 m en calles estrechas", "palets a 8 m en almacén", "mantenimiento de naves a 20 m"… Muchas veces la máquina que encaja no es la que uno tenía en mente.</div>
+    <textarea placeholder="¿Qué necesitáis hacer con la máquina?"></textarea>
     <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
   </section>
 
@@ -123,30 +108,6 @@
       <button class="opt">Lo subcontratamos</button>
       <button class="opt">No podemos hacerlo — rechazamos trabajos</button>
       <button class="opt">Es una necesidad nueva</button>
-    </div>
-    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
-  </section>
-
-  <section class="step" data-k="gasto">
-    <div class="q">¿Cuánto os cuesta hoy, aproximadamente?</div>
-    <div class="hint">Alquiler mensual, mantenimiento de la máquina actual… una cifra aproximada nos vale.</div>
-    <div class="opts" data-single>
-      <button class="opt">Menos de 500 €/mes</button>
-      <button class="opt">500 – 1.500 €/mes</button>
-      <button class="opt">1.500 – 3.000 €/mes</button>
-      <button class="opt">Más de 3.000 €/mes</button>
-      <button class="opt">No aplica / no lo sé</button>
-    </div>
-    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
-  </section>
-
-  <section class="step" data-k="uso">
-    <div class="q">¿Cuánto uso le daríais?</div>
-    <div class="opts" data-single>
-      <button class="opt">Puntual — algunos días al mes</button>
-      <button class="opt">Regular — 1-2 semanas al mes</button>
-      <button class="opt">Intensivo — casi a diario</button>
-      <button class="opt">Crítico — sin ella se para el trabajo</button>
     </div>
     <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
   </section>
@@ -178,16 +139,6 @@
     <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
   </section>
 
-  <section class="step" data-k="pago">
-    <div class="q">¿Cómo preferirías pagarla?</div>
-    <div class="opts" data-single>
-      <button class="opt">Al contado</button>
-      <button class="opt">Con financiación</button>
-      <button class="opt">Aún no lo sé</button>
-    </div>
-    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
-  </section>
-
   <section class="step" data-k="urgencia">
     <div class="q">¿Para cuándo la necesitas?</div>
     <div class="opts" data-single>
@@ -195,20 +146,6 @@
       <button class="opt">En menos de un mes</button>
       <button class="opt">En 1-3 meses</button>
       <button class="opt">Solo estoy explorando</button>
-    </div>
-    <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
-  </section>
-
-  <section class="step" data-k="prioridades">
-    <div class="q">¿Qué es lo que más te importa?</div>
-    <div class="multi-note">Elige hasta 2.</div>
-    <div class="opts" data-multi data-max="2">
-      <button class="opt">El mejor precio</button>
-      <button class="opt">Pocas horas de uso</button>
-      <button class="opt">Que sea reciente</button>
-      <button class="opt">Marca de confianza</button>
-      <button class="opt">Garantía y mantenimiento</button>
-      <button class="opt">Disponibilidad inmediata</button>
     </div>
     <div class="row"><button class="btn back">←</button><button class="btn next" disabled>Siguiente</button></div>
   </section>
