@@ -2,34 +2,139 @@
 <html lang="es">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Guías de compra de maquinaria de ocasión | Equipzilla</title>
-<meta name="description" content="Precios reales y guías de compra de maquinaria de segunda mano: miniexcavadoras, carretillas, plataformas, telescópicos y excavadoras. Actualizado agosto 2026.">
+<title>Guías de compra y precios de maquinaria de ocasión | Equipzilla</title>
+<meta name="description" content="Precios reales de stock y guías de compra de maquinaria de segunda mano: miniexcavadoras, carretillas, plataformas, telescópicos y excavadoras. Actualizado agosto 2026.">
 <link rel="canonical" href="https://equipzilla-quiz.vercel.app/guias/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#F5F8F8;--line:#DCE5E5;--ink:#14181C;--teal:#387E7F;--brand:#F0523C}
+  :root{--bg:#F7F9F9;--paper:#FFFFFF;--line:#E2E8E8;--ink:#14181C;--ink2:#46565A;--ink3:#7C8D90;
+        --teal:#387E7F;--teal-dark:#17323A;--teal-soft:#EAF1F1;--mint:#8FD3C0;--coral:#F0523C;--wa:#25D366}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);font-family:system-ui,sans-serif;color:var(--ink);line-height:1.55}
-  .top{height:5px;background:var(--teal)}
-  .wrap{max-width:680px;margin:0 auto;padding:26px 18px 50px}
-  .brand{font-weight:800;font-size:21px;color:var(--brand)}
-  .brand a{color:inherit;text-decoration:none}
-  h1{font-size:26px;margin:18px 0 6px}
-  p{color:#4A5C5E;margin-bottom:20px}
-  .card{display:block;background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px;text-decoration:none;color:var(--ink)}
-  .card b{display:block;font-size:16px}
-  .card span{font-size:12.5px;color:#788B8D}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);font-family:'IBM Plex Sans',system-ui,sans-serif;color:var(--ink);
+       line-height:1.7;-webkit-font-smoothing:antialiased;font-size:16px}
+  .arx{font-family:'Archivo',system-ui,sans-serif;font-stretch:115%}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .topbar{height:5px;background:var(--teal)}
+  header.site{background:var(--paper);border-bottom:1px solid var(--line)}
+  header.site .in{max-width:720px;margin:0 auto;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+  .logo{font-family:'Archivo',system-ui,sans-serif;font-stretch:120%;font-weight:800;font-size:20px;color:var(--coral);text-decoration:none}
+  .navl{font-size:13.5px;color:var(--ink2);text-decoration:none;margin-left:18px}
+  .navl:hover{color:var(--teal)}
+  main{max-width:720px;margin:0 auto;padding:44px 20px 70px}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+           color:var(--teal);font-weight:500;margin-bottom:14px}
+  h1{font-family:'Archivo',system-ui,sans-serif;font-stretch:115%;font-weight:800;font-size:clamp(30px,5.4vw,40px);
+     line-height:1.12;letter-spacing:-.02em;margin-bottom:16px}
+  .stand{font-size:18.5px;line-height:1.6;color:var(--ink2);margin-bottom:18px}
+  .meta{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink3);
+        padding-bottom:26px;border-bottom:1px solid var(--line);margin-bottom:30px}
+  h2{font-family:'Archivo',system-ui,sans-serif;font-stretch:115%;font-weight:700;font-size:24px;letter-spacing:-.01em;
+     margin:44px 0 14px;line-height:1.25}
+  h3{font-family:'Archivo',system-ui,sans-serif;font-stretch:110%;font-weight:700;font-size:17px;margin:22px 0 6px}
+  p{margin-bottom:14px;color:#243036}
+  .rapida{background:var(--teal-dark);border-radius:14px;padding:24px 26px;margin:6px 0 10px;color:#D9E6E6}
+  .rapida .k{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+             color:var(--mint);font-weight:500;margin-bottom:10px}
+  .rapida p{color:#D9E6E6;font-size:15.5px;line-height:1.7;margin:0}
+  .rapida b{color:#fff}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 8px}
+  .stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 14px;text-align:center}
+  .stat b{display:block;font-family:'Archivo',system-ui,sans-serif;font-stretch:115%;font-weight:800;font-size:21px}
+  .stat span{font-size:11.5px;color:var(--ink3);font-family:'IBM Plex Mono',monospace}
+  .tablewrap{overflow-x:auto;margin:14px 0 6px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+  th{background:var(--teal-dark);color:#fff;text-align:left;padding:11px 14px;font-size:11.5px;
+     font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+  td{padding:12px 14px;border-bottom:1px solid #EEF3F3;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr:nth-child(even) td{background:#FAFCFC}
+  .pr{font-weight:700;white-space:nowrap;font-size:15px}
+  .note{font-size:12.5px;color:var(--ink3);margin-top:8px}
+  ol.steps{counter-reset:s;list-style:none;margin:16px 0}
+  ol.steps li{position:relative;padding:0 0 20px 54px;counter-increment:s}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:36px;height:36px;
+    background:var(--teal);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Archivo',system-ui,sans-serif;font-weight:800;font-size:16px}
+  ol.steps li::after{content:"";position:absolute;left:17px;top:40px;bottom:4px;width:2px;background:var(--line)}
+  ol.steps li:last-child::after{display:none}
+  ol.steps b{font-family:'Archivo',system-ui,sans-serif;font-stretch:110%;font-size:16px;display:block;margin-bottom:3px}
+  ol.steps p{font-size:14.5px;color:var(--ink2);margin:0}
+  .block{border-radius:12px;padding:18px 20px;margin:14px 0}
+  .block .bt{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+             font-weight:500;margin-bottom:6px}
+  .block p{margin:0;font-size:14.5px}
+  .warn{background:#FDF1EE;border:1px solid #F6D5CD}
+  .warn .bt{color:#B34A38}
+  .warn b.t{font-family:'Archivo',system-ui,sans-serif;font-stretch:110%;display:block;margin-bottom:3px;font-size:15.5px}
+  .tip{background:var(--teal-soft);border:1px solid #CFE0E0}
+  .tip .bt{color:var(--teal)}
+  .case{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--teal);
+        border-radius:0 12px 12px 0;padding:20px 22px;margin:18px 0}
+  .case .bt{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+            color:var(--teal);font-weight:500;margin-bottom:8px}
+  .case p{margin:0;font-size:15px}
+  .lm{background:linear-gradient(135deg,#17323A,#245158);border-radius:16px;padding:28px;margin:38px 0;color:#D9E6E6}
+  .lm .bt{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+          color:var(--mint);margin-bottom:8px}
+  .lm .t{font-family:'Archivo',system-ui,sans-serif;font-stretch:112%;font-weight:800;font-size:21px;color:#fff;margin-bottom:8px}
+  .lm p{color:#C9DBDB;font-size:14.5px;margin-bottom:14px}
+  .lm form{display:flex;gap:10px;flex-wrap:wrap}
+  .lm input{flex:1;min-width:200px;border:none;border-radius:10px;padding:13px 15px;font-size:15px;font-family:inherit}
+  .lm button{border:none;border-radius:10px;background:var(--mint);color:#14312B;font-weight:700;
+             padding:13px 22px;font-size:15px;cursor:pointer;font-family:inherit}
+  .lm button:hover{filter:brightness(1.05)}
+  .okmsg{display:none;margin-top:10px;font-size:13.5px;color:var(--mint);font-weight:600}
+  .faq{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:6px 22px}
+  .faq details{border-bottom:1px solid #EEF3F3;padding:15px 0}
+  .faq details:last-child{border-bottom:none}
+  .faq summary{font-family:'Archivo',system-ui,sans-serif;font-stretch:110%;font-weight:700;font-size:15.5px;cursor:pointer;list-style:none;position:relative;padding-right:26px}
+  .faq summary::after{content:"+";position:absolute;right:2px;top:-2px;font-size:20px;color:var(--teal)}
+  .faq details[open] summary::after{content:"–"}
+  .faq p{margin:10px 0 0;color:var(--ink2);font-size:14.5px}
+  .ctafinal{background:var(--paper);border:1.5px solid var(--teal);border-radius:16px;padding:28px;margin:40px 0 0;text-align:center}
+  .ctafinal .t{font-family:'Archivo',system-ui,sans-serif;font-stretch:112%;font-weight:800;font-size:22px;margin-bottom:8px}
+  .ctafinal p{color:var(--ink2);font-size:14.5px;max-width:480px;margin:0 auto 16px}
+  .btnrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-block;border-radius:10px;padding:14px 26px;font-weight:700;font-size:15px;text-decoration:none}
+  .btn.teal{background:var(--teal);color:#fff}
+  .btn.wa{background:var(--wa);color:#fff}
+  .rel{margin-top:40px;border-top:1px solid var(--line);padding-top:22px}
+  .rel .k{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px}
+  .rel a{display:block;color:var(--teal);text-decoration:none;font-weight:600;font-size:14.5px;padding:5px 0}
+  .rel a:hover{text-decoration:underline}
+  footer.site{border-top:1px solid var(--line);margin-top:30px}
+  footer.site .in{max-width:720px;margin:0 auto;padding:24px 20px;font-size:12.5px;color:var(--ink3);
+                  font-family:'IBM Plex Mono',monospace;text-align:center}
+  a{color:var(--teal)}
+  @media(max-width:560px){.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}}
+
+  .card{display:block;background:var(--paper);border:1px solid var(--line);border-radius:14px;
+        padding:20px 22px;margin-bottom:14px;text-decoration:none;color:var(--ink);transition:border-color .15s}
   .card:hover{border-color:var(--teal)}
+  .card .ce{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:6px}
+  .card b{display:block;font-size:19px;font-weight:800;letter-spacing:-.01em;line-height:1.3;margin-bottom:6px}
+  .card span{font-size:13.5px;color:var(--ink2)}
 </style>
 </head>
 <body>
-<div class="top"></div>
-<div class="wrap">
-  <div class="brand"><a href="/">Equipzilla</a></div>
-  <h1>Guías de compra y precios de maquinaria de ocasión</h1>
-  <p>Precios reales de nuestro stock, qué revisar antes de comprar y cuándo compensa comprar frente a alquilar.</p>
-  <a class="card" href="/guias/precio-miniexcavadora-segunda-mano.html"><b>¿Cuánto cuesta una miniexcavadora de segunda mano?</b><span>miniexcavadora segunda mano precio · actualizado agosto 2026</span></a><a class="card" href="/guias/precio-carretilla-elevadora-segunda-mano.html"><b>¿Cuánto cuesta una carretilla elevadora de segunda mano?</b><span>carretilla elevadora segunda mano precio · actualizado agosto 2026</span></a><a class="card" href="/guias/precio-plataforma-elevadora-usada.html"><b>¿Cuánto cuesta una plataforma elevadora usada?</b><span>plataforma elevadora usada precio · actualizado agosto 2026</span></a><a class="card" href="/guias/precio-manipulador-telescopico-usado.html"><b>¿Cuánto cuesta un manipulador telescópico usado?</b><span>manipulador telescópico usado precio · actualizado agosto 2026</span></a><a class="card" href="/guias/precio-excavadora-usada.html"><b>¿Cuánto cuesta una excavadora usada?</b><span>excavadora usada precio · actualizado agosto 2026</span></a>
-  <a class="card" href="/alquilar-o-comprar-maquinaria.html"><b>¿Alquilar o comprar? Calculadora de ahorro</b><span>alquilar o comprar maquinaria · herramienta interactiva</span></a>
-</div>
+<div class="topbar"></div>
+<header class="site"><div class="in">
+  <a class="logo" href="/">Equipzilla</a>
+  <nav><a class="navl" href="/">Asesor</a><a class="navl" href="/alquilar-o-comprar-maquinaria.html">Calculadora</a><a class="navl" href="/guias/">Guías</a></nav>
+</div></header>
+<main>
+  <div class="eyebrow">Equipzilla · Ocasión</div>
+  <h1>Guías de compra y precios reales</h1>
+  <p class="stand">Lo que nadie publica en este sector: precios reales de stock, qué revisar antes de comprar y cuándo compensa comprar frente a alquilar. Actualizado agosto 2026.</p>
+  <div class="meta">&nbsp;</div>
+  <a class="card" href="/guias/precio-miniexcavadora-segunda-mano.html"><div class="ce mono">miniexcavadora</div><b class="arx">¿Cuánto cuesta una miniexcavadora de segunda mano?</b><span>Tabla de precios con unidades reales en venta, el método para elegir tonelaje sin equivocarte y los errores…</span></a><a class="card" href="/guias/precio-carretilla-elevadora-segunda-mano.html"><div class="ce mono">carretilla elevadora</div><b class="arx">¿Cuánto cuesta una carretilla elevadora de segunda mano?</b><span>Precios reales de eléctricas, diésel y GLP, cómo decidir la energía correcta para tu nave y el error de la…</span></a><a class="card" href="/guias/precio-plataforma-elevadora-usada.html"><div class="ce mono">plataforma elevadora</div><b class="arx">¿Cuánto cuesta una plataforma elevadora usada?</b><span>Tijera o articulada, eléctrica o diésel: precios reales por altura de trabajo y el método para no pagar (ni…</span></a><a class="card" href="/guias/precio-manipulador-telescopico-usado.html"><div class="ce mono">manipulador telescópico</div><b class="arx">¿Cuánto cuesta un manipulador telescópico usado?</b><span>La navaja suiza de la obra: precios reales por alcance y capacidad, qué inspeccionar en una pluma usada y…</span></a><a class="card" href="/guias/precio-excavadora-usada.html"><div class="ce mono">excavadora</div><b class="arx">¿Cuánto cuesta una excavadora usada?</b><span>Precios reales de 14 a 23 toneladas, el coste oculto que puede convertir un chollo en una ruina (el tren de…</span></a>
+  <a class="card" href="/alquilar-o-comprar-maquinaria.html">
+    <div class="ce mono">herramienta</div><b class="arx">¿Alquilar o comprar? Calcula tu ahorro en 30 segundos</b>
+    <span>Mete lo que pagas de alquiler y te decimos cuánto ahorras comprando de ocasión y en cuántos meses lo amortizas.</span></a>
+</main>
+<footer class="site"><div class="in">Equipzilla · Barcelona · 911 238 750 ·
+<a href="https://equipzilla.com">equipzilla.com</a> · Precios + IVA · Stock sujeto a disponibilidad</div></footer>
 <script src="/widget.js" defer></script>
 </body>
 </html>
