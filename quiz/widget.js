@@ -115,8 +115,39 @@
     if (panel.classList.contains("open")) {
       if (!msgs.children.length) paint();
       input.focus();
+      killTeaser();
+      try { sessionStorage.setItem("ezchat_opened", "1"); } catch (e) {}
     }
   });
+
+  // Invitación proactiva: a los 9s, si el visitante no ha abierto el chat,
+  // aparece una burbuja de teaser junto al botón (una vez por sesión).
+  var teaser = null;
+  function killTeaser() {
+    if (teaser) { teaser.remove(); teaser = null; }
+  }
+  try {
+    if (!sessionStorage.getItem("ezchat_opened") && !sessionStorage.getItem("ezchat_teased")) {
+      setTimeout(function () {
+        if (panel.classList.contains("open")) return;
+        sessionStorage.setItem("ezchat_teased", "1");
+        teaser = document.createElement("div");
+        teaser.style.cssText = "position:fixed;bottom:92px;right:22px;z-index:99997;background:#fff;" +
+          "border:1px solid #E1E6E9;border-radius:14px 14px 4px 14px;box-shadow:0 8px 30px rgba(20,40,40,.25);" +
+          "padding:13px 34px 13px 15px;max-width:250px;font-family:system-ui,sans-serif;font-size:13.5px;" +
+          "line-height:1.45;color:#14181C;cursor:pointer";
+        teaser.innerHTML = "👷 ¿No sabes qué máquina necesitas? Cuéntamelo y te digo cuál encaja — <b>gratis, 1 minuto</b>." +
+          '<span style="position:absolute;top:6px;right:10px;color:#9FB0B5;font-size:15px;padding:2px" aria-label="Cerrar">✕</span>';
+        teaser.addEventListener("click", function (ev) {
+          var closing = ev.target.tagName === "SPAN";
+          killTeaser();
+          if (!closing) btn.click();
+        });
+        document.body.appendChild(teaser);
+        setTimeout(killTeaser, 25000);
+      }, 9000);
+    }
+  } catch (e) {}
 
   form.addEventListener("submit", function (ev) {
     ev.preventDefault();
