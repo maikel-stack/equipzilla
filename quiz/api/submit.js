@@ -101,5 +101,43 @@ ${machinesHtml}
     });
     results.push(r.status);
   }
-  return res.status(200).json({ ok: true, sent: results });
+  // Ficha automática por WhatsApp vía respond.io (si hay teléfono).
+  // Nota: si el lead nunca ha escrito a nuestro número, WhatsApp puede exigir
+  // plantilla aprobada — el envío se intenta y si no procede, no rompe nada.
+  let wa = "no-phone";
+  const rt = process.env.RESPONDIO_TOKEN;
+  const channel = Number(process.env.RESPONDIO_CHANNEL || 0);
+  let phone = String(a.telefono || "").replace(/[^+\d]/g, "");
+  if (phone && !phone.startsWith("+")) phone = "+34" + phone;
+  if (rt && channel && phone.length >= 9) {
+    try {
+      const ident = `phone:${phone}`;
+      await fetch(`https://api.respond.io/v2/contact/create_or_update/${encodeURIComponent(ident)}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${rt}`, "content-type": "application/json" },
+        body: JSON.stringify({ firstName: a.nombre || "Lead", lastName: a.empresa || "", phone }),
+      });
+      await fetch(`https://api.respond.io/v2/contact/${encodeURIComponent(ident)}/tag`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${rt}`, "content-type": "application/json" },
+        body: JSON.stringify(["quiz-lead"]),
+      });
+      const ficha = matches.length
+        ? `Hola${a.nombre ? " " + a.nombre : ""}, soy David de Equipzilla 👋 Gracias por contarnos tu proyecto. ` +
+          `Según lo que nos indicas, esta es nuestra recomendación:\n\n🔧 ${matches[0]}` +
+          (body.recomendacion ? `\n\n${String(body.recomendacion).slice(0, 350)}` : "") +
+          `\n\nTe puedo enviar fotos, vídeo e informe de la unidad. ¿Te viene bien que hablemos?`
+        : `Hola${a.nombre ? " " + a.nombre : ""}, soy David de Equipzilla 👋 Hemos recibido tu proyecto. ` +
+          `Ahora mismo no tenemos la máquina exacta en stock, pero la localizamos por encargo. Te escribo en breve con opciones.`;
+      const r = await fetch(`https://api.respond.io/v2/contact/${encodeURIComponent(ident)}/message`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${rt}`, "content-type": "application/json" },
+        body: JSON.stringify({ channelId: channel, message: { type: "text", text: ficha } }),
+      });
+      wa = r.ok ? "sent" : `error-${r.status}`;
+    } catch (e) {
+      wa = "failed";
+    }
+  }
+  return res.status(200).json({ ok: true, sent: results, wa });
 };

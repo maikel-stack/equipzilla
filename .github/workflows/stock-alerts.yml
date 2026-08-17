@@ -1,0 +1,42 @@
+name: Alertas de stock
+
+# Cada mañana compara data/machines.json con el último estado: si hay bajadas
+# de precio o máquinas nuevas, avisa por email a los suscriptores de la lista
+# "Alertas Stock" de Brevo cuya categoría/presupuesto encajen.
+# El catálogo data/machines.json es la fuente: al cambiar un precio o añadir
+# una máquina ahí (commit a la rama por defecto), la alerta sale sola al día
+# siguiente. Necesita el secret BREVO_API_KEY.
+
+on:
+  schedule:
+    # GitHub usa UTC. En horario de verano España (CEST, UTC+2):
+    - cron: "20 7 * * *"   # 09:20 hora España
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  alertas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Detectar cambios y enviar alertas
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          RESPONDIO_TOKEN: ${{ secrets.RESPONDIO_TOKEN }}
+          RESPONDIO_CHANNEL: "403918"
+        run: python scripts/stock_alerts.py
+
+      - name: Guardar estado de precios
+        run: |
+          git config user.name "equipzilla-bot"
+          git config user.email "bot@equipzilla.com"
+          git add scripts/state_stock.json
+          git commit -m "chore: update stock-alerts state [skip ci]" || echo "sin cambios"
+          git push || echo "push omitido"
