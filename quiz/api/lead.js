@@ -63,12 +63,13 @@ module.exports = async (req, res) => {
   }
 
   const a = body.calculo ? analiza(body.calculo) : null;
+  const detalle = String(body.detalle || "").slice(0, 600);
   const resumen = a
     ? `Calculadora alquilar vs comprar — ${a.tipo}: paga ${eur(a.alq)}/mes de alquiler, ` +
       `${a.meses} meses/año, horizonte ${a.anos} años. Alquiler total ${eur(a.totalAlq)} vs ` +
       `compra neta ${eur(a.netoCompra)} → ${a.ahorro > 0 ? "AHORRO " + eur(a.ahorro) : "aún compensa alquilar"} ` +
       `(amortización ~${a.beMeses} meses).`
-    : `Lead de ${origen}.`;
+    : (detalle || `Lead de ${origen}.`);
 
   // aviso al equipo
   const teamHtml = `<div style="font-family:system-ui,sans-serif;font-size:14px;line-height:1.55;color:#14181C;max-width:620px">

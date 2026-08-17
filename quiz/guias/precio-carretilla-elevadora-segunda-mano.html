@@ -110,6 +110,19 @@
                   font-family:'IBM Plex Mono',monospace;text-align:center}
   a{color:var(--teal)}
   @media(max-width:560px){.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}}
+  ul.check{list-style:none;margin:10px 0}
+  ul.check li{position:relative;padding:6px 0 6px 34px;font-size:14.5px;color:#243036}
+  ul.check li::before{content:"✓";position:absolute;left:0;top:6px;width:22px;height:22px;
+    background:var(--teal-soft);color:var(--teal);border-radius:6px;display:flex;align-items:center;
+    justify-content:center;font-weight:700;font-size:13px}
+  .checkgroup{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--teal);margin:20px 0 4px;font-weight:500}
+  .lm .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  .lm label{display:block;font-size:11px;color:#9FBDBD;margin:0 0 4px;
+    font-family:'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
+  .lm .tin{width:100%;border:none;border-radius:10px;padding:12px 14px;font-size:14.5px;font-family:inherit}
+  table.cmp td:first-child{font-weight:600;white-space:nowrap}
+  @media(max-width:560px){.lm .g2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>

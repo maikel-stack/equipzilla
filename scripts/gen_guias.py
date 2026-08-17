@@ -307,6 +307,19 @@ CSS = """
                   font-family:'IBM Plex Mono',monospace;text-align:center}
   a{color:var(--teal)}
   @media(max-width:560px){.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}}
+  ul.check{list-style:none;margin:10px 0}
+  ul.check li{position:relative;padding:6px 0 6px 34px;font-size:14.5px;color:#243036}
+  ul.check li::before{content:"✓";position:absolute;left:0;top:6px;width:22px;height:22px;
+    background:var(--teal-soft);color:var(--teal);border-radius:6px;display:flex;align-items:center;
+    justify-content:center;font-weight:700;font-size:13px}
+  .checkgroup{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--teal);margin:20px 0 4px;font-weight:500}
+  .lm .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  .lm label{display:block;font-size:11px;color:#9FBDBD;margin:0 0 4px;
+    font-family:'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
+  .lm .tin{width:100%;border:none;border-radius:10px;padding:12px 14px;font-size:14.5px;font-family:inherit}
+  table.cmp td:first-child{font-weight:600;white-space:nowrap}
+  @media(max-width:560px){.lm .g2{grid-template-columns:1fr}}
 """
 
 
@@ -448,18 +461,400 @@ function ezAlert(f){{
 </html>"""
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Artículos editoriales (no-precio): pilar, comparativas, garantía, vender.
+# Mismo design system; secciones en HTML usando los componentes existentes.
+# ─────────────────────────────────────────────────────────────────────────────
+ARTICULOS = {
+ "comprar-maquinaria-segunda-mano": {
+  "kw": "comprar maquinaria segunda mano",
+  "eyebrow": "Guía esencial · pilar",
+  "title": "Comprar maquinaria de segunda mano sin pillarse los dedos: la checklist de 21 puntos",
+  "h1": "Cómo comprar maquinaria de segunda mano sin pillarse los dedos",
+  "stand": "Los 4 riesgos reales de la compra de ocasión, la checklist de 21 puntos que usamos antes de poner una máquina a la venta y el proceso para comprar con la misma seguridad que una máquina nueva.",
+  "rapida": "Comprar maquinaria de ocasión es la forma más rápida de capitalizar tu operación — si controlas cuatro riesgos: <b>horas reales</b>, <b>estado estructural</b>, <b>documentación</b> y <b>vendedor</b>. Una máquina reciente con pocas horas, historial documentado e inspección presencial ofrece casi la misma vida útil que una nueva por bastante menos dinero, y con entrega inmediata.",
+  "sections": [
+   ("Por qué ocasión (cuando se hace bien)", """
+<p>Una máquina nueva pierde una parte importante de su valor en los primeros dos años — ese descuento se lo lleva el primer dueño. El comprador de ocasión hereda la mayor parte de la vida útil pagando bastante menos, y sin esperar plazos de entrega: la máquina está en el patio, se prueba y se lleva.</p>
+<p>La otra cara: el mercado de ocasión mezcla máquinas excelentes con máquinas problema, y por fuera se parecen mucho. Todo el juego consiste en distinguirlas <b>antes</b> de pagar.</p>"""),
+   ("Los 4 riesgos que concentran casi todos los disgustos", """
+<ol class="steps">
+<li><b>Horas falseadas</b><p>El horómetro es una pantalla; se cambia. Sin horas certificadas o historial que las respalde, el número no vale nada. Contrasta siempre horas con desgaste real (pedales, asiento, mandos, bulones).</p></li>
+<li><b>Averías estructurales latentes</b><p>Fisuras, soldaduras no originales, holguras en pluma y articulaciones, tren de rodaje al final de su vida. No se ven en fotos: se ven en una inspección presencial con la máquina trabajando.</p></li>
+<li><b>Papeles incompletos</b><p>Sin factura, titularidad clara y documentación técnica (CE, manuales, placas legibles) puedes estar comprando un problema legal además de mecánico.</p></li>
+<li><b>El vendedor equivocado</b><p>Quien no te deja probar la máquina con carga, no responde al porqué de la venta o mete prisa, te está contando algo. Escúchalo.</p></li>
+</ol>"""),
+   ("La checklist de 21 puntos (la nuestra)", """
+<p>Es la revisión que aplicamos antes de poner una unidad a la venta. Úsala tal cual en cualquier compra — también si no nos compras a nosotros.</p>
+<div class="checkgroup">Documentación · 7 puntos</div>
+<ul class="check">
+<li>Factura y titularidad claras (quién vende y con qué derecho)</li>
+<li>Horas certificadas o respaldadas por historial</li>
+<li>Libro / historial de mantenimiento</li>
+<li>Facturas de las reparaciones importantes</li>
+<li>Manual de operador y documentación técnica</li>
+<li>Marcado CE y declaración de conformidad</li>
+<li>Placas de cargas y de identificación legibles</li>
+</ul>
+<div class="checkgroup">Máquina · 8 puntos</div>
+<ul class="check">
+<li>Tren de rodaje o neumáticos: desgaste medido, no estimado</li>
+<li>Fugas hidráulicas en cilindros, latiguillos y bloques</li>
+<li>Holguras en bulones, articulaciones y pluma</li>
+<li>Estructura: fisuras y soldaduras no originales</li>
+<li>Arranque en frío: humos, ruidos, presiones</li>
+<li>Respuesta hidráulica con carga (no en vacío)</li>
+<li>Elementos de seguridad: frenos, luces, cinturón, cabina ROPS/FOPS</li>
+<li>Estado de implementos incluidos (cazos, horquillas…)</li>
+</ul>
+<div class="checkgroup">Operación y vendedor · 6 puntos</div>
+<ul class="check">
+<li>Prueba presencial con carga real</li>
+<li>Desgaste coherente con las horas declaradas</li>
+<li>Quién la usó y en qué tipo de trabajo</li>
+<li>Por qué se vende (la respuesta importa)</li>
+<li>Opción de garantía y contrato de mantenimiento</li>
+<li>Condiciones de entrega y transporte por escrito</li>
+</ul>"""),
+   ("Cómo lo resolvemos en Equipzilla", """
+<p>Nuestro proceso existe para que no tengas que ser tú el experto: cada unidad pasa <b>inspección y prueba presencial</b>, se venden con <b>horas certificadas</b>, y casi todas con <b>opción de garantía, contrato de mantenimiento y financiación</b>. Publicamos los precios — cosa rara en el sector — porque preferimos que compares con datos.</p>
+<div class="block tip"><div class="bt">Consejo del asesor</div><p>Si una máquina te encaja pero algo de la checklist falla, no la descartes de entrada: úsala para negociar. Un tren de rodaje a media vida o una batería dudosa tienen un precio — réstalo de la oferta y decide con números.</p></div>"""),
+  ],
+  "lm": {"type": "alertas", "cat": "todas",
+         "text": "Ahora ya sabes qué revisar. El siguiente problema es encontrar la máquina — y para eso está el mercado vigilado: activa las alertas y te avisamos solo cuando entre una unidad revisada en stock o baje un precio."},
+  "faq": [
+   ("¿Es seguro comprar maquinaria de segunda mano?", "Sí, si la compra incluye horas certificadas, inspección presencial, documentación completa y — idealmente — garantía con contrato de mantenimiento. El riesgo no está en que sea usada: está en comprar a ciegas."),
+   ("¿Qué es mejor: comprar a un particular o a un profesional?", "El particular puede ser algo más barato; el profesional aporta revisión, garantía, factura con IVA deducible y responsabilidad posterior. Para una máquina de trabajo diario, la seguridad suele valer la diferencia."),
+   ("¿Cuánto se ahorra comprando de ocasión?", "Depende de categoría y edad, pero el patrón es constante: la mayor depreciación ocurre en los primeros años. Una unidad reciente con pocas horas ofrece la mayor parte de la vida útil por un precio sensiblemente menor al de nueva."),
+   ("¿Puedo financiar una máquina usada?", "Sí — en Equipzilla casi todas las unidades tienen opción de financiación, además de garantía y contrato de mantenimiento."),
+  ],
+ },
+ "horas-maquinaria-usada": {
+  "kw": "cuántas horas son muchas maquinaria usada",
+  "eyebrow": "Guía técnica",
+  "title": "¿Cuántas horas son muchas en una máquina usada? Tabla de referencia por tipo",
+  "h1": "¿Cuántas horas son muchas en una máquina usada?",
+  "stand": "No existe un número mágico: existe una tabla de referencia por tipo de máquina y una regla que manda sobre todas — el historial vale más que el horómetro.",
+  "rapida": "Depende del tipo de máquina: en una <b>miniexcavadora</b>, menos de 1.500 h es poco uso; una <b>carretilla térmica</b> industrial bien mantenida supera las 15.000 h; una <b>excavadora de 20 t</b> puede pasar de 10.000 h de vida. La regla universal: unas horas altas con historial documentado son mejor compra que unas horas bajas sin papeles.",
+  "sections": [
+   ("Tabla de referencia por tipo de máquina", """
+<div class="tablewrap"><table class="cmp">
+<thead><tr><th>Tipo</th><th>Poco uso</th><th>Uso normal</th><th>Exigir inspección a fondo</th></tr></thead>
+<tbody>
+<tr><td>Miniexcavadora</td><td>&lt; 1.500 h</td><td>1.500 – 3.000 h</td><td>&gt; 5.000 h</td></tr>
+<tr><td>Excavadora 14-23 t</td><td>&lt; 1.000 h</td><td>1.000 – 3.500 h</td><td>&gt; 6.000 h</td></tr>
+<tr><td>Manipulador telescópico</td><td>&lt; 1.000 h</td><td>1.000 – 4.000 h</td><td>&gt; 5.000 h</td></tr>
+<tr><td>Plataforma elevadora</td><td>&lt; 1.500 h</td><td>1.500 – 4.000 h</td><td>&gt; 6.000 h</td></tr>
+<tr><td>Carretilla elevadora</td><td>&lt; 4.000 h</td><td>4.000 – 12.000 h</td><td>&gt; 12.000 h</td></tr>
+</tbody></table></div>
+<p class="note">Rangos orientativos para máquinas con mantenimiento documentado. En plataformas, las revisiones de seguridad al día importan más que el horómetro; en carretillas eléctricas, el estado de la batería puede pesar más que las horas.</p>"""),
+   ("La regla que manda: historial &gt; horómetro", """
+<p>El horómetro es un dato; el historial es una historia completa. Una máquina de 11.000 h con libro de mantenimiento, facturas de taller y un solo operador cuidadoso suele ser mejor compra que una de 6.000 h sin un papel. Las horas dicen cuánto trabajó; el historial dice <b>cómo</b>.</p>
+<div class="block warn"><div class="bt">Error común</div><b class="t">Comparar horas entre tipos distintos</b><p>5.000 h en una carretilla es media vida; en una miniexcavadora es motivo de inspección seria. Cada familia de máquina envejece a su ritmo — usa la tabla, no una cifra universal.</p></div>
+<div class="block warn"><div class="bt">Error común</div><b class="t">"Pocas horas" en una máquina muy vieja</b><p>Los componentes también envejecen por tiempo: gomas, latiguillos, retenes y baterías se degradan aunque la máquina duerma. Una unidad de 15 años con 800 h no es una unidad nueva.</p></div>"""),
+   ("Cómo verificar que las horas son reales", """
+<ol class="steps">
+<li><b>Pide horas certificadas</b><p>En Equipzilla certificamos las horas de cada unidad. Si el vendedor no puede respaldar el horómetro con nada, el número no existe.</p></li>
+<li><b>Contrasta con el desgaste</b><p>Pedales, alfombrilla, asiento, volante y mandos cuentan la verdad: un puesto de conducción destrozado con 2.000 h en pantalla es una contradicción.</p></li>
+<li><b>Cruza con el historial</b><p>Las facturas de taller llevan fecha y horas. Si el mantenimiento de hace dos años se hizo "a las 4.800 h" y hoy marca 3.900, ahí lo tienes.</p></li>
+</ol>"""),
+  ],
+  "lm": {"type": "asesor",
+         "text": "Ahora ya sabes leer un horómetro con criterio. Si quieres saltarte la parte difícil, cuéntale tu proyecto a nuestro asesor: te dice qué unidades del stock encajan — todas con horas certificadas e inspección presencial."},
+  "faq": [
+   ("¿Cuántas horas al año hace una máquina de obra?", "Como referencia, una máquina de uso profesional regular acumula entre 800 y 1.500 h al año; en uso intensivo (producción continua), bastante más. Por eso el binomio año + horas dice más que cualquiera de los dos datos por separado."),
+   ("¿Es malo comprar una máquina ex-alquiler?", "No necesariamente: suelen tener mantenimiento al día aunque uso intenso. La clave es exigir el historial de flota y una inspección seria de los puntos de desgaste."),
+   ("¿El horómetro se puede manipular?", "Sí, y ocurre. Por eso las horas sin historial ni certificación valen poco, y por eso nuestras unidades se venden con horas certificadas y prueba presencial."),
+  ],
+ },
+ "carretilla-electrica-o-diesel": {
+  "kw": "carretilla eléctrica o diésel",
+  "eyebrow": "Comparativa",
+  "title": "¿Carretilla eléctrica o diésel? Cuál comprar según tu nave (comparativa honesta)",
+  "h1": "¿Carretilla eléctrica o diésel? Elige según tu nave, no según la moda",
+  "stand": "La comparativa sin humo (literal): dónde gana cada una, el coste oculto de las eléctricas y los dos casos de nuestro stock que explican la diferencia de precio.",
+  "rapida": "Para trabajo en <b>interior</b> — almacén, alimentación, farma, retail — la carretilla <b>eléctrica</b> gana sin discusión: sin humos, menos ruido y menos mantenimiento. Para <b>exterior intensivo</b>, rampas largas o triple turno sin pausas de carga, la <b>térmica</b> (diésel o GLP) sigue mandando. El error caro es comprar contra tu caso de uso.",
+  "sections": [
+   ("La comparativa, criterio a criterio", """
+<div class="tablewrap"><table class="cmp">
+<thead><tr><th>Criterio</th><th>Eléctrica</th><th>Diésel / GLP</th></tr></thead>
+<tbody>
+<tr><td>Interior</td><td>✅ Ideal (sin humos, silenciosa)</td><td>⚠️ GLP solo con muy buena ventilación</td></tr>
+<tr><td>Exterior / rampas</td><td>⚠️ Correcta con superelásticas</td><td>✅ Su terreno natural</td></tr>
+<tr><td>Mantenimiento</td><td>✅ Menos piezas, menos taller</td><td>Más mantenimiento periódico</td></tr>
+<tr><td>Coste por hora de uso</td><td>✅ Electricidad barata</td><td>Combustible más caro</td></tr>
+<tr><td>Turnos largos</td><td>⚠️ Depende de batería/cargas</td><td>✅ Repostas y sigues</td></tr>
+<tr><td>Coste oculto</td><td>La batería (miles de €)</td><td>Motor y transmisión con horas altas</td></tr>
+</tbody></table></div>"""),
+   ("El coste oculto de cada bando", """
+<p><b>En la eléctrica, la batería es el segundo precio de la máquina.</b> Una batería agotada puede costar varios miles de euros: antes de comprar, exige informe del estado de la batería y el cargador. Una eléctrica barata con batería muerta no es barata.</p>
+<p><b>En la térmica, el coste oculto llega con las horas:</b> motor, transmisión e hidráulica acumulan desgaste que se paga en taller. La defensa es la misma de siempre — historial documentado y prueba con carga.</p>
+<div class="case"><div class="bt">Dos unidades reales de nuestro stock</div><p>Ahora mismo conviven en nuestro stock dos carretillas de 2,5 t: la <b>Clark EPX25</b> eléctrica (2011, solo 801 h) por <b>7.000 €</b> y la <b>Hyster H2.5FT</b> GLP (2019, 11.503 h) por <b>15.000 €</b>. La lección: el precio no va "de energía" — va de horas, estado y configuración. Compara máquinas completas, no etiquetas.</p></div>"""),
+   ("Decídelo en 3 preguntas", """
+<ol class="steps">
+<li><b>¿Dónde trabaja la máquina el 80% del tiempo?</b><p>Interior o mixto → eléctrica (con superelásticas si pisa patio). Exterior puro → térmica.</p></li>
+<li><b>¿Cuántas horas seguidas al día?</b><p>Hasta 4-5 h diarias, cualquier eléctrica con batería sana. Turnos largos o dobles → térmica, o eléctrica con segunda batería (súmala al precio).</p></li>
+<li><b>¿Qué mercancía mueves?</b><p>Alimentación, farma o espacios cerrados con gente → eléctrica por normativa y por convivencia. Obra y áridos → térmica.</p></li>
+</ol>"""),
+  ],
+  "lm": {"type": "alertas", "cat": "carr",
+         "text": "Ahora ya sabes qué energía encaja con tu nave. Deja que el mercado venga a ti: activa las alertas y te avisamos solo cuando una carretilla baje de precio o entre una unidad que encaje."},
+  "faq": [
+   ("¿Cuánto dura la batería de una carretilla eléctrica?", "En ciclos: una batería de plomo bien cuidada aguanta del orden de 1.200-1.500 ciclos de carga. Traducido: con una carga diaria, varios años de vida. Por eso el informe de batería es innegociable al comprar usada."),
+   ("¿Puedo usar una carretilla diésel dentro de una nave?", "Como norma, no: humos y normativa lo desaconsejan. Para interior con necesidad térmica se usa GLP con ventilación adecuada — pero si el trabajo es mayoritariamente interior, la eléctrica es la respuesta correcta."),
+   ("¿Qué es más barata de mantener?", "La eléctrica: menos piezas móviles, sin aceites de motor ni filtros de combustible. Su gasto grande es la batería al final de su vida — planifícalo."),
+  ],
+ },
+ "plataforma-tijera-o-articulada": {
+  "kw": "plataforma tijera o articulada",
+  "eyebrow": "Comparativa",
+  "title": "¿Plataforma de tijera o articulada? Cuál comprar según tu trabajo en altura",
+  "h1": "¿Plataforma de tijera o articulada? La diferencia se paga — que sea por algo",
+  "stand": "A la misma altura, una articulada puede costar el doble que una tijera. Cuándo ese sobreprecio está justificado y cuándo estás pagando movimientos que nunca usarás.",
+  "rapida": "La <b>tijera</b> sube en vertical: más cesta, más carga y menos precio — perfecta para mantenimiento e instalaciones sobre suelo firme. La <b>articulada</b> añade brazo y plumín para salvar obstáculos y acceder lateralmente — y eso se paga. Regla práctica: si no tienes que \"asomarte\" por encima o por dentro de nada, la tijera gana en casi todo.",
+  "sections": [
+   ("La comparativa, criterio a criterio", """
+<div class="tablewrap"><table class="cmp">
+<thead><tr><th>Criterio</th><th>Tijera</th><th>Articulada</th></tr></thead>
+<tbody>
+<tr><td>Movimiento</td><td>Vertical puro</td><td>✅ Vertical + horizontal + sobre obstáculos</td></tr>
+<tr><td>Cesta y carga</td><td>✅ Más grande, más personas/material</td><td>Más pequeña</td></tr>
+<tr><td>Precio a igual altura</td><td>✅ Sensiblemente menor</td><td>Mayor (pagas el brazo)</td></tr>
+<tr><td>Acceso lateral</td><td>❌ No llega</td><td>✅ Su razón de ser</td></tr>
+<tr><td>Uso típico</td><td>Naves, instalaciones, mantenimiento</td><td>Fachadas, cubiertas, industria con obstáculos</td></tr>
+</tbody></table></div>
+<div class="case"><div class="bt">La diferencia, con precios reales</div><p>En nuestro stock actual: la <b>Haulotte Compact 10</b> (tijera eléctrica, 10 m, 1.116 h) cuesta <b>5.500 €</b>; la <b>Genie Z-34/22</b> (articulada diésel, 12 m) cuesta <b>10.500 €</b>. A alturas comparables, la articulada prácticamente <b>duplica</b> el precio. Si tu trabajo es vertical, ese dinero extra no te compra nada.</p></div>"""),
+   ("Cuándo la articulada SÍ vale su precio", """
+<ul class="check">
+<li>Tienes que salvar estanterías, máquinas o cornisas para llegar al punto de trabajo</li>
+<li>Necesitas acceso lateral (fachadas, estructuras, árboles, carteles)</li>
+<li>El punto de trabajo no está encima de donde puede pisar la máquina</li>
+<li>Trabajas en exterior con terreno irregular (articulada diésel 4x4)</li>
+</ul>
+<p>Si has marcado alguna, la articulada no es un capricho: es la única que hace el trabajo. Si no has marcado ninguna, vuelve a la tijera y quédate el ahorro.</p>
+<div class="block warn"><div class="bt">Error común</div><b class="t">Comprar articulada "por si acaso"</b><p>El "por si acaso" cuesta miles de euros, más peso, más transporte y más mantenimiento. Compra para el trabajo que haces cada semana, no para el que imaginas una vez al año — ese día, alquilas.</p></div>
+<div class="block tip"><div class="bt">Consejo del asesor</div><p>Para mantenimiento de naves logísticas, la tijera eléctrica de 10-14 m es la compra más repetida y con mejor reventa. Y si dudas entre 10 y 14 m: mide tu techo real — cada metro de más se paga tres veces (precio, peso, transporte).</p></div>"""),
+  ],
+  "lm": {"type": "alertas", "cat": "plat",
+         "text": "Ahora ya sabes qué tipo encaja. Las plataformas buenas de ocasión rotan rápido: activa las alertas y te avisamos solo cuando una baje de precio o entre una nueva en stock."},
+  "faq": [
+   ("¿Qué altura de plataforma necesito?", "Altura del punto más alto que tocas + margen. Recuerda que la 'altura de trabajo' del catálogo ya suma unos 2 m de la persona sobre la cesta: para un techo de 8 m te basta una plataforma de 10 m de altura de trabajo."),
+   ("¿Eléctrica o diésel en plataformas?", "Interior y suelos delicados → eléctrica. Exterior y terreno irregular → diésel 4x4. Las bi-energía cubren ambos mundos y por eso se cotizan más."),
+   ("¿Qué revisiones debe tener una plataforma usada?", "Las revisiones de seguridad periódicas al día — son la ITV de la elevación de personas. Nuestras unidades se entregan revisadas, con inspección presencial y opción de garantía y mantenimiento."),
+  ],
+ },
+ "garantia-maquinaria-ocasion": {
+  "kw": "garantía maquinaria segunda mano",
+  "eyebrow": "Compra segura",
+  "title": "Garantía en maquinaria de segunda mano: qué debe incluir una compra segura",
+  "h1": "Garantía en maquinaria de ocasión: qué exigir para comprar tranquilo",
+  "stand": "Qué cubre (y qué no) una garantía de verdad, las 5 preguntas que hacer antes de pagar y las señales de alarma que delatan al vendedor equivocado.",
+  "rapida": "Una compra segura de maquinaria usada se apoya en cinco piezas: <b>inspección presencial con prueba</b>, <b>horas certificadas</b>, <b>documentación completa</b> (factura, CE, historial), <b>opción de garantía</b> — idealmente con contrato de mantenimiento — y un <b>vendedor que responde</b> después de cobrar. Si faltan varias, el precio barato es solo el primer pago.",
+  "sections": [
+   ("Las 5 piezas de una compra protegida", """
+<ol class="steps">
+<li><b>Inspección presencial con prueba</b><p>Ver la máquina trabajando con carga. Cualquier vendedor serio te lo permite; cualquier excusa es información.</p></li>
+<li><b>Horas certificadas</b><p>El horómetro respaldado por historial o certificación. Sin eso, estás comprando un número decorativo.</p></li>
+<li><b>Documentación completa</b><p>Factura con IVA, titularidad, marcado CE, manuales y placas legibles. Los papeles también son la máquina.</p></li>
+<li><b>Garantía por escrito</b><p>Qué cubre, cuánto tiempo, quién la atiende y dónde. Una garantía verbal es una anécdota, no una garantía.</p></li>
+<li><b>Mantenimiento con contrato</b><p>La mejor garantía es que la máquina llegue revisada y siga revisada: un contrato de mantenimiento anual convierte la compra usada en una operación predecible.</p></li>
+</ol>"""),
+   ("Las 5 preguntas antes de pagar", """
+<ul class="check">
+<li>¿Puedo probarla con carga y traer a mi mecánico o un perito?</li>
+<li>¿Las horas están certificadas o respaldadas por historial?</li>
+<li>¿Qué cubre exactamente la garantía y quién responde?</li>
+<li>¿Por qué se vende esta unidad?</li>
+<li>¿Qué incluye la entrega (transporte, implementos, puesta en marcha)?</li>
+</ul>
+<div class="block warn"><div class="bt">Señal de alarma</div><b class="t">Prisa, pagos raros y "está en otro sitio"</b><p>Presión para señalizar hoy, pagos por adelantado a cuentas extrañas o máquinas que "ahora mismo están en otro país": el clásico completo. Una máquina que no puedes ver trabajando no existe.</p></div>"""),
+   ("Cómo funciona en Equipzilla", """
+<p>Casi todas nuestras unidades en venta tienen <b>opción de garantía, contrato de mantenimiento y financiación</b>. Todas pasan <b>inspección y prueba presencial</b> antes de la compra, con <b>horas certificadas</b> y documentación en regla. Y publicamos los precios para que compares sin llamar a nadie — aunque cuando llames, David te atiende igual de a gusto.</p>"""),
+  ],
+  "lm": {"type": "asesor",
+         "text": "Ahora ya sabes qué exigir. Ponnos a prueba: cuéntale tu proyecto al asesor y te propone unidades del stock que ya cumplen esta lista entera — inspección, horas certificadas y opción de garantía incluidas."},
+  "faq": [
+   ("¿La maquinaria de segunda mano tiene garantía legal?", "Entre empresas, la garantía es principalmente lo que se pacte en el contrato — por eso importa tanto que esté por escrito y con cobertura clara. En Equipzilla ofrecemos opción de garantía con contrato de mantenimiento en casi todas las unidades."),
+   ("¿Qué suele cubrir una garantía de maquinaria usada?", "Depende del acuerdo: lo habitual es cubrir componentes principales (motor, hidráulica, transmisión) durante un periodo definido. Exige el detalle por escrito: qué componentes, cuánto tiempo, quién repara y dónde."),
+   ("¿Merece la pena pagar por un contrato de mantenimiento?", "En una máquina de trabajo diario, casi siempre: convierte averías imprevisibles en un coste planificado y alarga la vida de la máquina. Además protege su valor de reventa."),
+  ],
+ },
+ "vender-maquinaria-usada": {
+  "kw": "vender maquinaria usada",
+  "eyebrow": "Vende tu máquina",
+  "title": "Vender tu maquinaria usada: cómo conseguir el mejor precio (sin perder meses)",
+  "h1": "¿Vendes tu máquina? Así consigues el mejor precio sin perder meses",
+  "stand": "Qué hace que una máquina usada valga más (o menos), la documentación que multiplica ofertas y cómo conseguir una tasación seria en 24 horas.",
+  "rapida": "El precio de venta de una máquina usada lo deciden cuatro cosas: <b>horas con respaldo documental</b>, <b>estado real</b>, <b>documentación completa</b> y <b>el canal de venta</b>. Una máquina con historial y papeles se vende antes y mejor; una máquina sin documentar se malvende siempre. Si quieres número ya: tasación express en 24 h más abajo.",
+  "sections": [
+   ("Qué sube (y qué hunde) el precio de tu máquina", """
+<div class="tablewrap"><table class="cmp">
+<thead><tr><th>Factor</th><th>Suma</th><th>Resta</th></tr></thead>
+<tbody>
+<tr><td>Horas</td><td>Certificadas y coherentes con el desgaste</td><td>Horómetro sin respaldo</td></tr>
+<tr><td>Historial</td><td>Libro + facturas de mantenimiento</td><td>"Siempre la hemos cuidado" (sin papeles)</td></tr>
+<tr><td>Documentación</td><td>Factura, CE, manuales, placas</td><td>Papeles perdidos</td></tr>
+<tr><td>Estado</td><td>Fugas resueltas, neumáticos/cadenas con vida</td><td>Averías "pequeñas" sin reparar</td></tr>
+<tr><td>Momento</td><td>Vender con la máquina trabajando</td><td>Vender parada y con prisa</td></tr>
+</tbody></table></div>
+<div class="block tip"><div class="bt">Consejo del asesor</div><p>Reunir el historial de mantenimiento antes de anunciar la máquina es la hora mejor pagada de toda la venta: convierte tu anuncio en el único del listado con pruebas.</p></div>"""),
+   ("Particular o profesional: los dos caminos", """
+<p><b>Venta directa a otro usuario final:</b> puedes arañar algo más de precio, a cambio de semanas o meses de llamadas, visitas, regateos y el riesgo de impago o reclamaciones posteriores.</p>
+<p><b>Venta a un profesional de la compraventa:</b> cobras antes, sin desfile de curiosos, con la operación documentada. El precio es de mercado mayorista — pero neto de tu tiempo, tus anuncios y tu riesgo, la distancia suele ser mucho menor de lo que parece.</p>
+<div class="block warn"><div class="bt">Error común</div><b class="t">Poner el precio por corazonada</b><p>Ni el precio de compra de hace 6 años ni "lo que pide uno en internet" son referencias. La referencia es lo que se está pagando hoy por unidades comparables — año, horas, estado. Pide tasación con datos antes de anunciar nada.</p></div>"""),
+  ],
+  "lm": {"type": "tasacion",
+         "text": "Ahora ya sabes qué hace valiosa tu máquina. Si quieres el número sin trabajo: dinos qué tienes y te damos una tasación seria — y si encaja, oferta de compra — en 24 horas laborables."},
+  "faq": [
+   ("¿Cuánto vale mi máquina usada?", "Depende de modelo, año, horas y estado — y del respaldo documental. Envíanos los datos con el formulario de tasación y te damos una valoración con datos de mercado en 24 h laborables, sin compromiso."),
+   ("¿Compráis maquinaria directamente?", "Sí: compramos unidades que encajan con nuestra demanda (miniexcavadoras, excavadoras, carretillas, plataformas, telescópicos y palas). Tasación en 24 h y pago sin demoras si hay acuerdo."),
+   ("¿Qué necesito para vender mi máquina rápido?", "Horas verificables, historial de mantenimiento, factura y fotos honestas (incluyendo el desgaste). Con eso, cualquier comprador serio puede decidir rápido — y pagar mejor."),
+  ],
+ },
+}
+
+
+def lm_block(lm):
+    text = lm["text"]
+    if lm["type"] == "alertas":
+        cat = lm.get("cat", "todas")
+        label = CAT_QUIZ_LABEL.get(cat, "todas")
+        return f"""<div class="lm">
+    <div class="bt">Lead magnet · alertas de precio</div>
+    <div class="t">Que el mercado trabaje para ti</div>
+    <p>{text}</p>
+    <form onsubmit="return ezAlert(this)">
+      <input type="email" name="email" placeholder="tu@email.com" required>
+      <button type="submit">Activar mis alertas</button>
+    </form>
+    <div class="okmsg">✓ Alertas activadas — revisa tu email.</div>
+  </div>
+  <script>
+  function ezAlert(f){{
+    fetch("/api/subscribe",{{method:"POST",headers:{{"Content-Type":"application/json"}},
+      body:JSON.stringify({{email:f.email.value.trim(),categoria:{json.dumps(label)}}})}})
+      .then(function(){{ f.style.display="none"; f.parentNode.querySelector(".okmsg").style.display="block"; }});
+    return false;
+  }}
+  </script>"""
+    if lm["type"] == "tasacion":
+        return f"""<div class="lm" id="tasacion">
+    <div class="bt">Tasación express · respuesta en 24 h</div>
+    <div class="t">¿Cuánto vale tu máquina? Te lo decimos con datos</div>
+    <p>{text}</p>
+    <form onsubmit="return ezTas(this)" style="display:block">
+      <div class="g2">
+        <div><label>Marca y modelo</label><input class="tin" name="modelo" placeholder="Ej. Kubota KX 057-4" required></div>
+        <div><label>Año</label><input class="tin" name="ano" type="number" min="1990" max="2026" placeholder="2019"></div>
+      </div>
+      <div class="g2">
+        <div><label>Horas aprox.</label><input class="tin" name="horas" type="number" min="0" placeholder="3.500"></div>
+        <div><label>Teléfono</label><input class="tin" name="tel" type="tel" placeholder="600 000 000" required></div>
+      </div>
+      <label>Email</label><input class="tin" name="email" type="email" placeholder="tu@email.com" style="margin-bottom:12px" required>
+      <button type="submit" style="width:100%">Pedir mi tasación gratuita</button>
+    </form>
+    <div class="okmsg">✓ Recibido — te damos la tasación en 24 h laborables.</div>
+  </div>
+  <script>
+  function ezTas(f){{
+    var d="TASACIÓN — "+f.modelo.value+" · año "+(f.ano.value||"?")+" · "+(f.horas.value||"?")+" h";
+    fetch("/api/lead",{{method:"POST",headers:{{"Content-Type":"application/json"}},
+      body:JSON.stringify({{origen:"tasacion",nombre:f.modelo.value,telefono:f.tel.value,
+        email:f.email.value.trim(),detalle:d}})}})
+      .then(function(){{ f.style.display="none"; f.parentNode.querySelector(".okmsg").style.display="block"; }});
+    return false;
+  }}
+  </script>"""
+    # asesor
+    return f"""<div class="lm">
+    <div class="bt">Siguiente paso</div>
+    <div class="t">Dinos el trabajo, no la máquina</div>
+    <p>{text}</p>
+    <a class="btn" style="background:var(--mint);color:#14312B" href="{BASE}/">Hablar con el asesor de compra →</a>
+  </div>"""
+
+
+def article_page(slug, a):
+    faq_html = "".join(f"<details><summary>{q}</summary><p>{ans}</p></details>" for q, ans in a["faq"])
+    faq_schema = json.dumps({
+        "@context": "https://schema.org", "@type": "FAQPage",
+        "mainEntity": [{"@type": "Question", "name": q,
+                        "acceptedAnswer": {"@type": "Answer", "text": ans}} for q, ans in a["faq"]]},
+        ensure_ascii=False)
+    body = "".join(f"<h2>{h2}</h2>\n{html}" for h2, html in a["sections"])
+    todo = {**{s: g["h1"] for s, g in GUIAS.items()}, **{s: x["h1"] for s, x in ARTICULOS.items()}}
+    rel = "".join(f'<a href="/guias/{s}.html">→ {h1}</a>'
+                  for s, h1 in todo.items() if s != slug)
+    words = len(re.sub("<[^>]+>", " ", a["stand"] + a["rapida"] + body).split())
+    mins = max(3, round(words / 190))
+    desc = re.sub("<[^>]+>", "", a["rapida"])[:152].rsplit(" ", 1)[0] + "…"
+    wa_cta = ("https://wa.me/34606836581?text=Hola,%20quiero%20vender%20mi%20m%C3%A1quina%20y%20pido%20tasaci%C3%B3n"
+              if a["lm"]["type"] == "tasacion" else
+              "https://wa.me/34606836581?text=Hola,%20vengo%20de%20las%20gu%C3%ADas%20de%20Equipzilla%20y%20quiero%20que%20me%20asesor%C3%A9is")
+    return f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{a["title"]} | Equipzilla</title>
+<meta name="description" content="{desc}">
+<link rel="canonical" href="{BASE}/guias/{slug}.html">
+{FONTS}
+<script type="application/ld+json">{faq_schema}</script>
+<style>{CSS}</style>
+</head>
+<body>
+{header_html()}
+<main>
+  <div class="eyebrow">{a["eyebrow"]}</div>
+  <h1>{a["h1"]}</h1>
+  <p class="stand">{a["stand"]}</p>
+  <div class="meta">Actualizado {HOY} · {mins} min de lectura · Equipo Equipzilla</div>
+
+  <div class="rapida"><div class="k">Respuesta rápida</div><p>{a["rapida"]}</p></div>
+
+  {body}
+
+  {lm_block(a["lm"])}
+
+  <h2>Preguntas frecuentes</h2>
+  <div class="faq">{faq_html}</div>
+
+  <div class="ctafinal">
+    <div class="t">¿Hablamos de tu caso concreto?</div>
+    <p>Un mensaje y te decimos qué haríamos en tu situación — con unidades y precios reales, sin compromiso.</p>
+    <div class="btnrow">
+      <a class="btn teal" href="{BASE}/">Asesor de compra</a>
+      <a class="btn wa" href="{wa_cta}">WhatsApp directo</a>
+    </div>
+  </div>
+
+  <div class="rel"><div class="k">Sigue leyendo</div>
+    <a href="/alquilar-o-comprar-maquinaria.html">→ ¿Alquilar o comprar? Calcula tu ahorro en 30 segundos</a>
+    {rel}
+  </div>
+</main>
+{FOOTER}
+<script src="/widget.js" defer></script>
+</body>
+</html>"""
+
+
 def index_page():
-    cards = "".join(
-        f'<a class="card" href="/guias/{slug}.html">'
-        f'<div class="ce mono">{g["label"]}</div><b class="arx">{g["h1"]}</b>'
-        f'<span>{g["stand"][:110].rsplit(" ", 1)[0]}…</span></a>'
-        for slug, g in GUIAS.items())
+    def card(href, eyebrow, t, s):
+        return (f'<a class="card" href="{href}"><div class="ce mono">{eyebrow}</div>'
+                f'<b class="arx">{t}</b><span>{s[:120].rsplit(" ", 1)[0]}…</span></a>')
+    precios = "".join(card(f"/guias/{s}.html", g["label"], g["h1"], g["stand"])
+                      for s, g in GUIAS.items())
+    guias = "".join(card(f"/guias/{s}.html", a["eyebrow"], a["h1"], a["stand"])
+                    for s, a in ARTICULOS.items())
     return f"""<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Guías de compra y precios de maquinaria de ocasión | Equipzilla</title>
-<meta name="description" content="Precios reales de stock y guías de compra de maquinaria de segunda mano: miniexcavadoras, carretillas, plataformas, telescópicos y excavadoras. Actualizado {HOY}.">
+<meta name="description" content="Precios reales de stock y guías de compra de maquinaria de segunda mano: qué revisar, alquilar o comprar, garantías y tasación. Actualizado {HOY}.">
 <link rel="canonical" href="{BASE}/guias/">
 {FONTS}
 <style>{CSS}
@@ -469,6 +864,7 @@ def index_page():
   .card .ce{{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:6px}}
   .card b{{display:block;font-size:19px;font-weight:800;letter-spacing:-.01em;line-height:1.3;margin-bottom:6px}}
   .card span{{font-size:13.5px;color:var(--ink2)}}
+  h2.sec{{margin-top:36px}}
 </style>
 </head>
 <body>
@@ -476,12 +872,18 @@ def index_page():
 <main>
   <div class="eyebrow">Equipzilla · Ocasión</div>
   <h1>Guías de compra y precios reales</h1>
-  <p class="stand">Lo que nadie publica en este sector: precios reales de stock, qué revisar antes de comprar y cuándo compensa comprar frente a alquilar. Actualizado {HOY}.</p>
-  <div class="meta">&nbsp;</div>
-  {cards}
+  <p class="stand">Lo que nadie publica en este sector: precios reales de stock, qué revisar antes de comprar, cuándo compensa comprar frente a alquilar — y cuánto vale tu máquina si vendes.</p>
+  <div class="meta">Actualizado {HOY}</div>
+
   <a class="card" href="/alquilar-o-comprar-maquinaria.html">
     <div class="ce mono">herramienta</div><b class="arx">¿Alquilar o comprar? Calcula tu ahorro en 30 segundos</b>
     <span>Mete lo que pagas de alquiler y te decimos cuánto ahorras comprando de ocasión y en cuántos meses lo amortizas.</span></a>
+
+  <h2 class="sec">Guías de compra</h2>
+  {guias}
+
+  <h2 class="sec">Precios por categoría (stock real)</h2>
+  {precios}
 </main>
 {FOOTER}
 <script src="/widget.js" defer></script>
@@ -494,10 +896,14 @@ def main():
     for slug, g in GUIAS.items():
         open(os.path.join(OUT, slug + ".html"), "w").write(page(slug, g))
         print("✓", slug)
+    for slug, a in ARTICULOS.items():
+        open(os.path.join(OUT, slug + ".html"), "w").write(article_page(slug, a))
+        print("✓", slug)
     open(os.path.join(OUT, "index.html"), "w").write(index_page())
     print("✓ index")
-    urls = [f"{BASE}/", f"{BASE}/alquilar-o-comprar-maquinaria.html",
-            f"{BASE}/guias/"] + [f"{BASE}/guias/{s}.html" for s in GUIAS]
+    urls = [f"{BASE}/", f"{BASE}/alquilar-o-comprar-maquinaria.html", f"{BASE}/guias/"] \
+        + [f"{BASE}/guias/{s}.html" for s in GUIAS] \
+        + [f"{BASE}/guias/{s}.html" for s in ARTICULOS]
     sm = ('<?xml version="1.0" encoding="UTF-8"?>\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           + "".join(f"  <url><loc>{u}</loc></url>\n" for u in urls) + "</urlset>\n")
