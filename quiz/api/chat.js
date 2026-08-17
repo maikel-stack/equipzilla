@@ -9,6 +9,7 @@
 
 const Anthropic = require("@anthropic-ai/sdk");
 const FALLBACK_MACHINES = require("./machines.json");
+const { pushToPipedrive } = require("./_lead.js");
 
 const MODEL = "claude-opus-5";
 // data/machines.json en la rama por defecto: al actualizar el catálogo ahí,
@@ -195,6 +196,12 @@ ${maquinas.length ? "<p><strong>Máquinas recomendadas en el chat:</strong></p><
       out.wa = "failed";
     }
   }
+  // Registro automático en Pipedrive (Transaccional · Lead - Recibido).
+  out.crm = (await pushToPipedrive({
+    nombre: lead.nombre, empresa: lead.empresa, telefono: lead.telefono,
+    zona: lead.zona, resumen: lead.resumen, maquinas,
+    origen: "chatbot",
+  })).ok;
   return out;
 }
 

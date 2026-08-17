@@ -12,16 +12,26 @@ function esc(s) {
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
+  if (req.method !== "POST" && req.method !== "GET") {
+    return res.status(405).json({ error: "GET o POST" });
+  }
 
   const key = process.env.BREVO_API_KEY;
   if (!key) return res.status(500).json({ error: "BREVO_API_KEY no configurada" });
 
-  const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
+  // GET = alta con un clic desde un email de campaña:
+  // /api/subscribe?email={{contact.EMAIL}}&categoria=todas
+  const isOneClick = req.method === "GET";
+  const body = isOneClick
+    ? (req.query || {})
+    : (typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {}));
   const email = String(body.email || "").trim().toLowerCase();
+  if (isOneClick && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return res.status(400).send("Falta el email. Escríbenos a clientes@equipzilla.com y te damos de alta.");
+  }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return res.status(400).json({ error: "email inválido" });
   }
@@ -68,5 +78,18 @@ module.exports = async (req, res) => {
     }),
   });
 
+  if (isOneClick) {
+    res.setHeader("content-type", "text/html; charset=utf-8");
+    return res.status(200).send(`<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Alertas activadas · Equipzilla</title></head>
+<body style="margin:0;background:#F5F8F8;font-family:system-ui,sans-serif;color:#14181C">
+<div style="max-width:460px;margin:60px auto;padding:0 18px;text-align:center">
+<div style="font-size:44px">🔔</div>
+<h1 style="font-size:24px;margin:10px 0 8px">Alertas activadas</h1>
+<p style="font-size:15px;color:#4A5C5E;line-height:1.6">Te avisaremos en <b>${esc(email)}</b> cuando una máquina baje de precio o entre una nueva que encaje. Sin spam.</p>
+<a href="https://equipzilla-quiz.vercel.app" style="display:inline-block;margin-top:18px;background:#387E7F;color:#fff;font-weight:700;padding:13px 22px;border-radius:10px;text-decoration:none">Ver el asesor de compra</a>
+<p style="font-size:12px;color:#788B8D;margin-top:22px">Equipzilla · 911 238 750 · clientes@equipzilla.com</p>
+</div></body></html>`);
+  }
   return res.status(200).json({ ok: true });
 };

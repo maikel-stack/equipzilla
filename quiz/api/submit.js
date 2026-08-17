@@ -2,6 +2,8 @@
 // informe por email al equipo comercial vía Brevo.
 // La API key de Brevo vive SOLO en la variable de entorno BREVO_API_KEY.
 
+const { pushToPipedrive } = require("./_lead.js");
+
 const TEAM = [
   { email: "david@equipzilla.com", name: "David" },
   { email: "andres@equipzilla.com", name: "Andrés" },
@@ -139,5 +141,15 @@ ${machinesHtml}
       wa = "failed";
     }
   }
-  return res.status(200).json({ ok: true, sent: results, wa });
+  // Registro automático en Pipedrive (Transaccional · Lead - Recibido).
+  // En modo test no se crean deals.
+  let crm = { ok: false };
+  if (!body.test) {
+    crm = await pushToPipedrive({
+      nombre: a.nombre, empresa: a.empresa, telefono: a.telefono, zona: a.zona,
+      resumen: body.recomendacion || "", maquinas: matches, intent: score,
+      origen: "quiz",
+    });
+  }
+  return res.status(200).json({ ok: true, sent: results, wa, crm: crm.ok });
 };
