@@ -3,3 +3,4 @@ leads/
 .vercel/
 .env*.local
 node_modules/
+__pycache__/
