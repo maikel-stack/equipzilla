@@ -1,0 +1,292 @@
+[
+ {
+  "img": "KB298",
+  "n": "Kubota KX 016-4 G",
+  "c": "mini",
+  "y": 2024,
+  "h": 250,
+  "p": 18900,
+  "e": false,
+  "s": "0,8 t"
+ },
+ {
+  "img": "KB210",
+  "n": "Kubota K 008-5",
+  "c": "mini",
+  "y": 2023,
+  "h": 700,
+  "p": 13900,
+  "e": false,
+  "s": "1 t"
+ },
+ {
+  "img": "DX279PT",
+  "n": "Develon DX 27 Z-7",
+  "c": "mini",
+  "y": 2023,
+  "h": 650,
+  "p": 31900,
+  "e": false,
+  "s": "2,7 t · giro cero"
+ },
+ {
+  "img": "KB284PT",
+  "n": "Kubota KX 030-4 GL",
+  "c": "mini",
+  "y": 2023,
+  "h": 700,
+  "p": 35900,
+  "e": false,
+  "s": "3 t"
+ },
+ {
+  "img": "KB313",
+  "n": "Kubota U 36-4 GL",
+  "c": "mini",
+  "y": 2023,
+  "h": 650,
+  "p": 32500,
+  "e": false,
+  "s": "3,8 t"
+ },
+ {
+  "img": "KB187",
+  "n": "Kubota KX 037-4 GL",
+  "c": "mini",
+  "y": 2023,
+  "h": 1150,
+  "p": 32500,
+  "e": false,
+  "s": "3,8 t"
+ },
+ {
+  "img": "KB176",
+  "n": "Kubota U 50-5",
+  "c": "mini",
+  "y": 2023,
+  "h": 1150,
+  "p": 44500,
+  "e": false,
+  "s": "5 t"
+ },
+ {
+  "img": "KB203OQ",
+  "n": "Kubota KX 060-5",
+  "c": "mini",
+  "y": 2023,
+  "h": 1100,
+  "p": 65900,
+  "e": false,
+  "s": "6 t"
+ },
+ {
+  "img": "KB121",
+  "n": "Kubota KX 080-4",
+  "c": "mini",
+  "y": 2022,
+  "h": 2150,
+  "p": 56900,
+  "e": false,
+  "s": "8 t"
+ },
+ {
+  "img": "KB212PT",
+  "n": "Kubota KX 080-4 V",
+  "c": "mini",
+  "y": 2023,
+  "h": 1750,
+  "p": 71900,
+  "e": false,
+  "s": "8 t · pluma ajustable"
+ },
+ {
+  "img": "DX1499OQPT",
+  "n": "Doosan DX 140 LCR-5",
+  "c": "exca",
+  "y": 2020,
+  "h": 2900,
+  "p": 87500,
+  "e": false,
+  "s": "14 t"
+ },
+ {
+  "img": "DX165OQBSG",
+  "n": "Doosan DX 165 WR-7",
+  "c": "exca",
+  "y": 2022,
+  "h": 3300,
+  "p": 109500,
+  "e": false,
+  "s": "17 t · ruedas"
+ },
+ {
+  "img": "DX2102OQ",
+  "n": "Doosan DX 210 LC-7",
+  "c": "exca",
+  "y": 2022,
+  "h": 810,
+  "p": 116900,
+  "e": false,
+  "s": "22 t"
+ },
+ {
+  "img": "D22529OQT",
+  "n": "Doosan DX 225 LC-7 Topcon",
+  "c": "exca",
+  "y": 2022,
+  "h": 800,
+  "p": 139900,
+  "e": false,
+  "s": "23 t · GPS 3D"
+ },
+ {
+  "img": "DL42010",
+  "n": "Doosan DL 420 CVT-7",
+  "c": "pala",
+  "y": 2023,
+  "h": 1700,
+  "p": 197900,
+  "e": false,
+  "s": "23 t · cuchara 4,5 m³"
+ },
+ {
+  "img": "GAM-MANITOU170",
+  "n": "Manitou 170 AETJL",
+  "c": "plat",
+  "y": 2016,
+  "h": null,
+  "p": 17100,
+  "e": true,
+  "s": "17 m · articulada bi-energía"
+ },
+ {
+  "img": "GAM-HA20PX06",
+  "n": "Haulotte HA20PX",
+  "c": "plat",
+  "y": 2006,
+  "h": 7080,
+  "p": 13500,
+  "e": false,
+  "s": "20 m · articulada diésel"
+ },
+ {
+  "img": "GAM-GENIEZ3422",
+  "n": "Genie Z-34/22 IC",
+  "c": "plat",
+  "y": 2007,
+  "h": 6119,
+  "p": 10500,
+  "e": false,
+  "s": "12 m · articulada diésel"
+ },
+ {
+  "img": "GAM-COMPACT10",
+  "n": "Haulotte Compact 10",
+  "c": "plat",
+  "y": 2011,
+  "h": 1116,
+  "p": 5500,
+  "e": true,
+  "s": "10 m · tijera eléctrica"
+ },
+ {
+  "img": "TH-MAGNI",
+  "n": "Magni TH 5.5.15",
+  "c": "tele",
+  "y": 2022,
+  "h": 575,
+  "p": 70000,
+  "e": false,
+  "s": "5,5 t · 15 m"
+ },
+ {
+  "img": "TH-MERLO",
+  "n": "Merlo P 27.6 Plus",
+  "c": "tele",
+  "y": 2023,
+  "h": 1000,
+  "p": 58500,
+  "e": false,
+  "s": "2,7 t · 6 m"
+ },
+ {
+  "img": "TH-JCB535",
+  "n": "JCB 535-125",
+  "c": "tele",
+  "y": 2010,
+  "h": null,
+  "p": 34500,
+  "e": false,
+  "s": "3,5 t · 12,5 m"
+ },
+ {
+  "img": "TH-JLG4013",
+  "n": "JLG 4013",
+  "c": "tele",
+  "y": 2006,
+  "h": 6627,
+  "p": 26450,
+  "e": false,
+  "s": "4 t · 13 m"
+ },
+ {
+  "img": "CL-EPX25",
+  "n": "Clark EPX25",
+  "c": "carr",
+  "y": 2011,
+  "h": 801,
+  "p": 7000,
+  "e": true,
+  "s": "2,5 t · eléctrica"
+ },
+ {
+  "img": "GAM-ERP16VT",
+  "n": "Yale ERP16VT",
+  "c": "carr",
+  "y": 2018,
+  "h": 6938,
+  "p": 7800,
+  "e": true,
+  "s": "1,6 t · eléctrica"
+ },
+ {
+  "img": "GAM-R14",
+  "n": "Hyster R1.4",
+  "c": "carr",
+  "y": 2019,
+  "h": 3283,
+  "p": 6200,
+  "e": true,
+  "s": "1,4 t · retráctil 8,5 m"
+ },
+ {
+  "img": "GAM-DFG320s",
+  "n": "Jungheinrich DFG320s",
+  "c": "carr",
+  "y": 2017,
+  "h": 12360,
+  "p": 12400,
+  "e": false,
+  "s": "2 t · diésel"
+ },
+ {
+  "img": "GAM-H25FT",
+  "n": "Hyster H2.5FT",
+  "c": "carr",
+  "y": 2019,
+  "h": 11503,
+  "p": 15000,
+  "e": false,
+  "s": "2,5 t · GLP"
+ },
+ {
+  "img": "GAM-H30FT",
+  "n": "Hyster H3.0FT",
+  "c": "carr",
+  "y": 2021,
+  "h": 13132,
+  "p": 16000,
+  "e": false,
+  "s": "3 t · mástil 5,6 m"
+ }
+]
