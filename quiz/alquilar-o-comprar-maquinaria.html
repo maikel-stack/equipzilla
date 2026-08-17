@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Alquilar o comprar maquinaria? Calculadora de ahorro | Equipzilla</title>
+<meta name="description" content="Calcula en 30 segundos cuándo te compensa comprar maquinaria de ocasión en vez de seguir alquilando. Con precios reales de miniexcavadoras, carretillas, plataformas y más.">
+<link rel="canonical" href="https://equipzilla-quiz.vercel.app/alquilar-o-comprar-maquinaria.html">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"¿Cuándo compensa comprar maquinaria en vez de alquilarla?","acceptedAnswer":{"@type":"Answer","text":"Como regla general, si usas una máquina más de 5-6 meses al año, la compra de una unidad de ocasión revisada suele amortizarse en menos de 18 meses frente al alquiler. Con un uso intensivo (todo el año), el punto de equilibrio puede bajar de 12 meses."}},
+{"@type":"Question","name":"¿Qué garantía tiene la maquinaria de segunda mano?","acceptedAnswer":{"@type":"Answer","text":"En Equipzilla casi todas las unidades en venta tienen opción de garantía, contrato de mantenimiento y financiación. Cada máquina se entrega revisada, con inspección y prueba presencial y documentación en regla."}},
+{"@type":"Question","name":"¿Cuánto cuesta una miniexcavadora de segunda mano?","acceptedAnswer":{"@type":"Answer","text":"Depende del tonelaje y las horas: una miniexcavadora de ocasión reciente puede ir desde unos 14.000 € (1 t) hasta unos 70.000 € (8 t). El precio mediano de nuestro stock actual ronda los 34.000 € + IVA."}}]}
+</script>
+<style>
+  :root{--bg:#F5F8F8;--card:#fff;--line:#DCE5E5;--ink:#14181C;--ink2:#4A5C5E;--ink3:#788B8D;
+        --teal:#387E7F;--teal-soft:#E6EEEE;--teal-dark:#2C6465;--brand:#F0523C;--wa:#25D366}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);line-height:1.6}
+  .top{height:5px;background:var(--teal)}
+  .wrap{max-width:680px;margin:0 auto;padding:26px 18px 50px}
+  .brand{font-weight:800;font-size:21px;color:var(--brand);margin-bottom:2px}
+  .tag{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:26px}
+  h1{font-size:29px;line-height:1.22;letter-spacing:-.015em;margin-bottom:12px}
+  .lead{font-size:16px;color:var(--ink2);margin-bottom:26px}
+  h2{font-size:20px;margin:34px 0 10px}
+  p{margin-bottom:12px;font-size:15px;color:#2A3438}
+  .calc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 22px;box-shadow:0 2px 12px rgba(18,22,28,.06);margin:22px 0}
+  .calc h2{margin:0 0 16px;font-size:19px}
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin:14px 0 5px}
+  select,input[type=number],input[type=text],input[type=tel],input[type=email]{
+    width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font-size:15px;font-family:inherit;background:#FBFCFD}
+  select:focus,input:focus{outline:none;border-color:var(--teal)}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .btn{display:block;width:100%;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:18px}
+  .btn.teal{background:var(--teal);color:#fff}
+  .btn.wa{background:var(--wa);color:#fff}
+  .res{display:none;background:#17323A;border-radius:12px;padding:20px;margin-top:18px;color:#D7E4E4}
+  .res .eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#8FD3C0;font-weight:700;margin-bottom:10px}
+  .res .big{font-size:26px;font-weight:800;color:#fff;margin:2px 0 10px}
+  .res p{color:#D7E4E4;font-size:14px;margin-bottom:8px}
+  .kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+  .kpi{background:rgba(255,255,255,.07);border-radius:9px;padding:10px}
+  .kpi b{display:block;font-size:16px;color:#fff}
+  .kpi span{font-size:11px;color:#9FBDBD}
+  .gate{display:none;background:var(--teal-soft);border:1.5px solid #CADCDC;border-radius:12px;padding:18px;margin-top:14px}
+  .gate .t{font-weight:700;font-size:15px;margin-bottom:4px}
+  .gate .s{font-size:13px;color:var(--ink2);margin-bottom:6px}
+  .ok{display:none;background:#E7F5EC;border:1px solid #BFE3CC;color:#1E6B3C;border-radius:10px;padding:12px;margin-top:12px;font-size:13.5px;text-align:center}
+  .faq{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 20px;margin-top:10px}
+  .faq details{border-bottom:1px solid #EEF1F4;padding:13px 0}
+  .faq details:last-child{border-bottom:none}
+  .faq summary{font-weight:600;font-size:14.5px;cursor:pointer}
+  .faq p{font-size:14px;margin:8px 0 0;color:var(--ink2)}
+  .foot{margin-top:36px;font-size:12.5px;color:var(--ink3);text-align:center}
+  a{color:var(--teal)}
+  @media(max-width:520px){.g2{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="top"></div>
+<div class="wrap">
+  <div class="brand">Equipzilla</div>
+  <div class="tag">Maquinaria de ocasión · Guías de compra</div>
+
+  <h1>¿Alquilar o comprar maquinaria? Haz el cálculo en 30 segundos</h1>
+  <p class="lead">Si alquilas una máquina varios meses al año, es muy probable que estés pagando de más.
+  Esta calculadora compara lo que te cuesta seguir alquilando con comprar una unidad de ocasión revisada
+  — con los <strong>precios reales de nuestro stock</strong>.</p>
+
+  <div class="calc" id="calc">
+    <h2>🧮 Calculadora: alquilar vs comprar de ocasión</h2>
+    <label>¿Qué tipo de máquina usas?</label>
+    <select id="c-tipo">
+      <option value="carr">Carretilla elevadora</option>
+      <option value="plat">Plataforma elevadora</option>
+      <option value="mini">Miniexcavadora</option>
+      <option value="tele">Manipulador telescópico</option>
+      <option value="exca">Excavadora grande</option>
+      <option value="pala">Pala cargadora</option>
+    </select>
+    <div class="g2">
+      <div><label>¿Cuánto pagas de alquiler? (€/mes)</label>
+        <input type="number" id="c-alq" min="100" step="50" value="900"></div>
+      <div><label>¿Cuántos meses la usas al año?</label>
+        <input type="number" id="c-meses" min="1" max="12" value="6"></div>
+    </div>
+    <div class="g2">
+      <div><label>Precio de la máquina de ocasión (€)</label>
+        <input type="number" id="c-precio" min="1000" step="500" value="10100"></div>
+      <div><label>Horizonte (años)</label>
+        <input type="number" id="c-anos" min="1" max="8" value="3"></div>
+    </div>
+    <button class="btn teal" id="c-go">Calcular mi ahorro</button>
+
+    <div class="res" id="res">
+      <div class="eyebrow">Tu resultado</div>
+      <div class="big" id="r-titulo"></div>
+      <p id="r-texto"></p>
+      <div class="kpis">
+        <div class="kpi"><b id="k-alq"></b><span>te costará seguir alquilando</span></div>
+        <div class="kpi"><b id="k-compra"></b><span>coste neto de comprar*</span></div>
+        <div class="kpi"><b id="k-be"></b><span>amortizas la compra en</span></div>
+      </div>
+      <p style="font-size:11.5px;color:#8FA9A9;margin-top:10px">* Precio + mantenimiento estimado (6%/año) − valor de reventa estimado (50% al final del periodo). Cálculo orientativo.</p>
+    </div>
+
+    <div class="gate" id="gate">
+      <div class="t">📩 Recibe el análisis completo + selección de máquinas</div>
+      <div class="s">Te enviamos el desglose por email y qué unidades de nuestro stock encajan con tu caso, con precios. Sin compromiso.</div>
+      <div class="g2">
+        <div><label>Nombre</label><input type="text" id="g-nombre"></div>
+        <div><label>Teléfono</label><input type="tel" id="g-tel"></div>
+      </div>
+      <label>Email</label><input type="email" id="g-email">
+      <button class="btn teal" id="g-send">Enviarme el análisis</button>
+      <div class="ok" id="g-ok">✓ Enviado — revisa tu correo. Un asesor te contactará si hay buen encaje.</div>
+    </div>
+  </div>
+
+  <h2>¿Cuándo compensa comprar en vez de alquilar?</h2>
+  <p>La regla rápida del sector: <strong>a partir de 5-6 meses de uso al año, la compra de ocasión gana</strong>.
+  Un alquiler de 900 €/mes durante 6 meses al año son 16.200 € en 3 años — más que el precio completo de una
+  carretilla o una plataforma de ocasión revisada, que además sigue siendo tuya (y conserva valor de reventa).</p>
+  <p>Alquilar sigue teniendo sentido para picos puntuales, trabajos de pocos días o máquinas muy específicas
+  que usas una vez. Para todo lo recurrente, cada mes de alquiler es dinero que no vuelve.</p>
+
+  <h2>Preguntas frecuentes</h2>
+  <div class="faq">
+    <details><summary>¿Qué garantía tiene la maquinaria de ocasión?</summary>
+      <p>Casi todas nuestras unidades en venta tienen opción de garantía, contrato de mantenimiento y financiación. Se entregan revisadas, con inspección y prueba presencial y documentación en regla.</p></details>
+    <details><summary>¿Y si no sé qué máquina necesito?</summary>
+      <p>Para eso está nuestro <a href="https://equipzilla-quiz.vercel.app">asesor de compra</a>: cuéntale el trabajo que necesitas hacer y te dice qué máquina encaja, con precios de stock real. Gratis, 1 minuto.</p></details>
+    <details><summary>¿Puedo financiar la compra?</summary>
+      <p>Sí — financiación disponible en casi todas las unidades. Cuéntanos tu caso y te preparamos la propuesta.</p></details>
+    <details><summary>¿Me avisáis si baja de precio una máquina?</summary>
+      <p>Sí: activa las <a href="https://equipzilla-quiz.vercel.app">alertas de stock</a> y te escribimos solo cuando una máquina de tu interés baje de precio o entre una nueva similar.</p></details>
+  </div>
+
+  <button class="btn wa" style="max-width:420px;margin:30px auto 0" onclick="location.href='https://wa.me/34606836581?text=Hola,%20he%20usado%20la%20calculadora%20de%20alquiler%20vs%20compra%20y%20quiero%20que%20me%20asesoréis'">Hablar con un asesor por WhatsApp</button>
+
+  <div class="foot">Equipzilla · Barcelona · 911 238 750 · <a href="https://equipzilla.com">equipzilla.com</a> · Precios + IVA</div>
+</div>
+
+<script>
+(function(){
+  var MEDIANS={carr:10100,plat:12000,mini:34200,tele:46500,exca:113200,pala:197900};
+  var NOMBRES={carr:"carretilla elevadora",plat:"plataforma elevadora",mini:"miniexcavadora",
+               tele:"manipulador telescópico",exca:"excavadora",pala:"pala cargadora"};
+  var $=function(id){return document.getElementById(id)};
+  var last=null;
+  $("c-tipo").addEventListener("change",function(){ $("c-precio").value=MEDIANS[this.value]; });
+  function eur(n){return Math.round(n).toLocaleString("es-ES")+" €"}
+  $("c-go").addEventListener("click",function(){
+    var alq=+$("c-alq").value||0, meses=Math.min(12,Math.max(1,+$("c-meses").value||0)),
+        precio=+$("c-precio").value||0, anos=Math.min(8,Math.max(1,+$("c-anos").value||3));
+    if(alq<50||precio<1000)return;
+    var totalAlq=alq*meses*anos;
+    var mant=precio*0.06*anos;
+    var residual=precio*0.5;
+    var netoCompra=precio+mant-residual;
+    var ahorro=totalAlq-netoCompra;
+    var beMeses=Math.ceil((precio+mant-residual)/(alq));
+    last={tipo:$("c-tipo").value,alquilerMes:alq,mesesAno:meses,precio:precio,anos:anos,
+          totalAlquiler:totalAlq,netoCompra:netoCompra,ahorro:ahorro,breakevenMeses:beMeses};
+    $("r-titulo").textContent = ahorro>0
+      ? "Comprando ahorras ≈ "+eur(ahorro)+" en "+anos+" años"
+      : "Con tu uso actual, el alquiler aún compensa";
+    $("r-texto").textContent = ahorro>0
+      ? "Con "+meses+" meses de uso al año, una "+NOMBRES[last.tipo]+" de ocasión se amortiza en unos "+beMeses+" meses de alquiler — y la máquina sigue siendo tuya."
+      : "Si tu uso sube de "+Math.ceil((precio+mant-residual)/(alq*anos))+" meses al año, la balanza cambia. Activa las alertas y te avisamos cuando haya una oportunidad.";
+    ["k-alq","k-compra","k-be"].forEach(function(k){});
+    $("k-alq").textContent=eur(totalAlq); $("k-compra").textContent=eur(netoCompra);
+    $("k-be").textContent=beMeses+" meses";
+    $("res").style.display="block"; $("gate").style.display="block";
+    $("res").scrollIntoView({behavior:"smooth",block:"center"});
+  });
+  $("g-send").addEventListener("click",function(){
+    var email=($("g-email").value||"").trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)||!last){$("g-email").focus();return;}
+    var b=$("g-send"); b.disabled=true; b.textContent="…";
+    fetch("/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({origen:"calculadora",nombre:$("g-nombre").value,telefono:$("g-tel").value,
+        email:email,calculo:last})})
+      .then(function(r){return r.json()})
+      .then(function(){ $("g-ok").style.display="block"; b.textContent="Enviado ✓"; })
+      .catch(function(){ b.disabled=false; b.textContent="Enviarme el análisis"; });
+  });
+})();
+</script>
+<script src="/widget.js" defer></script>
+</body>
+</html>
