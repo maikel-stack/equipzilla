@@ -129,7 +129,13 @@ module.exports = async (req, res) => {
       cache = { at: Date.now(), data: await construir() };
     }
     res.setHeader("cache-control", "public, max-age=300");
-    return res.status(200).json(cache.data);
+    // Por defecto solo el motor de compraventa (ABM): la newsletter general no
+    // forma parte de este seguimiento. ?incluirNewsletter=1 la devuelve.
+    const todo = req.query && (req.query.incluirNewsletter === "1");
+    const d = cache.data;
+    return res.status(200).json(todo ? d : {
+      ...d, envios: d.envios.filter((e) => e.tipo === "compraventa"),
+    });
   } catch (e) {
     if (cache.data) return res.status(200).json(cache.data); // servimos lo último bueno
     return res.status(502).json({ error: String((e && e.message) || e) });

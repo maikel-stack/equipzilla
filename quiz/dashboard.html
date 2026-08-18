@@ -73,27 +73,21 @@
 <main>
   <div class="eyebrow">Equipzilla · panel interno</div>
   <h1>Dashboard de envíos</h1>
-  <p class="stand">Enviados, aperturas y clics por semana y por envío. Datos en vivo de Brevo (ABM templado y newsletter) y de Smartlead (outbound frío) — se actualizan solos cada 10 minutos.</p>
+  <p class="stand">Campañas de compraventa a la base propia (Brevo) y outbound frío (Smartlead). Enviados, aperturas y clics por semana y por envío, en vivo — se actualizan solos cada 10 minutos.</p>
   <div class="meta" id="meta">Cargando datos…</div>
 
   <div class="filters">
-    <span class="flabel">Campañas Brevo</span>
-    <div class="seg" id="f-tipo">
-      <button data-v="todos" aria-pressed="true">Todos</button>
-      <button data-v="compraventa" aria-pressed="false">Compraventa (ABM)</button>
-      <button data-v="newsletter" aria-pressed="false">Newsletter</button>
-    </div>
     <span class="flabel">Periodo</span>
     <div class="seg" id="f-periodo">
       <button data-v="84" aria-pressed="false">12 semanas</button>
-      <button data-v="183" aria-pressed="true">6 meses</button>
-      <button data-v="todo" aria-pressed="false">Todo</button>
+      <button data-v="183" aria-pressed="false">6 meses</button>
+      <button data-v="todo" aria-pressed="true">Todo</button>
     </div>
   </div>
 
   <div class="tiles" id="tiles"></div>
 
-  <h2>Por semana</h2>
+  <h2>Compraventa (ABM) · por semana</h2>
   <p class="sub">Volumen y rendimiento semana a semana. Las tasas van en gráficos separados porque son magnitudes distintas: mezclarlas en un mismo eje distorsiona la lectura.</p>
   <div class="card">
     <h3>Emails enviados por semana</h3>
@@ -113,7 +107,7 @@
     </div>
   </div>
 
-  <h2>Por envío</h2>
+  <h2>Compraventa (ABM) · por envío</h2>
   <p class="sub">Cada campaña, ordenada por tasa de apertura. Sirve para ver qué asuntos y qué audiencias funcionan mejor.</p>
   <div class="card">
     <h3>Tasa de apertura por envío</h3>
@@ -121,9 +115,8 @@
     <div class="plot" id="c-porenvio"></div>
   </div>
 
-  <h2>Todos los envíos</h2>
+  <h2>Todas las campañas de compraventa</h2>
   <p class="sub">La tabla completa con las cifras exactas — para consultar o exportar.</p>
-  <div class="legend"><span><span class="dot" style="background:var(--series-2)"></span>Compraventa (ABM)</span><span><span class="dot" style="background:var(--series-1)"></span>Newsletter</span></div>
   <div class="tablewrap"><table id="tabla">
     <thead><tr>
       <th>Envío</th><th>Fecha</th><th class="n">Enviados</th><th class="n">Entregados</th>
@@ -160,7 +153,7 @@
 
 <script>
 (function(){
-  var S = { tipo:"todos", periodo:"183" };
+  var S = { periodo:"todo" };
   var DATA = null;
   var tt = document.getElementById("tt");
   var nf = new Intl.NumberFormat("es-ES");
@@ -183,7 +176,7 @@
 
   function filtrados(){
     if (!DATA) return [];
-    var e = DATA.envios.filter(function(x){ return S.tipo === "todos" || x.tipo === S.tipo; });
+    var e = DATA.envios.slice();
     if (S.periodo !== "todo"){
       var corte = new Date(Date.now() - (+S.periodo) * 864e5).toISOString().slice(0,10);
       e = e.filter(function(x){ return x.fecha >= corte; });
@@ -419,8 +412,7 @@
     var tb = document.querySelector("#tabla tbody");
     tb.innerHTML = envios.map(function(e){
       var ta = e.entregados ? e.aperturas/e.entregados : 0, tc = e.entregados ? e.clics/e.entregados : 0;
-      var col = e.tipo === "compraventa" ? "var(--series-2)" : "var(--series-1)";
-      return "<tr><td><span class='dot' style='background:"+col+"'></span>"+e.nombre+"</td>"+
+      return "<tr><td>"+e.nombre+"</td>"+
         "<td class='f'>"+fechaLarga(e.fecha)+"</td><td class='n'>"+num(e.enviados)+"</td>"+
         "<td class='n'>"+num(e.entregados)+"</td><td class='n'>"+num(e.aperturas)+"</td>"+
         "<td class='n'>"+pct(ta)+"</td><td class='n'>"+num(e.clics)+"</td>"+
@@ -481,7 +473,7 @@
     seg.addEventListener("click", function(ev){
       var b = ev.target.closest("button"); if (!b) return;
       seg.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x===b ? "true":"false"); });
-      S[seg.id === "f-tipo" ? "tipo" : "periodo"] = b.dataset.v;
+      S.periodo = b.dataset.v;
       render();
     });
   });
@@ -493,7 +485,7 @@
     DATA = d;
     var f = new Date(d.generado);
     document.getElementById("meta").textContent =
-      "Datos en vivo de Brevo · " + d.envios.length + " envíos históricos · actualizado " +
+      "Datos en vivo · " + d.envios.length + " campañas de compraventa · actualizado " +
       f.toLocaleString("es-ES", { day:"numeric", month:"long", hour:"2-digit", minute:"2-digit" });
     render();
   }).catch(function(e){
