@@ -69,6 +69,9 @@ def fmt(p):
 
 def machine_card(m, old_price=None):
     drop = ""
+    # si la ficha trae precio anterior propio, vale como referencia del "antes"
+    if not old_price and m.get("pa") and m["pa"] > m["p"]:
+        old_price = m["pa"]
     if old_price:
         pct = 100 * (old_price - m["p"]) / old_price
         drop = (f'<div style="color:#B34A38;font-size:12.5px;font-weight:700">'
@@ -80,7 +83,7 @@ def machine_card(m, old_price=None):
 <div style="font-weight:800;font-size:16px;color:#14181C">{m["n"]}</div>
 <div style="font-size:12.5px;color:#387E7F;font-weight:600">{m["y"]} · {m["s"]}{hours}</div>
 {drop}
-<div style="font-weight:800;font-size:18px;margin-top:6px;color:#14181C">{fmt(m["p"])} <span style="font-weight:400;font-size:11px;color:#8A93A0">+ IVA</span></div>
+<div style="font-weight:800;font-size:18px;margin-top:6px;color:#14181C">{('<span style="color:#8A93A0;font-weight:400;font-size:14px;text-decoration:line-through;margin-right:6px">' + fmt(old_price) + '</span>') if old_price else ''}{fmt(m["p"])} <span style="font-weight:400;font-size:11px;color:#8A93A0">+ IVA</span></div>
 <a href="https://wa.me/34606836581?text=Hola,%20me%20interesa%20la%20{urllib.parse.quote(m["n"])}" style="display:block;margin-top:10px;background:#25D366;color:#fff;text-align:center;font-weight:700;font-size:13.5px;padding:10px;border-radius:7px;text-decoration:none">Me interesa · WhatsApp</a>
 </div></div>'''
 

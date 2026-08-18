@@ -288,5 +288,49 @@
   "p": 16000,
   "e": false,
   "s": "3 t · mástil 5,6 m"
+ },
+ {
+  "img": "PT-JLG860SJ",
+  "n": "JLG 860SJ",
+  "c": "plat",
+  "y": 2007,
+  "h": null,
+  "p": 22000,
+  "e": false,
+  "s": "28 m · telescópica diésel",
+  "z": "Ferrol"
+ },
+ {
+  "img": "PT-HA20PX12",
+  "n": "Haulotte HA20PX",
+  "c": "plat",
+  "y": 2012,
+  "h": null,
+  "p": 18500,
+  "e": false,
+  "s": "20 m · articulada diésel",
+  "z": "Alicante"
+ },
+ {
+  "img": "PT-JLG450AJ",
+  "n": "JLG 450AJ",
+  "c": "plat",
+  "y": 2013,
+  "h": null,
+  "p": 19500,
+  "e": false,
+  "s": "16 m · articulada diésel",
+  "z": "Alicante"
+ },
+ {
+  "img": "PT-JLGE300AJ",
+  "n": "JLG E300AJP",
+  "c": "plat",
+  "y": 2007,
+  "h": null,
+  "p": 7900,
+  "e": true,
+  "s": "11 m · articulada eléctrica",
+  "z": "Tarragona"
  }
 ]

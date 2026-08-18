@@ -249,6 +249,9 @@ CSS = """
   tr:last-child td{border-bottom:none}
   tr:nth-child(even) td{background:#FAFCFC}
   .pr{font-weight:700;white-space:nowrap;font-size:15px}
+  .pr .antes{color:var(--ink3);font-weight:400;font-size:13px;text-decoration:line-through;margin-right:5px}
+  .pr .dto{display:inline-block;margin-left:6px;background:#FDECE8;color:#B34A38;font-size:11px;
+           font-weight:700;padding:2px 6px;border-radius:5px;vertical-align:middle}
   .note{font-size:12.5px;color:var(--ink3);margin-top:8px}
   ol.steps{counter-reset:s;list-style:none;margin:16px 0}
   ol.steps li{position:relative;padding:0 0 20px 54px;counter-increment:s}
@@ -347,10 +350,19 @@ def page(slug, g):
 
     title, rapida, caso = fmt(g["title"]), fmt(g["rapida"]), fmt(g["caso"])
     horas_med = [m["h"] for m in ms if m.get("h")]
+    def celda_precio(m):
+        # "antes" solo si existe precio anterior real (nunca inventado)
+        pa = m.get("pa")
+        if pa and pa > m["p"]:
+            pct = round(100 * (pa - m["p"]) / pa)
+            return (f'<span class="antes">{eur(pa)}</span> <b>{eur(m["p"])}</b>'
+                    f'<span class="dto">−{pct}%</span>')
+        return f'<b>{eur(m["p"])}</b>'
+
     rows = "".join(
         f'<tr><td><b>{m["n"]}</b></td><td>{m["y"]}</td><td>{m["s"]}</td>'
         f'<td>{format(m["h"], ",").replace(",", ".") + " h" if m.get("h") else "a confirmar"}</td>'
-        f'<td class="pr">{eur(m["p"])}</td></tr>' for m in ms)
+        f'<td class="pr">{celda_precio(m)}</td></tr>' for m in ms)
     steps = "".join(f"<li><b>{t}</b><p>{d}</p></li>" for t, d in g["framework"])
     errores = "".join(
         f'<div class="block warn"><div class="bt">Error común</div><b class="t">{t}</b><p>{d}</p></div>'

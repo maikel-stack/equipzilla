@@ -33,6 +33,7 @@
     "#ez-chat-head{background:" + DARK + ";color:#fff;padding:14px 18px}" +
     "#ez-chat-head b{font-size:15px;display:block}" +
     "#ez-chat-head span{font-size:12px;color:" + ACCENT + "}" +
+    "#ez-chat-ia{background:#EAF1F1;color:#4A5C5E;font-size:11px;line-height:1.45;padding:7px 14px;border-bottom:1px solid #E1E6E9}" +
     "#ez-chat-msgs{flex:1;overflow-y:auto;padding:14px;background:#F4F6F7;display:flex;flex-direction:column;gap:10px}" +
     ".ez-m{max-width:85%;padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}" +
     ".ez-m.bot{background:#fff;color:#14181C;border:1px solid #E1E6E9;border-bottom-left-radius:4px;align-self:flex-start}" +
@@ -60,6 +61,7 @@
   panel.id = "ez-chat-panel";
   panel.innerHTML =
     '<div id="ez-chat-head"><b>Asesor de compra · Equipzilla</b><span>Te ayudamos a elegir la máquina adecuada</span></div>' +
+    '<div id="ez-chat-ia">Asistente con IA · las recomendaciones son estimadas y las confirma un asesor</div>' +
     '<div id="ez-chat-msgs"></div>' +
     '<form id="ez-chat-form"><input id="ez-chat-in" type="text" autocomplete="off" placeholder="Cuéntanos qué necesitas hacer…" maxlength="1000"><button id="ez-chat-send" type="submit" aria-label="Enviar">➤</button></form>';
 

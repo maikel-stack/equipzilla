@@ -59,6 +59,9 @@
   .mspec{font-size:12.5px;color:var(--teal);font-weight:600;margin-top:2px}
   .mprice{font-weight:800;font-size:18px;white-space:nowrap}
   .mprice small{display:block;font-weight:400;font-size:10.5px;color:var(--ink3);text-align:right}
+  .mprice .antes{color:var(--ink3);font-weight:400;font-size:13px;text-decoration:line-through}
+  .mprice .dto{display:inline-block;margin-left:6px;background:#FDECE8;color:#B34A38;font-size:11px;
+               font-weight:700;padding:2px 6px;border-radius:5px;vertical-align:middle}
   .why{margin:10px 0 0;padding-left:18px;font-size:13px;color:var(--ink2)}
   .why li{margin-bottom:3px}
   .badge{display:inline-block;background:var(--teal);color:#fff;font-size:10.5px;font-weight:700;
@@ -69,6 +72,8 @@
   .reco .eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#8FD3C0;font-weight:700;margin-bottom:8px}
   .reco p{font-size:14px;line-height:1.65;margin:0}
   .reco b{color:#fff}
+  .reco .ia{font-size:11.5px;line-height:1.55;color:#8FA9A9;margin-top:12px;padding-top:10px;
+            border-top:1px solid rgba(255,255,255,.14)}
   .sentok{font-size:12.5px;color:var(--teal-dark);background:var(--teal-soft);border-radius:8px;
           padding:9px 12px;margin-top:14px;text-align:center;display:none}
 </style>
@@ -215,7 +220,11 @@
     {img:"GAM-R14",n:"Hyster R1.4",c:"carr",y:2019,h:3283,p:6200,e:true,s:"1,4 t · retráctil 8,5 m"},
     {img:"GAM-DFG320s",n:"Jungheinrich DFG320s",c:"carr",y:2017,h:12360,p:12400,e:false,s:"2 t · diésel"},
     {img:"GAM-H25FT",n:"Hyster H2.5FT",c:"carr",y:2019,h:11503,p:15000,e:false,s:"2,5 t · GLP"},
-    {img:"GAM-H30FT",n:"Hyster H3.0FT",c:"carr",y:2021,h:13132,p:16000,e:false,s:"3 t · mástil 5,6 m"}
+    {img:"GAM-H30FT",n:"Hyster H3.0FT",c:"carr",y:2021,h:13132,p:16000,e:false,s:"3 t · mástil 5,6 m"},
+    {img:"PT-JLG860SJ",n:"JLG 860SJ",c:"plat",y:2007,h:null,p:22000,e:false,s:"28 m · telescópica diésel"},
+    {img:"PT-HA20PX12",n:"Haulotte HA20PX",c:"plat",y:2012,h:null,p:18500,e:false,s:"20 m · articulada diésel"},
+    {img:"PT-JLG450AJ",n:"JLG 450AJ",c:"plat",y:2013,h:null,p:19500,e:false,s:"16 m · articulada diésel"},
+    {img:"PT-JLGE300AJ",n:"JLG E300AJP",c:"plat",y:2007,h:null,p:7900,e:true,s:"11 m · articulada eléctrica"}
   ];
   var TYPE={"Miniexcavadora (hasta 8 t)":"mini","Excavadora grande (14-23 t)":"exca",
     "Plataforma elevadora":"plat","Carretilla elevadora":"carr",
@@ -360,7 +369,10 @@
     finalMatches=ms.map(function(m){return m.n+" ("+fmt(m.p)+")";});
     recoText=buildReco(ms);
     var recoEl=document.getElementById('reco');
-    recoEl.innerHTML='<div class="eyebrow">Nuestra recomendación</div><p>'+recoText+'</p>';
+    recoEl.innerHTML='<div class="eyebrow">Nuestra recomendación</div><p>'+recoText+'</p>'+
+      '<p class="ia">Recomendación estimada, generada automáticamente con nuestra IA a partir de tus '+
+      'respuestas y de nuestro stock. No sustituye la valoración de un asesor: revisamos contigo cada '+
+      'unidad antes de cualquier compra.</p>';
     var box=document.getElementById('matches');
     if(!ms.length){
       document.getElementById('res-title').textContent="Tu proyecto necesita una búsqueda a medida";
@@ -372,7 +384,9 @@
           '<div class="mbody">'+(i===0?'<span class="badge">MEJOR ENCAJE</span>':'')+
           '<div class="mtop"><div><div class="mname">'+m.n+'</div>'+
           '<div class="mspec">'+m.y+' · '+m.s+(m.h?' · '+m.h.toLocaleString('es-ES')+' h':'')+'</div></div>'+
-          '<div class="mprice">'+fmt(m.p)+'<small>+ IVA</small></div></div>'+
+          '<div class="mprice">'+(m.pa&&m.pa>m.p?'<span class="antes">'+fmt(m.pa)+'</span> ':'')+
+          fmt(m.p)+(m.pa&&m.pa>m.p?'<span class="dto">−'+Math.round(100*(m.pa-m.p)/m.pa)+'%</span>':'')+
+          '<small>+ IVA</small></div></div>'+
           '<ul class="why">'+whyList(m).map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>'+
           '</div></div>';
       }).join('');
