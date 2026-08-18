@@ -73,11 +73,11 @@
 <main>
   <div class="eyebrow">Equipzilla · panel interno</div>
   <h1>Dashboard de envíos</h1>
-  <p class="stand">Enviados, aperturas y clics por semana y por envío. Datos en vivo desde Brevo — se actualizan solos cada 10 minutos.</p>
+  <p class="stand">Enviados, aperturas y clics por semana y por envío. Datos en vivo de Brevo (ABM templado y newsletter) y de Smartlead (outbound frío) — se actualizan solos cada 10 minutos.</p>
   <div class="meta" id="meta">Cargando datos…</div>
 
   <div class="filters">
-    <span class="flabel">Motor</span>
+    <span class="flabel">Campañas Brevo</span>
     <div class="seg" id="f-tipo">
       <button data-v="todos" aria-pressed="true">Todos</button>
       <button data-v="compraventa" aria-pressed="false">Compraventa (ABM)</button>
@@ -131,10 +131,30 @@
     </tr></thead>
     <tbody></tbody>
   </table></div>
+  <h2 id="frio-h">Outbound frío (Smartlead)</h2>
+  <p class="sub">Motor distinto y KPI distinto: en frío lo que cuenta son las <strong>respuestas</strong>, no las aperturas
+  (en correo frío el seguimiento de aperturas es poco fiable porque muchos servidores lo bloquean). Va aparte
+  a propósito: sumarlo a los envíos de Brevo lo haría invisible.</p>
+  <div class="tiles" id="frio-tiles"></div>
+  <div class="card">
+    <h3>Emails de outbound enviados por semana</h3>
+    <div class="cs">Ritmo actual limitado a propósito mientras se calientan los buzones</div>
+    <div class="plot" id="c-frio"></div>
+  </div>
+  <div class="tablewrap" style="margin-bottom:6px"><table id="tabla-frio">
+    <thead><tr>
+      <th>Campaña</th><th>Estado</th><th class="n">Empresas</th><th class="n">Emails</th>
+      <th class="n">Aperturas</th><th class="n">Clics</th><th class="n">Respuestas</th><th class="n">% resp.</th><th class="n">Rebotes</th>
+    </tr></thead>
+    <tbody></tbody>
+  </table></div>
+
   <p class="note">Metodología: los datos salen de la API de Brevo sumando las estadísticas por lista de cada campaña.
   «Aperturas» son aperturas verificables (excluyen el inflado de Apple Mail Privacy Protection), que es la cifra que venimos
   usando en los informes; el total con MPP incluido aparece en el tooltip de cada envío. Las tasas se calculan sobre
-  entregados, no sobre enviados.</p>
+  entregados, no sobre enviados. El outbound frío sale de la API de Smartlead: los emails se agrupan por la semana
+  en que se enviaron y el porcentaje de respuesta se calcula sobre empresas contactadas, no sobre emails
+  (una empresa recibe varios correos de la secuencia).</p>
 </main>
 <div id="tt" role="status" aria-live="polite"></div>
 
@@ -406,6 +426,50 @@
         "<td class='n'>"+pct(ta)+"</td><td class='n'>"+num(e.clics)+"</td>"+
         "<td class='n'>"+pct(tc)+"</td><td class='n'>"+num(e.bajas)+"</td></tr>";
     }).join("") || "<tr><td colspan='9' class='empty'>Sin envíos en este periodo.</td></tr>";
+
+    renderFrio();
+  }
+
+  function renderFrio(){
+    var f = DATA && DATA.frio;
+    if (!f || f.error || !f.campanas || !f.campanas.length){
+      ["frio-h","frio-tiles","c-frio"].forEach(function(id){
+        var el=document.getElementById(id); if(el) el.style.display="none"; });
+      var t=document.getElementById("tabla-frio"); if(t) t.parentNode.style.display="none";
+      return;
+    }
+    var T = f.campanas.reduce(function(a,c){
+      a.enviados+=c.enviados; a.empresas+=c.empresas; a.aperturas+=c.aperturas;
+      a.clics+=c.clics; a.respuestas+=c.respuestas; a.rebotes+=c.rebotes; return a;
+    }, {enviados:0, empresas:0, aperturas:0, clics:0, respuestas:0, rebotes:0});
+
+    document.getElementById("frio-tiles").innerHTML =
+      tile("Emails enviados", num(T.enviados), f.campanas.length + " campaña" + (f.campanas.length>1?"s":"")) +
+      tile("Empresas contactadas", num(T.empresas), "de una lista de " +
+        num(f.campanas.reduce(function(a,c){return a+c.totalLeads;},0)) + " preparadas") +
+      tile("Respuestas", num(T.respuestas), T.empresas ? pct(T.respuestas/T.empresas) + " de las empresas" : "—") +
+      tile("Rebotes", num(T.rebotes), T.enviados ? pct(T.rebotes/T.enviados) + " de los enviados" : "—");
+
+    var semanas = f.semanas || [];
+    if (S.periodo !== "todo"){
+      var corte = new Date(Date.now() - (+S.periodo) * 864e5).toISOString().slice(0,10);
+      semanas = semanas.filter(function(w){ return w.semana >= corte; });
+    }
+    chartColumnas(document.getElementById("c-frio"),
+      semanas.map(function(w){ return { v:w.enviados, etiqueta:fechaCorta(w.semana), w:w }; }),
+      { color:"var(--series-1)", fmtEje:function(v){ return num(v); },
+        tip:function(x){ return "<b>Semana del "+fechaLarga(x.w.semana)+"</b><br>"+num(x.w.enviados)+
+          " emails enviados<br><span class='r'>"+num(x.w.respuestas)+" respuestas · "+
+          num(x.w.rebotes)+" rebotes</span>"; } });
+
+    document.querySelector("#tabla-frio tbody").innerHTML = f.campanas.map(function(c){
+      return "<tr><td>"+c.nombre+"</td><td>"+(c.estado==="ACTIVE"?"Activa":c.estado)+"</td>"+
+        "<td class='n'>"+num(c.empresas)+"</td><td class='n'>"+num(c.enviados)+"</td>"+
+        "<td class='n'>"+num(c.aperturas)+"</td><td class='n'>"+num(c.clics)+"</td>"+
+        "<td class='n'>"+num(c.respuestas)+"</td>"+
+        "<td class='n'>"+(c.empresas?pct(c.respuestas/c.empresas):"—")+"</td>"+
+        "<td class='n'>"+num(c.rebotes)+"</td></tr>";
+    }).join("");
   }
 
   function tile(lab, val, sec){
