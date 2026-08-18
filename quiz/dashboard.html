@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Dashboard de envíos · Equipzilla (interno)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#F7F9F9; --surface:#FFFFFF; --line:#E2E8E8;
+    --ink:#14181C; --ink2:#46565A; --muted:#7C8D90;
+    --grid:#E8EDED; --axis:#D5DEDE;
+    --series-1:#0D9488;   /* teal validado — aperturas / volumen */
+    --series-2:#F0523C;   /* coral validado — clics */
+    --dark:#17323A; --mint:#8FD3C0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--page);color:var(--ink);font-family:'IBM Plex Sans',system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .topbar{height:5px;background:var(--series-1)}
+  main{max-width:1080px;margin:0 auto;padding:36px 20px 70px}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--series-1);margin-bottom:10px}
+  h1{font-family:'Archivo',system-ui,sans-serif;font-stretch:115%;font-weight:800;font-size:clamp(28px,4.6vw,38px);line-height:1.14;letter-spacing:-.02em;margin-bottom:10px}
+  .stand{font-size:17px;color:var(--ink2);max-width:62ch}
+  .meta{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);padding:14px 0 22px;border-bottom:1px solid var(--line);margin-bottom:24px}
+  h2{font-family:'Archivo',system-ui,sans-serif;font-stretch:115%;font-weight:700;font-size:21px;letter-spacing:-.01em;margin:36px 0 4px}
+  .sub{font-size:13.5px;color:var(--ink2);margin-bottom:14px}
+
+  /* filtros — una sola fila, encima de todo lo que filtran */
+  .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+  .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+  .seg button{border:none;background:none;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink2);
+    padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap}
+  .seg button[aria-pressed="true"]{background:var(--dark);color:#fff}
+  .flabel{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:8px}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .tile .lab{font-size:12.5px;color:var(--ink2);margin-bottom:4px}
+  .tile .val{font-family:'Archivo',system-ui,sans-serif;font-stretch:115%;font-weight:800;font-size:30px;line-height:1.15;letter-spacing:-.02em}
+  .tile .sec{font-size:12.5px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:2px}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 20px 14px;margin-bottom:16px}
+  .card h3{font-family:'Archivo',system-ui,sans-serif;font-stretch:112%;font-weight:700;font-size:16px;margin-bottom:2px}
+  .card .cs{font-size:12.5px;color:var(--muted);margin-bottom:10px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .two .card{margin-bottom:0}
+  .plot{width:100%}
+  .empty{color:var(--muted);font-size:13.5px;padding:30px 0;text-align:center}
+
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:720px}
+  th{background:var(--dark);color:#fff;text-align:left;padding:11px 14px;font-size:11px;font-family:'IBM Plex Mono',monospace;
+     letter-spacing:.06em;text-transform:uppercase;font-weight:500;white-space:nowrap}
+  th.n,td.n{text-align:right;font-variant-numeric:tabular-nums}
+  td.f{white-space:nowrap;color:var(--ink2)}
+  td{padding:11px 14px;border-bottom:1px solid #EFF4F4;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr:nth-child(even) td{background:#FAFCFC}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px;vertical-align:baseline}
+  .note{font-size:12.5px;color:var(--muted);margin-top:12px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-bottom:8px}
+  #tt{position:fixed;z-index:50;background:var(--dark);color:#fff;border-radius:9px;padding:9px 12px;font-size:12.5px;
+      line-height:1.5;pointer-events:none;opacity:0;transition:opacity .1s;box-shadow:0 6px 20px rgba(20,40,40,.28);max-width:260px}
+  #tt b{color:#fff;font-weight:600}
+  #tt .r{color:var(--mint);font-family:'IBM Plex Mono',monospace;font-size:11.5px}
+  @media(max-width:860px){.tiles{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<main>
+  <div class="eyebrow">Equipzilla · panel interno</div>
+  <h1>Dashboard de envíos</h1>
+  <p class="stand">Enviados, aperturas y clics por semana y por envío. Datos en vivo desde Brevo — se actualizan solos cada 10 minutos.</p>
+  <div class="meta" id="meta">Cargando datos…</div>
+
+  <div class="filters">
+    <span class="flabel">Motor</span>
+    <div class="seg" id="f-tipo">
+      <button data-v="todos" aria-pressed="true">Todos</button>
+      <button data-v="compraventa" aria-pressed="false">Compraventa (ABM)</button>
+      <button data-v="newsletter" aria-pressed="false">Newsletter</button>
+    </div>
+    <span class="flabel">Periodo</span>
+    <div class="seg" id="f-periodo">
+      <button data-v="84" aria-pressed="false">12 semanas</button>
+      <button data-v="183" aria-pressed="true">6 meses</button>
+      <button data-v="todo" aria-pressed="false">Todo</button>
+    </div>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <h2>Por semana</h2>
+  <p class="sub">Volumen y rendimiento semana a semana. Las tasas van en gráficos separados porque son magnitudes distintas: mezclarlas en un mismo eje distorsiona la lectura.</p>
+  <div class="card">
+    <h3>Emails enviados por semana</h3>
+    <div class="cs">Suma de todos los envíos de cada semana</div>
+    <div class="plot" id="c-envios"></div>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>Tasa de apertura por semana</h3>
+      <div class="cs">Aperturas verificables ÷ entregados</div>
+      <div class="plot" id="c-apertura"></div>
+    </div>
+    <div class="card">
+      <h3>Tasa de clic por semana</h3>
+      <div class="cs">Clics únicos ÷ entregados</div>
+      <div class="plot" id="c-clic"></div>
+    </div>
+  </div>
+
+  <h2>Por envío</h2>
+  <p class="sub">Cada campaña, ordenada por tasa de apertura. Sirve para ver qué asuntos y qué audiencias funcionan mejor.</p>
+  <div class="card">
+    <h3>Tasa de apertura por envío</h3>
+    <div class="cs" id="cs-envio">Últimos envíos del periodo seleccionado</div>
+    <div class="plot" id="c-porenvio"></div>
+  </div>
+
+  <h2>Todos los envíos</h2>
+  <p class="sub">La tabla completa con las cifras exactas — para consultar o exportar.</p>
+  <div class="legend"><span><span class="dot" style="background:var(--series-2)"></span>Compraventa (ABM)</span><span><span class="dot" style="background:var(--series-1)"></span>Newsletter</span></div>
+  <div class="tablewrap"><table id="tabla">
+    <thead><tr>
+      <th>Envío</th><th>Fecha</th><th class="n">Enviados</th><th class="n">Entregados</th>
+      <th class="n">Aperturas</th><th class="n">% apert.</th><th class="n">Clics</th><th class="n">% clic</th><th class="n">Bajas</th>
+    </tr></thead>
+    <tbody></tbody>
+  </table></div>
+  <p class="note">Metodología: los datos salen de la API de Brevo sumando las estadísticas por lista de cada campaña.
+  «Aperturas» son aperturas verificables (excluyen el inflado de Apple Mail Privacy Protection), que es la cifra que venimos
+  usando en los informes; el total con MPP incluido aparece en el tooltip de cada envío. Las tasas se calculan sobre
+  entregados, no sobre enviados.</p>
+</main>
+<div id="tt" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  var S = { tipo:"todos", periodo:"183" };
+  var DATA = null;
+  var tt = document.getElementById("tt");
+  var nf = new Intl.NumberFormat("es-ES");
+  var MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
+  function num(n){ return nf.format(Math.round(n)); }
+  function pct(x){ return (x*100).toFixed(1).replace(".", ",") + "%"; }
+  function fechaCorta(iso){ var p=iso.split("-"); return (+p[2]) + " " + MESES[+p[1]-1]; }
+  function fechaLarga(iso){ var p=iso.split("-"); return (+p[2]) + " " + MESES[+p[1]-1] + " " + p[0]; }
+
+  function showTT(html, ev){
+    tt.innerHTML = html; tt.style.opacity = 1;
+    var r = tt.getBoundingClientRect();
+    var x = ev.clientX + 14, y = ev.clientY - r.height - 12;
+    if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 14;
+    if (y < 8) y = ev.clientY + 18;
+    tt.style.left = x + "px"; tt.style.top = y + "px";
+  }
+  function hideTT(){ tt.style.opacity = 0; }
+
+  function filtrados(){
+    if (!DATA) return [];
+    var e = DATA.envios.filter(function(x){ return S.tipo === "todos" || x.tipo === S.tipo; });
+    if (S.periodo !== "todo"){
+      var corte = new Date(Date.now() - (+S.periodo) * 864e5).toISOString().slice(0,10);
+      e = e.filter(function(x){ return x.fecha >= corte; });
+    }
+    return e;
+  }
+
+  function porSemana(envios){
+    var m = {};
+    envios.forEach(function(e){
+      var w = m[e.semana] || (m[e.semana] = { semana:e.semana, enviados:0, entregados:0,
+        aperturas:0, clics:0, bajas:0, n:0 });
+      w.enviados += e.enviados; w.entregados += e.entregados; w.aperturas += e.aperturas;
+      w.clics += e.clics; w.bajas += e.bajas; w.n++;
+    });
+    var claves = Object.keys(m).sort();
+    if (!claves.length) return [];
+    // línea temporal continua: las semanas sin envío existen (volumen 0, tasa sin dato)
+    var out = [], d = new Date(claves[0] + "T00:00:00Z"), fin = new Date(claves[claves.length-1] + "T00:00:00Z");
+    while (d <= fin){
+      var k = d.toISOString().slice(0,10);
+      out.push(m[k] || { semana:k, enviados:0, entregados:0, aperturas:0, clics:0, bajas:0, n:0 });
+      d.setUTCDate(d.getUTCDate() + 7);
+    }
+    return out;
+  }
+
+  function ejeMax(v, divs){
+    divs = divs || 4;
+    if (!(v > 0)) return divs;
+    var obj = v / divs;
+    var p = Math.pow(10, Math.floor(Math.log10(obj)));
+    var pasos = [1, 2, 2.5, 5, 10];
+    for (var i=0;i<pasos.length;i++){
+      if (obj <= pasos[i]*p) return pasos[i]*p*divs;   // paso redondo, eje redondo
+    }
+    return 10*p*divs;
+  }
+  function ticks(divs){ var t=[]; for (var i=0;i<=divs;i++) t.push(i/divs); return t; }
+
+  function svgEl(t, a){
+    var e = document.createElementNS("http://www.w3.org/2000/svg", t);
+    for (var k in a) e.setAttribute(k, a[k]);
+    return e;
+  }
+
+  // ── columnas verticales (1 serie) ───────────────────────────────────────
+  function chartColumnas(host, filas, opt){
+    host.innerHTML = "";
+    if (!filas.length){ host.innerHTML = '<div class="empty">Sin envíos en este periodo.</div>'; return; }
+    var W = host.clientWidth || 640, PH = 210, MB = 34, ML = 52, MR = 14, MT = 14;
+    var H = PH + MB + MT;
+    var svg = svgEl("svg", { width:W, height:H, role:"img" });
+    var iw = W - ML - MR;
+    var max = ejeMax(Math.max.apply(null, filas.map(function(f){ return f.v; })), 5);
+    var y = function(v){ return MT + PH - (v/max)*PH; };
+    // rejilla + eje Y
+    ticks(5).forEach(function(t){
+      var vy = y(max*t);
+      svg.appendChild(svgEl("line", { x1:ML, x2:W-MR, y1:vy, y2:vy, stroke:"var(--grid)", "stroke-width":1 }));
+      var tx = svgEl("text", { x:ML-9, y:vy+4, "text-anchor":"end", fill:"var(--muted)",
+        "font-size":11, "font-family":"'IBM Plex Mono',monospace" });
+      tx.textContent = opt.fmtEje(max*t); svg.appendChild(tx);
+    });
+    var bw = iw / filas.length;
+    var ancho = Math.min(24, Math.max(3, bw - 2)); // 2px de aire entre columnas
+    filas.forEach(function(f, i){
+      var cx = ML + bw*i + bw/2, h = Math.max(0, (f.v/max)*PH);
+      if (h > 0){
+        var r = Math.min(4, ancho/2, h);
+        var x0 = cx - ancho/2, y0 = y(f.v);
+        var d = "M"+x0+","+(MT+PH)+" L"+x0+","+(y0+r)+" Q"+x0+","+y0+" "+(x0+r)+","+y0+
+                " L"+(x0+ancho-r)+","+y0+" Q"+(x0+ancho)+","+y0+" "+(x0+ancho)+","+(y0+r)+
+                " L"+(x0+ancho)+","+(MT+PH)+" Z";
+        svg.appendChild(svgEl("path", { d:d, fill:opt.color }));
+      }
+      // zona de hover generosa (toda la banda)
+      var hit = svgEl("rect", { x:ML+bw*i, y:MT, width:bw, height:PH, fill:"transparent" });
+      hit.addEventListener("mousemove", function(ev){ showTT(opt.tip(f), ev); });
+      hit.addEventListener("mouseleave", hideTT);
+      svg.appendChild(hit);
+      if (filas.length <= 14 || i % Math.ceil(filas.length/9) === 0){
+        var lx = svgEl("text", { x:cx, y:MT+PH+18, "text-anchor":"middle", fill:"var(--muted)",
+          "font-size":11, "font-family":"'IBM Plex Mono',monospace" });
+        lx.textContent = f.etiqueta; svg.appendChild(lx);
+      }
+    });
+    svg.appendChild(svgEl("line", { x1:ML, x2:W-MR, y1:MT+PH, y2:MT+PH, stroke:"var(--axis)", "stroke-width":1 }));
+    host.appendChild(svg);
+  }
+
+  // ── línea (1 serie) ─────────────────────────────────────────────────────
+  function chartLinea(host, filas, opt){
+    host.innerHTML = "";
+    if (!filas.length){ host.innerHTML = '<div class="empty">Sin envíos en este periodo.</div>'; return; }
+    var W = host.clientWidth || 500, PH = 190, MB = 34, ML = 46, MR = 56, MT = 16;
+    var H = PH + MB + MT;
+    var svg = svgEl("svg", { width:W, height:H, role:"img" });
+    var iw = W - ML - MR;
+    var conDato = filas.filter(function(f){ return f.v !== null; });
+    if (!conDato.length){ host.innerHTML = '<div class="empty">Sin datos en este periodo.</div>'; return; }
+    var max = ejeMax(Math.max.apply(null, conDato.map(function(f){ return f.v; })) * 1.12, 4);
+    var y = function(v){ return MT + PH - (v/max)*PH; };
+    var x = function(i){ return filas.length === 1 ? ML + iw/2 : ML + (iw/(filas.length-1))*i; };
+    ticks(4).forEach(function(t){
+      var vy = y(max*t);
+      svg.appendChild(svgEl("line", { x1:ML, x2:W-MR, y1:vy, y2:vy, stroke:"var(--grid)", "stroke-width":1 }));
+      var tx = svgEl("text", { x:ML-8, y:vy+4, "text-anchor":"end", fill:"var(--muted)",
+        "font-size":11, "font-family":"'IBM Plex Mono',monospace" });
+      tx.textContent = opt.fmtEje(max*t); svg.appendChild(tx);
+    });
+    // la línea se corta en las semanas sin envío en vez de caer a cero
+    var d = "", abierto = false;
+    filas.forEach(function(f,i){
+      if (f.v === null){ abierto = false; return; }
+      d += (abierto ? "L" : "M") + x(i) + "," + y(f.v) + " "; abierto = true;
+    });
+    svg.appendChild(svgEl("path", { d:d, fill:"none", stroke:opt.color, "stroke-width":2,
+      "stroke-linejoin":"round", "stroke-linecap":"round" }));
+    // marcador + etiqueta directa solo en el último punto con dato
+    var last = -1;
+    for (var j=filas.length-1;j>=0;j--){ if (filas[j].v !== null){ last = j; break; } }
+    svg.appendChild(svgEl("circle", { cx:x(last), cy:y(filas[last].v), r:5, fill:opt.color,
+      stroke:"var(--surface)", "stroke-width":2 }));
+    var el = svgEl("text", { x:x(last)+10, y:y(filas[last].v)+4, fill:"var(--ink)",
+      "font-size":12, "font-weight":600, "text-anchor":"start" });
+    el.textContent = opt.fmtEje(filas[last].v); svg.appendChild(el);
+    var paso = filas.length > 1 ? iw/(filas.length-1) : iw;
+    filas.forEach(function(f,i){
+      var hit = svgEl("rect", { x:x(i)-paso/2, y:MT, width:paso, height:PH, fill:"transparent" });
+      hit.addEventListener("mousemove", function(ev){
+        if (f.v === null){ cross.style.opacity=0; punto.style.opacity=0; hideTT(); return; }
+        cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.style.opacity = 1;
+        punto.setAttribute("cx", x(i)); punto.setAttribute("cy", y(f.v)); punto.style.opacity = 1;
+        showTT(opt.tip(f), ev);
+      });
+      hit.addEventListener("mouseleave", function(){ cross.style.opacity=0; punto.style.opacity=0; hideTT(); });
+      svg.appendChild(hit);
+      if (filas.length <= 8 || i % Math.ceil(filas.length/5) === 0){
+        var lx = svgEl("text", { x:x(i), y:MT+PH+18, "text-anchor":"middle", fill:"var(--muted)",
+          "font-size":11, "font-family":"'IBM Plex Mono',monospace" });
+        lx.textContent = f.etiqueta; svg.appendChild(lx);
+      }
+    });
+    var cross = svgEl("line", { y1:MT, y2:MT+PH, stroke:"var(--axis)", "stroke-width":1, opacity:0 });
+    var punto = svgEl("circle", { r:5, fill:opt.color, stroke:"var(--surface)", "stroke-width":2, opacity:0 });
+    svg.appendChild(cross); svg.appendChild(punto);
+    svg.appendChild(svgEl("line", { x1:ML, x2:W-MR, y1:MT+PH, y2:MT+PH, stroke:"var(--axis)", "stroke-width":1 }));
+    host.appendChild(svg);
+  }
+
+  // ── barras horizontales (1 serie, etiqueta directa en la punta) ─────────
+  function chartBarras(host, filas, opt){
+    host.innerHTML = "";
+    if (!filas.length){ host.innerHTML = '<div class="empty">Sin envíos en este periodo.</div>'; return; }
+    var W = host.clientWidth || 640, ML = Math.min(260, Math.max(150, W*0.32)), MR = 58, MT = 6;
+    var fila = 30, H = MT + filas.length*fila + 8;
+    var svg = svgEl("svg", { width:W, height:H, role:"img" });
+    var iw = W - ML - MR;
+    var max = ejeMax(Math.max.apply(null, filas.map(function(f){ return f.v; })));
+    filas.forEach(function(f, i){
+      var yb = MT + i*fila, alto = 16, ancho = Math.max(1, (f.v/max)*iw);
+      var r = Math.min(4, ancho);
+      var d = "M"+ML+","+yb+" L"+(ML+ancho-r)+","+yb+" Q"+(ML+ancho)+","+yb+" "+(ML+ancho)+","+(yb+r)+
+              " L"+(ML+ancho)+","+(yb+alto-r)+" Q"+(ML+ancho)+","+(yb+alto)+" "+(ML+ancho-r)+","+(yb+alto)+
+              " L"+ML+","+(yb+alto)+" Z";
+      svg.appendChild(svgEl("path", { d:d, fill:opt.color }));
+      var et = svgEl("text", { x:ML-10, y:yb+12, "text-anchor":"end", fill:"var(--ink2)", "font-size":12 });
+      et.textContent = f.etiqueta; svg.appendChild(et);
+      var vl = svgEl("text", { x:ML+ancho+8, y:yb+12, fill:"var(--ink)", "font-size":12, "font-weight":600 });
+      vl.textContent = opt.fmtEje(f.v); svg.appendChild(vl);
+      var hit = svgEl("rect", { x:0, y:yb-6, width:W, height:fila-2, fill:"transparent" });
+      hit.addEventListener("mousemove", function(ev){ showTT(opt.tip(f), ev); });
+      hit.addEventListener("mouseleave", hideTT);
+      svg.appendChild(hit);
+    });
+    svg.appendChild(svgEl("line", { x1:ML, x2:ML, y1:MT-2, y2:H-6, stroke:"var(--axis)", "stroke-width":1 }));
+    host.appendChild(svg);
+  }
+
+  function corta(s, n){ return s.length > n ? s.slice(0, n-1) + "…" : s; }
+
+  function render(){
+    if (!DATA) return;
+    var envios = filtrados(), semanas = porSemana(envios);
+    var T = envios.reduce(function(a,e){
+      a.enviados+=e.enviados; a.entregados+=e.entregados; a.aperturas+=e.aperturas;
+      a.clics+=e.clics; a.bajas+=e.bajas; return a;
+    }, {enviados:0, entregados:0, aperturas:0, clics:0, bajas:0});
+
+    document.getElementById("tiles").innerHTML =
+      tile("Emails enviados", num(T.enviados), envios.length + " envíos en " + semanas.filter(function(w){return w.n;}).length + " semanas") +
+      tile("Aperturas", num(T.aperturas), T.entregados ? pct(T.aperturas/T.entregados) + " de los entregados" : "—") +
+      tile("Clics", num(T.clics), T.entregados ? pct(T.clics/T.entregados) + " de los entregados" : "—") +
+      tile("Bajas", num(T.bajas), T.entregados ? pct(T.bajas/T.entregados) + " de los entregados" : "—");
+
+    chartColumnas(document.getElementById("c-envios"),
+      semanas.map(function(w){ return { v:w.enviados, etiqueta:fechaCorta(w.semana), w:w }; }),
+      { color:"var(--series-1)", fmtEje:function(v){ return v>=1000 ? Math.round(v/1000)+"k" : num(v); },
+        tip:function(f){ return "<b>Semana del "+fechaLarga(f.w.semana)+"</b><br>"+num(f.w.enviados)+
+          " enviados · "+f.w.n+" envío"+(f.w.n>1?"s":"")+"<br><span class='r'>"+num(f.w.aperturas)+
+          " aperturas · "+num(f.w.clics)+" clics</span>"; } });
+
+    chartLinea(document.getElementById("c-apertura"),
+      semanas.map(function(w){ return { v: w.entregados ? w.aperturas/w.entregados*100 : null,
+        etiqueta:fechaCorta(w.semana), w:w }; }),
+      { color:"var(--series-1)", fmtEje:function(v){ return v.toFixed(0)+"%"; },
+        tip:function(f){ return "<b>Semana del "+fechaLarga(f.w.semana)+"</b><br>Apertura: "+
+          f.v.toFixed(1).replace(".",",")+"%<br><span class='r'>"+num(f.w.aperturas)+" de "+
+          num(f.w.entregados)+" entregados</span>"; } });
+
+    chartLinea(document.getElementById("c-clic"),
+      semanas.map(function(w){ return { v: w.entregados ? w.clics/w.entregados*100 : null,
+        etiqueta:fechaCorta(w.semana), w:w }; }),
+      { color:"var(--series-2)", fmtEje:function(v){ return v.toFixed(1).replace(".",",")+"%"; },
+        tip:function(f){ return "<b>Semana del "+fechaLarga(f.w.semana)+"</b><br>Clic: "+
+          f.v.toFixed(2).replace(".",",")+"%<br><span class='r'>"+num(f.w.clics)+" clics de "+
+          num(f.w.entregados)+" entregados</span>"; } });
+
+    var top = envios.slice().filter(function(e){ return e.entregados > 0; })
+      .sort(function(a,b){ return (b.aperturas/b.entregados) - (a.aperturas/a.entregados); }).slice(0, 12);
+    document.getElementById("cs-envio").textContent =
+      top.length === envios.length ? "Todos los envíos del periodo, de mayor a menor apertura"
+                                   : "Los 12 envíos con mejor apertura del periodo";
+    chartBarras(document.getElementById("c-porenvio"),
+      top.map(function(e){ return { v: e.aperturas/e.entregados*100, etiqueta: corta(e.nombre, 34), e:e }; }),
+      { color:"var(--series-1)", fmtEje:function(v){ return v.toFixed(1).replace(".",",")+"%"; },
+        tip:function(f){ return "<b>"+f.e.nombre+"</b><br>"+fechaLarga(f.e.fecha)+"<br>"+
+          num(f.e.enviados)+" enviados · "+num(f.e.aperturas)+" aperturas ("+
+          f.v.toFixed(1).replace(".",",")+"%)<br><span class='r'>"+num(f.e.clics)+" clics · "+
+          num(f.e.aperturasBrutas)+" aperturas con MPP</span>"; } });
+
+    var tb = document.querySelector("#tabla tbody");
+    tb.innerHTML = envios.map(function(e){
+      var ta = e.entregados ? e.aperturas/e.entregados : 0, tc = e.entregados ? e.clics/e.entregados : 0;
+      var col = e.tipo === "compraventa" ? "var(--series-2)" : "var(--series-1)";
+      return "<tr><td><span class='dot' style='background:"+col+"'></span>"+e.nombre+"</td>"+
+        "<td class='f'>"+fechaLarga(e.fecha)+"</td><td class='n'>"+num(e.enviados)+"</td>"+
+        "<td class='n'>"+num(e.entregados)+"</td><td class='n'>"+num(e.aperturas)+"</td>"+
+        "<td class='n'>"+pct(ta)+"</td><td class='n'>"+num(e.clics)+"</td>"+
+        "<td class='n'>"+pct(tc)+"</td><td class='n'>"+num(e.bajas)+"</td></tr>";
+    }).join("") || "<tr><td colspan='9' class='empty'>Sin envíos en este periodo.</td></tr>";
+  }
+
+  function tile(lab, val, sec){
+    return '<div class="tile"><div class="lab">'+lab+'</div><div class="val">'+val+
+           '</div><div class="sec">'+sec+'</div></div>';
+  }
+
+  document.querySelectorAll(".seg").forEach(function(seg){
+    seg.addEventListener("click", function(ev){
+      var b = ev.target.closest("button"); if (!b) return;
+      seg.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x===b ? "true":"false"); });
+      S[seg.id === "f-tipo" ? "tipo" : "periodo"] = b.dataset.v;
+      render();
+    });
+  });
+
+  var t; addEventListener("resize", function(){ clearTimeout(t); t = setTimeout(render, 180); });
+
+  fetch("/api/metrics").then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) throw new Error(d.error);
+    DATA = d;
+    var f = new Date(d.generado);
+    document.getElementById("meta").textContent =
+      "Datos en vivo de Brevo · " + d.envios.length + " envíos históricos · actualizado " +
+      f.toLocaleString("es-ES", { day:"numeric", month:"long", hour:"2-digit", minute:"2-digit" });
+    render();
+  }).catch(function(e){
+    document.getElementById("meta").textContent = "No se pudieron cargar los datos: " + e.message;
+  });
+})();
+</script>
+</body>
+</html>
