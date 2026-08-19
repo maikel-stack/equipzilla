@@ -298,7 +298,8 @@
   "p": 22000,
   "e": false,
   "s": "28 m · telescópica diésel",
-  "z": "Ferrol"
+  "z": "Ferrol",
+  "pa": 29500
  },
  {
   "img": "PT-HA20PX12",
@@ -309,7 +310,8 @@
   "p": 18500,
   "e": false,
   "s": "20 m · articulada diésel",
-  "z": "Alicante"
+  "z": "Alicante",
+  "pa": 20700
  },
  {
   "img": "PT-JLG450AJ",
@@ -320,7 +322,8 @@
   "p": 19500,
   "e": false,
   "s": "16 m · articulada diésel",
-  "z": "Alicante"
+  "z": "Alicante",
+  "pa": 22300
  },
  {
   "img": "PT-JLGE300AJ",
@@ -331,6 +334,7 @@
   "p": 7900,
   "e": true,
   "s": "11 m · articulada eléctrica",
-  "z": "Tarragona"
+  "z": "Tarragona",
+  "pa": 8900
  }
 ]
