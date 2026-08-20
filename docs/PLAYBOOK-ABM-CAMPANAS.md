@@ -155,3 +155,26 @@ El que hace clic es un lead caliente → hay que avisar a comercial rápido:
 | Deals CRM | `GET /v1/deals?limit=500&start=N` (Pipedrive) |
 | Enriquecer persona | `GET /v1/persons/search?term={email}` |
 | Validar MX | `GET https://dns.google/resolve?name={dom}&type=MX` |
+
+## Maquetado móvil — errores detectados en producción (20/08/2026)
+
+La mayoría de estos correos se leen en el móvil. Dos fallos reales encontrados
+revisando capturas de David (iPhone) y Andrés (Xiaomi):
+
+1. **Tabla contenedora con ancho fijo.** Las plantillas llevaban
+   `<table width="600" style="width:600px">` pero la regla de móvil apuntaba a
+   `.container`, clase que la tabla **no tenía**. Resultado: la media query no
+   se aplicaba nunca y el correo se salía del ancho del teléfono (el cliente lo
+   encoge y queda ilegible). Correcto:
+   `<table width="100%" class="container" style="width:100%; max-width:600px">`.
+2. **Filas de datos en varias columnas.** Una fila tipo
+   `Altura | Horas | Ubicación` en tres celdas se apelotona en pantallas
+   estrechas. En email no hay grid fiable: **una sola columna siempre**. Las
+   specs van como una línea de texto corrida
+   (`2007 · telescópica diésel · 28 m · 5.863 h · Ferrol`) y los botones a
+   ancho completo (`display:block` dentro de un `<td align="center">`).
+
+Antes de programar cualquier campaña: renderizar a **390 px (iPhone) y 360 px
+(Android)** y comprobar que `document.documentElement.scrollWidth` no supera el
+ancho de la pantalla. Ojo: `chromium --screenshot --window-size` da falsos
+positivos de recorte; medir con Playwright y su viewport.
