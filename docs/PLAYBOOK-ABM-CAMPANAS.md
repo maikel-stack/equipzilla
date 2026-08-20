@@ -178,3 +178,19 @@ Antes de programar cualquier campaña: renderizar a **390 px (iPhone) y 360 px
 (Android)** y comprobar que `document.documentElement.scrollWidth` no supera el
 ancho de la pantalla. Ojo: `chromium --screenshot --window-size` da falsos
 positivos de recorte; medir con Playwright y su viewport.
+
+## Reglas fijas de configuración de cada campaña (20/08/2026)
+
+Comprobar SIEMPRE antes de programar o enviar:
+
+1. **Dirección de respuesta.** Poner `replyTo: "clientes@equipzilla.com"` de forma
+   explícita al crear la campaña. Si no se indica, Brevo usa
+   `[DEFAULT_REPLY_TO]`, que en esta cuenta apunta a un buzón antiguo ajeno a
+   Equipzilla — las respuestas de clientes acaban donde nadie las lee.
+   (Las campañas #203, #204 y #206 salieron así; conviene revisar ese buzón.)
+   Arreglo de raíz, en la interfaz de Brevo: *Ajustes → Remitentes y dominios →
+   dirección de respuesta por defecto*.
+2. **Copia al equipo.** Incluir siempre la lista **34 · «Equipo · copia de
+   envíos»** en `listIds`, para que Andrés (y quien se añada a esa lista) reciba
+   exactamente lo mismo que el cliente.
+3. Remitente: `sender: {"id": 10}` (clientes@equipzilla.com), el único válido.
