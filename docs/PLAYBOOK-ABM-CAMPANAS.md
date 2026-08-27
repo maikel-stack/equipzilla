@@ -228,3 +228,21 @@ Son **530 personas únicas con email** (529 con teléfono). Todas pidieron
 **alquiler**, no compra: el ángulo que convierte es alquiler-vs-compra, no la
 oferta de venta a secas. La campaña `campanas/contenedores-modulos.html` está
 escrita con ese marco y enlaza a la calculadora.
+
+### Listas de Brevo para la campaña de contenedores
+
+Creadas el 27/08/2026 a partir del rastreo de Pipedrive, segmentadas porque
+nuestros propios datos dicen que las listas pequeñas rinden mucho más (24,1%
+de apertura en Carretillas, 597 destinatarios · 11,7% en el envío grande de
+plataformas, 931 destinatarios):
+
+| Lista | Nombre | Suscriptores |
+|---|---|---:|
+| 35 | Contenedores · Casetas y módulos | 293 |
+| 36 | Contenedores · Aseos y sanitarios | 151 |
+| 37 | Contenedores · Contenedor marítimo | 32 |
+
+De los 530 contactos de origen, 32 ya estaban dados de baja y Brevo los
+excluye solo. Recordar las reglas fijas: `sender: {"id": 10}`,
+`replyTo: "clientes@equipzilla.com"` explícito, y añadir siempre la lista
+**34 · Equipo · copia de envíos**.
