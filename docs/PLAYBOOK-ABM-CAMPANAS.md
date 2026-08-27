@@ -194,3 +194,37 @@ Comprobar SIEMPRE antes de programar o enviar:
    envíos»** en `listIds`, para que Andrés (y quien se añada a esa lista) reciba
    exactamente lo mismo que el cliente.
 3. Remitente: `sender: {"id": 10}` (clientes@equipzilla.com), el único válido.
+
+## Parte diario (27/08/2026)
+
+`scripts/update_diario.py` imprime en Markdown el estado del sistema: números
+acumulados del motor ABM, últimos envíos, borradores esperando decisión y leads
+entrados en 24 h. Lo dispara una rutina programada cada mañana a las 8:30
+(06:30 UTC). Necesita `BREVO_API_KEY` y `PIPEDRIVE_TOKEN` en el entorno.
+
+**Dos trampas al contar campañas, ya resueltas en el script:**
+
+1. **Clasificar por prefijo, no por palabras sueltas.** Las campañas del motor
+   ABM se llaman siempre `Compraventa · …` o `Plataformas Elevación · …`.
+   Filtrar por palabras ("stock", "plataforma") colaba el blast masivo #194
+   *Nuevo stock Kubota* (22.396 envíos, julio) y disparaba el total a 35.062
+   envíos con un 16,9% de apertura — cifras no comparables con el motor
+   segmentado.
+2. **Descartar el estado `rejected`.** La campaña #199 figura con 2.148
+   destinatarios pero Brevo la abortó: nunca llegó a nadie. Sólo cuenta
+   `status == "sent"`.
+
+## Demanda de contenedores y módulos (27/08/2026)
+
+Rastreo de los deals de Pipedrive de los últimos 180 días: **531 de 2.041**
+peticiones son de casetas de obra, aseos, vestuarios o contenedores marítimos
+— un **26%** del inbound total, y un 33% mirando sólo a 90 días.
+
+- 325 personas pidieron **caseta / módulo de obra**
+- 170 pidieron **aseo / sanitario**
+- 35 pidieron **contenedor marítimo**
+
+Son **530 personas únicas con email** (529 con teléfono). Todas pidieron
+**alquiler**, no compra: el ángulo que convierte es alquiler-vs-compra, no la
+oferta de venta a secas. La campaña `campanas/contenedores-modulos.html` está
+escrita con ese marco y enlaza a la calculadora.
