@@ -111,7 +111,14 @@ def smartlead_get(path):
     url = f"https://server.smartlead.ai/api/v1{path}{sep}api_key={SL_KEY}"
     for attempt in range(4):
         try:
-            return json.load(urllib.request.urlopen(url, timeout=45))
+            # Sin User-Agent de navegador Cloudflare responde 403 (error 1010).
+            req = urllib.request.Request(url, headers={
+                "accept": "application/json",
+                "user-agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                               "AppleWebKit/537.36 (KHTML, like Gecko) "
+                               "Chrome/128.0.0.0 Safari/537.36"),
+                "referer": "https://app.smartlead.ai/"})
+            return json.load(urllib.request.urlopen(req, timeout=45))
         except Exception:
             time.sleep(5 * (attempt + 1))
     return {}

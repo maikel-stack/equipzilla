@@ -42,13 +42,24 @@ async function smartlead() {
   const key = process.env.SMARTLEAD_API_KEY;
   if (!key) return null;
   const base = "https://server.smartlead.ai/api/v1";
-  const r = await fetch(`${base}/campaigns?api_key=${key}`);
+  // Cloudflare bloquea con 403 (error 1010) toda peticion sin firma de
+  // navegador: sin estas cabeceras el bloque de frio del panel sale vacio.
+  const cab = {
+    accept: "application/json",
+    "user-agent":
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
+      "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+    referer: "https://app.smartlead.ai/",
+  };
+  const r = await fetch(`${base}/campaigns?api_key=${key}`, { headers: cab });
   if (!r.ok) throw new Error("smartlead " + r.status);
   const lista = await r.json();
   const campanas = Array.isArray(lista) ? lista : (lista.data || []);
   const salida = [], semanas = {};
   for (const c of campanas) {
-    const a = await (await fetch(`${base}/campaigns/${c.id}/analytics?api_key=${key}`)).json();
+    const a = await (
+      await fetch(`${base}/campaigns/${c.id}/analytics?api_key=${key}`, { headers: cab })
+    ).json();
     salida.push({
       id: c.id, nombre: c.name, estado: c.status,
       creada: (c.created_at || "").slice(0, 10),

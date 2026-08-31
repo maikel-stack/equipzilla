@@ -55,10 +55,17 @@ def pipedrive(ruta, **params):
     return pedir(url, {"accept": "application/json"})
 
 
+# Cloudflare rechaza con "error 1010" las peticiones sin firma de navegador:
+# sin este User-Agent la API de Smartlead devuelve 403 a todo.
+NAVEGADOR = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+             "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36")
+
+
 def smartlead(ruta):
     sep = "&" if "?" in ruta else "?"
     return pedir("https://server.smartlead.ai/api/v1" + ruta + sep + "api_key=" + SL_KEY,
-                 {"accept": "application/json"})
+                 {"accept": "application/json", "user-agent": NAVEGADOR,
+                  "referer": "https://app.smartlead.ai/"})
 
 
 def es_abm(nombre):
@@ -212,15 +219,27 @@ def main():
     if SL_KEY:
         try:
             camps = smartlead("/campaigns")
-            activas = [c for c in camps if c.get("status") == "ACTIVE"]
             lineas += ["## Frío (Smartlead)", ""]
-            for c in activas[:5]:
+            if not camps:
+                lineas.append("- No hay ninguna campaña montada.")
+            for c in camps[:6]:
                 a = smartlead(f"/campaigns/{c['id']}/analytics")
+                estado = c.get("status", "?")
+                enviados = a.get("sent_count", 0)
+                leads = (a.get("campaign_lead_stats") or {}).get("total", 0)
+                # El seguimiento de aperturas suele ir desactivado en frío para
+                # no perjudicar la entregabilidad: la métrica que vale es la
+                # respuesta, no la apertura.
                 lineas.append(
-                    f"- {c.get('name', '')[:40]}: {a.get('sent_count', 0)} enviados · "
-                    f"{a.get('open_count', 0)} aperturas · {a.get('reply_count', 0)} respuestas")
-            if not activas:
-                lineas.append("- Sin campañas activas.")
+                    f"- **{c.get('name', '')[:44]}** — `{estado}` · {enviados} enviados · "
+                    f"{a.get('reply_count', 0)} respuestas · {a.get('click_count', 0)} clics "
+                    f"· {leads} leads cargados")
+                if estado != "ACTIVE":
+                    lineas.append(f"  - ⚠️ **parada** — no está enviando nada.")
+                if leads and leads < 200:
+                    lineas.append(
+                        f"  - ⚠️ sólo {leads} leads para 10 buzones (capacidad ~150/día): "
+                        f"se queda sin gente a los pocos días.")
             lineas.append("")
         except Exception as e:
             lineas += [f"_Smartlead no responde: {e}_", ""]

@@ -201,3 +201,52 @@ la plantilla ABM (`wa.me/34606836581`, mencionando solo el modelo).
 | Arrancar/parar | `POST /api/v1/campaigns/{id}/status` `{"status":"START"|"PAUSED"}` |
 | Analítica / respuestas | `GET /api/v1/campaigns/{id}/analytics` · `/statistics` · `/leads/{lid}/message-history` |
 | Apollo (MCP) | `apollo_mixed_people_api_search` · `apollo_people_bulk_match` |
+
+## Smartlead: Cloudflare bloquea las llamadas sin User-Agent (27/08/2026)
+
+Toda petición a `server.smartlead.ai` sin cabecera de navegador recibe un
+**403 con "error 1010" de Cloudflare**. No es la clave: es la firma del
+cliente. Hay que enviar siempre:
+
+    user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36
+    referer:    https://app.smartlead.ai/
+
+Los cuatro consumidores fallaban en silencio (`quiz/api/metrics.js`,
+`scripts/update_diario.py`, `scripts/daily_sales_report.py`,
+`scripts/metrics_to_sheet.py`): tres tragaban la excepción y devolvían `{}`,
+así que el bloque de frío del panel salía vacío sin avisar de nada. Ya
+corregido en los cuatro.
+
+## Estado de la campaña de frío (27/08/2026)
+
+`Compraventa Frio - Madrid Maquinaria - 2026-08` (id 3789100).
+
+| | |
+|---|---:|
+| Estado | **PAUSED** desde el 26/08 |
+| Último envío | 24/08 |
+| Enviados | 247 |
+| Respuestas | 3 (1,2%) |
+| Clics | 8 |
+| Rebotes | 4 |
+| Leads cargados | **87** |
+| Buzones calentados | 10 (15 msg/día cada uno) |
+
+**Dos problemas de fondo:**
+
+1. **Está parada.** Lleva sin enviar desde el 24/08.
+2. **Está muerta de hambre.** 87 leads para una capacidad de ~150 correos
+   diarios. De esos 87, 27 ya han terminado la secuencia entera y 56 están
+   a mitad: aunque se reanude hoy, se queda seca en días. El tope
+   `max_leads_per_day: 15` la limita todavía más.
+
+El seguimiento de aperturas está desactivado a propósito
+(`track_settings: ['DONT_EMAIL_OPEN']`), que es lo correcto en frío para no
+dañar la entregabilidad. La métrica que cuenta aquí es la respuesta.
+
+**Las tres respuestas siguen sin contestar** (buzones de equipzillaform):
+admin@maraobras.com (14/08), info@demolicionesborraz.com (17/08),
+info@gycoosa.es (13/08).
+
+Los 8 que clicaron incluyen constructoras serias: Sando, Terratest, Rodio
+Kronsa, EPSA Group, Excavaciones Guda, Geonovatek, DTECOM.
