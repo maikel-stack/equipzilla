@@ -246,3 +246,21 @@ De los 530 contactos de origen, 32 ya estaban dados de baja y Brevo los
 excluye solo. Recordar las reglas fijas: `sender: {"id": 10}`,
 `replyTo: "clientes@equipzilla.com"` explícito, y añadir siempre la lista
 **34 · Equipo · copia de envíos**.
+
+### Listas de reactivación por categoría (28/08/2026)
+
+Los 2.582 contactos de la base de 12 meses aún sin trabajar, segmentados por
+la categoría que pidieron. Calendario de campañas: sept (38, 39, 40 + casetas
+2ª tanda) y oct (41, 42, 43).
+
+| Lista | Nombre | Contactos |
+|---|---|---:|
+| 38 | Reactivación · Plataformas | 817 |
+| 39 | Reactivación · Excavadoras y mini | 545 |
+| 40 | Reactivación · Carretillas | 288 |
+| 41 | Reactivación · Telescópicos | 264 |
+| 42 | Reactivación · Generadores | 255 |
+| 43 | Reactivación · Dumper y palas | 214 |
+
+Reglas fijas de siempre: sender id 10, `replyTo clientes@equipzilla.com`,
+lista 34 en copia. Ninguna campaña sale sin OK humano.
