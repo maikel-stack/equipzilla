@@ -1,59 +1,379 @@
 {
-  "titulo": "Equipzilla · Demand Engine · Planning de ejecución",
-  "actualizado": "2026-08-28",
-  "fases": ["SEPT · ACTIVAR", "OCT · CAPTAR", "NOV · OPTIMIZAR", "DIC · RENTABILIZAR", "ENE · ESCALAR"],
-  "hitos": [
-    {"fase": "SEPT · ACTIVAR",      "hito": "13 ofertas con desenlace y CRM midiendo importe y margen", "semana": "S1"},
-    {"fase": "SEPT · ACTIVAR",      "hito": "162 leads calientes llamados con resultado anotado", "semana": "S2"},
-    {"fase": "SEPT · ACTIVAR",      "hito": "Primera campaña de reactivación enviada (Plataformas, 818)", "semana": "S2"},
-    {"fase": "SEPT · ACTIVAR",      "hito": "Scoring HOT/WARM/COLD aplicado + Response y Campaign Agent v1", "semana": "S4"},
-    {"fase": "OCT · CAPTAR",        "hito": "Outbound B2B a plena capacidad (200+/día)", "semana": "S1"},
-    {"fase": "OCT · CAPTAR",        "hito": "Google Ads activo y midiendo lead→operación", "semana": "S2"},
-    {"fase": "OCT · CAPTAR",        "hito": "SEO comercial publicando 2-3 piezas/semana", "semana": "S3"},
-    {"fase": "OCT · CAPTAR",        "hito": "Primer análisis: qué canal y segmento responde", "semana": "S4"},
-    {"fase": "NOV · OPTIMIZAR",     "hito": "Follow-ups y cualificación automatizados", "semana": "S2"},
-    {"fase": "NOV · OPTIMIZAR",     "hito": "Dashboard semanal de growth funcionando", "semana": "S4"},
-    {"fase": "DIC · RENTABILIZAR",  "hito": "CAC, conversión, revenue y margen por canal y categoría", "semana": "S4"},
-    {"fase": "ENE · ESCALAR",       "hito": "Winning channels/categories/segments + roadmap 6-12 meses", "semana": "S4"}
-  ],
-  "tareas": [
-    {"id": 1,  "fase": "SEPT · ACTIVAR", "semana": "S1", "tarea": "Llamada de cierre a las 13 ofertas enviadas — desenlace e importe obligatorios", "resp": "David", "estado": "Pendiente"},
-    {"id": 2,  "fase": "SEPT · ACTIVAR", "semana": "S1", "tarea": "Activar 4 campos obligatorios en Pipedrive (importe, coste, categoría, canal) + motivo de pérdida específico", "resp": "David", "estado": "Pendiente"},
-    {"id": 3,  "fase": "SEPT · ACTIVAR", "semana": "S1", "tarea": "Contestar las 4 respuestas de frío pendientes (gycoosa, maraobras, demolicionesborraz, +1)", "resp": "David", "estado": "Pendiente"},
-    {"id": 4,  "fase": "SEPT · ACTIVAR", "semana": "S1", "tarea": "Cargar leads nuevos en Smartlead y subir ritmo a 40 leads/día · 25 por buzón", "resp": "Claude", "estado": "En curso"},
-    {"id": 5,  "fase": "SEPT · ACTIVAR", "semana": "S1", "tarea": "Decidir dominio del blog y conseguir contraseña de aplicación de WordPress", "resp": "Maikel", "estado": "Pendiente"},
-    {"id": 6,  "fase": "SEPT · ACTIVAR", "semana": "S1", "tarea": "Pasar credenciales de DinoRank", "resp": "Maikel", "estado": "Pendiente"},
-    {"id": 7,  "fase": "SEPT · ACTIVAR", "semana": "S1", "tarea": "Conectar el conector de Google Ads en claude.ai para auditar la cuenta", "resp": "Maikel", "estado": "Pendiente"},
-    {"id": 8,  "fase": "SEPT · ACTIVAR", "semana": "S1", "tarea": "Empezar las 162 llamadas por los 6 muy calientes (hoja compartida)", "resp": "David y Andrés", "estado": "Pendiente"},
-    {"id": 9,  "fase": "SEPT · ACTIVAR", "semana": "S2", "tarea": "Terminar las 162 llamadas con resultado anotado en la hoja", "resp": "David y Andrés", "estado": "Pendiente"},
-    {"id": 10, "fase": "SEPT · ACTIVAR", "semana": "S2", "tarea": "Segmentar los 2.582 contactos restantes en listas de Brevo por categoría", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 11, "fase": "SEPT · ACTIVAR", "semana": "S2", "tarea": "Campaña reactivación · Plataformas (818) — borrador + OK + envío", "resp": "Claude + OK equipo", "estado": "Pendiente"},
-    {"id": 12, "fase": "SEPT · ACTIVAR", "semana": "S2", "tarea": "Definir scoring HOT/WARM/COLD (recencia, máquina concreta, clics, categoría)", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 13, "fase": "SEPT · ACTIVAR", "semana": "S3", "tarea": "Campaña reactivación · Excavadoras y mini (543)", "resp": "Claude + OK equipo", "estado": "Pendiente"},
-    {"id": 14, "fase": "SEPT · ACTIVAR", "semana": "S3", "tarea": "Campaña reactivación · Carretillas (283)", "resp": "Claude + OK equipo", "estado": "Pendiente"},
-    {"id": 15, "fase": "SEPT · ACTIVAR", "semana": "S3", "tarea": "Response Agent v1: respuesta <15 min con precio orientativo + 5 toques de seguimiento", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 16, "fase": "SEPT · ACTIVAR", "semana": "S3", "tarea": "Publicar los 12 artículos SEO en el dominio decidido", "resp": "Claude", "estado": "Bloqueada (tarea 5)"},
-    {"id": 17, "fase": "SEPT · ACTIVAR", "semana": "S4", "tarea": "Campaña reactivación · Casetas 2ª tanda (399)", "resp": "Claude + OK equipo", "estado": "Pendiente"},
-    {"id": 18, "fase": "SEPT · ACTIVAR", "semana": "S4", "tarea": "Campaign Agent v1: informe post-envío que alimenta la hoja de llamadas", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 19, "fase": "SEPT · ACTIVAR", "semana": "S4", "tarea": "Aplicar scoring a toda la base y generar cola comercial", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 20, "fase": "SEPT · ACTIVAR", "semana": "S4", "tarea": "Montar estructura de Google Ads + etiquetado de conversiones (sin encender)", "resp": "Claude + Maikel", "estado": "Pendiente"},
-    {"id": 21, "fase": "SEPT · ACTIVAR", "semana": "S4", "tarea": "Preparar secuencia outbound B2B v2 (copy + segmento constructoras)", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 22, "fase": "OCT · CAPTAR", "semana": "S1", "tarea": "Outbound a plena capacidad con seguimiento diario de respuestas", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 23, "fase": "OCT · CAPTAR", "semana": "S1", "tarea": "Campaña reactivación · Telescópicos (253) — la Manitou lidera clics", "resp": "Claude + OK equipo", "estado": "Pendiente"},
-    {"id": 24, "fase": "OCT · CAPTAR", "semana": "S2", "tarea": "Encender Google Ads a 20-30 €/día (modelo exacto + categoría con stock)", "resp": "Claude + Maikel", "estado": "Pendiente"},
-    {"id": 25, "fase": "OCT · CAPTAR", "semana": "S2", "tarea": "Campaña reactivación · Generadores (247)", "resp": "Claude + OK equipo", "estado": "Pendiente"},
-    {"id": 26, "fase": "OCT · CAPTAR", "semana": "S3", "tarea": "SEO Agent: ciclo DinoRank semanal en producción (2-3 piezas/semana)", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 27, "fase": "OCT · CAPTAR", "semana": "S3", "tarea": "Campaña reactivación · Dumper y palas (217)", "resp": "Claude + OK equipo", "estado": "Pendiente"},
-    {"id": 28, "fase": "OCT · CAPTAR", "semana": "S4", "tarea": "Lead Qualification Agent v1: puntuación 0-100 en cada entrada", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 29, "fase": "OCT · CAPTAR", "semana": "S4", "tarea": "Primer análisis por canal y segmento: qué responde y qué no", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 30, "fase": "NOV · OPTIMIZAR", "semana": "S1", "tarea": "Qualification en producción sobre todos los canales", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 31, "fase": "NOV · OPTIMIZAR", "semana": "S2", "tarea": "Follow-ups y recuperación de oportunidades 100% automatizados", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 32, "fase": "NOV · OPTIMIZAR", "semana": "S3", "tarea": "Pricing Intelligence v1: horquillas de mercado por modelo desde portales", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 33, "fase": "NOV · OPTIMIZAR", "semana": "S4", "tarea": "Dashboard semanal de growth (los 5 números del lunes)", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 34, "fase": "DIC · RENTABILIZAR", "semana": "S1", "tarea": "CAC y coste por oportunidad por canal", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 35, "fase": "DIC · RENTABILIZAR", "semana": "S2", "tarea": "Conversión por categoría con datos de 90 días", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 36, "fase": "DIC · RENTABILIZAR", "semana": "S3", "tarea": "Revenue y margen por canal", "resp": "Claude", "estado": "Pendiente"},
-    {"id": 37, "fase": "DIC · RENTABILIZAR", "semana": "S4", "tarea": "Ranking de iniciativas: winning channels / categories / segments", "resp": "Claude + equipo", "estado": "Pendiente"},
-    {"id": 38, "fase": "ENE · ESCALAR", "semana": "S1-S4", "tarea": "Escalar sólo lo ganador + roadmap growth 6-12 meses", "resp": "Equipo", "estado": "Pendiente"}
-  ]
+ "titulo": "Equipzilla · Demand Engine · Planning de ejecución",
+ "actualizado": "2026-08-28",
+ "fases": [
+  "SEPT · ACTIVAR",
+  "OCT · CAPTAR",
+  "NOV · OPTIMIZAR",
+  "DIC · RENTABILIZAR",
+  "ENE · ESCALAR"
+ ],
+ "hitos": [
+  {
+   "fase": "SEPT · ACTIVAR",
+   "hito": "13 ofertas con desenlace y CRM midiendo importe y margen",
+   "semana": "S1"
+  },
+  {
+   "fase": "SEPT · ACTIVAR",
+   "hito": "162 leads calientes llamados con resultado anotado",
+   "semana": "S2"
+  },
+  {
+   "fase": "SEPT · ACTIVAR",
+   "hito": "Primera campaña de reactivación enviada (Plataformas, 818)",
+   "semana": "S2"
+  },
+  {
+   "fase": "SEPT · ACTIVAR",
+   "hito": "Scoring HOT/WARM/COLD aplicado + Response y Campaign Agent v1",
+   "semana": "S4"
+  },
+  {
+   "fase": "OCT · CAPTAR",
+   "hito": "Outbound B2B a plena capacidad (200+/día)",
+   "semana": "S1"
+  },
+  {
+   "fase": "OCT · CAPTAR",
+   "hito": "Google Ads activo y midiendo lead→operación",
+   "semana": "S2"
+  },
+  {
+   "fase": "OCT · CAPTAR",
+   "hito": "SEO comercial publicando 2-3 piezas/semana",
+   "semana": "S3"
+  },
+  {
+   "fase": "OCT · CAPTAR",
+   "hito": "Primer análisis: qué canal y segmento responde",
+   "semana": "S4"
+  },
+  {
+   "fase": "NOV · OPTIMIZAR",
+   "hito": "Follow-ups y cualificación automatizados",
+   "semana": "S2"
+  },
+  {
+   "fase": "NOV · OPTIMIZAR",
+   "hito": "Dashboard semanal de growth funcionando",
+   "semana": "S4"
+  },
+  {
+   "fase": "DIC · RENTABILIZAR",
+   "hito": "CAC, conversión, revenue y margen por canal y categoría",
+   "semana": "S4"
+  },
+  {
+   "fase": "ENE · ESCALAR",
+   "hito": "Winning channels/categories/segments + roadmap 6-12 meses",
+   "semana": "S4"
+  }
+ ],
+ "tareas": [
+  {
+   "id": 1,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S1",
+   "tarea": "Llamada de cierre a las 13 ofertas enviadas — desenlace e importe obligatorios",
+   "resp": "David",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 2,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S1",
+   "tarea": "Activar 4 campos obligatorios en Pipedrive (importe, coste, categoría, canal) + motivo de pérdida específico",
+   "resp": "David",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 3,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S1",
+   "tarea": "Contestar las 4 respuestas de frío pendientes (gycoosa, maraobras, demolicionesborraz, +1)",
+   "resp": "David",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 4,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S1",
+   "tarea": "Cargar leads nuevos en Smartlead y subir ritmo a 40 leads/día · 25 por buzón",
+   "resp": "Claude",
+   "estado": "En curso"
+  },
+  {
+   "id": 5,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S1",
+   "tarea": "Decidir dominio del blog y conseguir contraseña de aplicación de WordPress",
+   "resp": "Maikel",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 6,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S1",
+   "tarea": "Pasar credenciales de DinoRank",
+   "resp": "Maikel",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 7,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S1",
+   "tarea": "Conectar el conector de Google Ads en claude.ai para auditar la cuenta",
+   "resp": "Maikel",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 8,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S1",
+   "tarea": "Empezar las 162 llamadas por los 6 muy calientes (hoja compartida)",
+   "resp": "David y Andrés",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 9,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S2",
+   "tarea": "Terminar las 162 llamadas con resultado anotado en la hoja",
+   "resp": "David y Andrés",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 10,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S2",
+   "tarea": "Segmentar los 2.582 contactos restantes en listas de Brevo por categoría",
+   "resp": "Claude",
+   "estado": "Hecha (28/08 · listas Brevo 38-43)"
+  },
+  {
+   "id": 11,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S2",
+   "tarea": "Campaña reactivación · Plataformas (818) — borrador + OK + envío",
+   "resp": "Claude + OK equipo",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 12,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S2",
+   "tarea": "Definir scoring HOT/WARM/COLD (recencia, máquina concreta, clics, categoría)",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 13,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S3",
+   "tarea": "Campaña reactivación · Excavadoras y mini (543)",
+   "resp": "Claude + OK equipo",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 14,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S3",
+   "tarea": "Campaña reactivación · Carretillas (283)",
+   "resp": "Claude + OK equipo",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 15,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S3",
+   "tarea": "Response Agent v1: respuesta <15 min con precio orientativo + 5 toques de seguimiento",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 16,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S3",
+   "tarea": "Publicar los 12 artículos SEO en el dominio decidido",
+   "resp": "Claude",
+   "estado": "Bloqueada (tarea 5)"
+  },
+  {
+   "id": 17,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S4",
+   "tarea": "Campaña reactivación · Casetas 2ª tanda (399)",
+   "resp": "Claude + OK equipo",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 18,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S4",
+   "tarea": "Campaign Agent v1: informe post-envío que alimenta la hoja de llamadas",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 19,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S4",
+   "tarea": "Aplicar scoring a toda la base y generar cola comercial",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 20,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S4",
+   "tarea": "Montar estructura de Google Ads + etiquetado de conversiones (sin encender)",
+   "resp": "Claude + Maikel",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 21,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S4",
+   "tarea": "Preparar secuencia outbound B2B v2 (copy + segmento constructoras)",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 22,
+   "fase": "OCT · CAPTAR",
+   "semana": "S1",
+   "tarea": "Outbound a plena capacidad con seguimiento diario de respuestas",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 23,
+   "fase": "OCT · CAPTAR",
+   "semana": "S1",
+   "tarea": "Campaña reactivación · Telescópicos (253) — la Manitou lidera clics",
+   "resp": "Claude + OK equipo",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 24,
+   "fase": "OCT · CAPTAR",
+   "semana": "S2",
+   "tarea": "Encender Google Ads a 20-30 €/día (modelo exacto + categoría con stock)",
+   "resp": "Claude + Maikel",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 25,
+   "fase": "OCT · CAPTAR",
+   "semana": "S2",
+   "tarea": "Campaña reactivación · Generadores (247)",
+   "resp": "Claude + OK equipo",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 26,
+   "fase": "OCT · CAPTAR",
+   "semana": "S3",
+   "tarea": "SEO Agent: ciclo DinoRank semanal en producción (2-3 piezas/semana)",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 27,
+   "fase": "OCT · CAPTAR",
+   "semana": "S3",
+   "tarea": "Campaña reactivación · Dumper y palas (217)",
+   "resp": "Claude + OK equipo",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 28,
+   "fase": "OCT · CAPTAR",
+   "semana": "S4",
+   "tarea": "Lead Qualification Agent v1: puntuación 0-100 en cada entrada",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 29,
+   "fase": "OCT · CAPTAR",
+   "semana": "S4",
+   "tarea": "Primer análisis por canal y segmento: qué responde y qué no",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 30,
+   "fase": "NOV · OPTIMIZAR",
+   "semana": "S1",
+   "tarea": "Qualification en producción sobre todos los canales",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 31,
+   "fase": "NOV · OPTIMIZAR",
+   "semana": "S2",
+   "tarea": "Follow-ups y recuperación de oportunidades 100% automatizados",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 32,
+   "fase": "NOV · OPTIMIZAR",
+   "semana": "S3",
+   "tarea": "Pricing Intelligence v1: horquillas de mercado por modelo desde portales",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 33,
+   "fase": "NOV · OPTIMIZAR",
+   "semana": "S4",
+   "tarea": "Dashboard semanal de growth (los 5 números del lunes)",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 34,
+   "fase": "DIC · RENTABILIZAR",
+   "semana": "S1",
+   "tarea": "CAC y coste por oportunidad por canal",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 35,
+   "fase": "DIC · RENTABILIZAR",
+   "semana": "S2",
+   "tarea": "Conversión por categoría con datos de 90 días",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 36,
+   "fase": "DIC · RENTABILIZAR",
+   "semana": "S3",
+   "tarea": "Revenue y margen por canal",
+   "resp": "Claude",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 37,
+   "fase": "DIC · RENTABILIZAR",
+   "semana": "S4",
+   "tarea": "Ranking de iniciativas: winning channels / categories / segments",
+   "resp": "Claude + equipo",
+   "estado": "Pendiente"
+  },
+  {
+   "id": 38,
+   "fase": "ENE · ESCALAR",
+   "semana": "S1-S4",
+   "tarea": "Escalar sólo lo ganador + roadmap growth 6-12 meses",
+   "resp": "Equipo",
+   "estado": "Pendiente"
+  }
+ ]
 }
