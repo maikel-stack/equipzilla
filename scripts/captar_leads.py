@@ -188,8 +188,10 @@ def fase_csv():
     negocios = {n["dominio"]: n for n in limpiar_mapas() if n["dominio"]}
     porweb = {}
     for reg in json.load(open(EMAILS)):
-        url = reg.get("url") or ""
-        dom = re.sub(r"^https?://(www\.)?", "", url).split("/")[0].lower()
+        # El Contact Scraper devuelve el dominio ya normalizado en "domain";
+        # si faltara, se deriva de la URL de arranque.
+        dom = (reg.get("domain") or re.sub(
+            r"^https?://(www\.)?", "", reg.get("originalStartUrl") or "").split("/")[0]).lower()
         porweb.setdefault(dom, set()).update(reg.get("emails") or [])
 
     filas, vistos = [], set()
