@@ -217,8 +217,9 @@ def a_pipedrive(lead, person_id):
     if PRUEBA:
         return "prueba"
     if not person_id:
+        nombre = (lead.get("nombre") or "").strip() or lead["email"]
         r = pipedrive("/persons", "POST", _cuerpo={
-            "name": lead.get("nombre") or lead["email"],
+            "name": nombre,
             "email": [{"value": lead["email"], "primary": True}]})
         person_id = (r.get("data") or {}).get("id")
     if not person_id:
@@ -262,7 +263,11 @@ def recoger():
         score = puntuar(lead, bool(tel), hist)
         if score < 30:
             continue
-        estado_crm = a_pipedrive(lead, pid)
+        try:
+            estado_crm = a_pipedrive(lead, pid)
+        except Exception as err:
+            # Un lead que no entra en el CRM no debe tumbar el informe entero.
+            estado_crm = f"error: {err}"[:60]
         filas.append(dict(
             SCORE=score,
             NIVEL="HOT" if score >= 60 else "WARM",
