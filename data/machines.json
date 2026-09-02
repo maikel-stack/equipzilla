@@ -44,7 +44,7 @@
   "n": "Kubota U 36-4 GL",
   "c": "mini",
   "y": 2023,
-  "h": 650,
+  "h": 900,
   "p": 32500,
   "e": false,
   "s": "3,8 t"
@@ -153,9 +153,9 @@
   "img": "GAM-MANITOU170",
   "n": "Manitou 170 AETJL",
   "c": "plat",
-  "y": 2016,
+  "y": 2015,
   "h": null,
-  "p": 17100,
+  "p": 20500,
   "e": true,
   "s": "17 m · articulada bi-energía"
  },
@@ -336,5 +336,85 @@
   "s": "11 m · articulada eléctrica",
   "z": "Tarragona",
   "pa": 8900
+ },
+ {
+  "img": "EL-JLG1930ES",
+  "n": "JLG 1930ES",
+  "c": "plat",
+  "y": 2008,
+  "h": 80,
+  "p": 3000,
+  "e": true,
+  "s": "8 m · tijera eléctrica"
+ },
+ {
+  "img": "EL-GENIEZ3020",
+  "n": "Genie Z-30/20N RJ",
+  "c": "plat",
+  "y": 2010,
+  "h": 1206,
+  "p": 6500,
+  "e": true,
+  "s": "11 m · articulada eléctrica"
+ },
+ {
+  "img": "EL-HA20PX10",
+  "n": "Haulotte HA20PX",
+  "c": "plat",
+  "y": 2010,
+  "h": 3968,
+  "p": 17500,
+  "e": false,
+  "s": "20 m · articulada diésel"
+ },
+ {
+  "img": "EL-MULTITEL160",
+  "n": "Iveco Multitel 160 ALU DS",
+  "c": "plat",
+  "y": 2011,
+  "h": null,
+  "p": 27000,
+  "e": false,
+  "s": "16 m · camión plataforma diésel"
+ },
+ {
+  "img": "MT-KU17",
+  "n": "Kubota U 17-3N VHG AT",
+  "c": "mini",
+  "y": 2023,
+  "h": 950,
+  "p": 18500,
+  "e": false,
+  "s": "1,7 t · miniexcavadora"
+ },
+ {
+  "img": "MT-WN1601",
+  "n": "Wacker Neuson 1601",
+  "c": "dum",
+  "y": 2021,
+  "h": 900,
+  "p": 18500,
+  "e": false,
+  "s": "1,6 t · dumper de ruedas"
+ },
+ {
+  "img": "MT-BOBS70",
+  "n": "Bobcat S70",
+  "c": "pala",
+  "y": 2023,
+  "h": 350,
+  "p": 23500,
+  "e": false,
+  "s": "minicargadora compacta"
+ },
+ {
+  "img": "MT-DX35Z",
+  "n": "Doosan DX 35 Z-7",
+  "c": "mini",
+  "y": 2023,
+  "h": 40,
+  "p": 45500,
+  "e": false,
+  "s": "3,5 t · miniexcavadora"
  }
 ]
