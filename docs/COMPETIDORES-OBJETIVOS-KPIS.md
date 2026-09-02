@@ -14,6 +14,9 @@ Benchmarks externos con fuente; los objetivos salen de nuestro embudo real.
 | **Machineryline** (grupo Autoline) | Portal internacional de anuncios | Anuncios de pago al vendedor | SEO programático por región y categoría, volumen |
 | **Milanuncios** | Clasificados generalistas | Anuncios destacados | Tráfico enorme; leads poco cualificados, mucho particular |
 | **Ritchie Bros / IronPlanet** | Subastas | **% de la transacción** — el único que cobra por operación | Confianza transaccional, inspecciones certificadas |
+| **Machinio** | Agregador internacional | Vende leads y visibilidad al vendedor | Carga automática de inventario, reporting a dealers |
+| **MachineryTrader** | Portal americano | Anuncios al vendedor | Búsquedas guardadas, alertas y **Want-to-Buy** (el comprador publica lo que busca) |
+| **Equippo** | Marketplace transaccional europeo | **% de la operación** | Inspecciones, fotos/vídeo, logística, pago seguro, garantía de devolución — compite en confianza, no en volumen |
 | **Makitor** y similares | Marketplaces españoles especializados | Anuncios | Nicho local |
 | Concesionarios con web (tipo Javier Esteban SL) | Dealer clásico | Margen de la máquina | Confianza, taller propio, posventa |
 
@@ -30,7 +33,11 @@ Benchmarks externos con fuente; los objetivos salen de nuestro embudo real.
    categoría × marca × modelo × provincia). Es la parte que sí debemos
    copiar, con el agente SEO y DinoRank, empezando por las páginas de
    precio que ya tenemos escritas.
-4. El único que cobra por operación (Ritchie Bros) lo hace aportando
+4. **MachineryTrader y Mascus retienen al comprador con alertas y
+   búsquedas guardadas** — y MachineryTrader deja publicar un *Want-to-Buy*.
+   Es la versión pasiva de lo que nosotros podemos hacer activamente:
+   capturar la demanda sin stock y salir a buscarla.
+5. Los que cobran por operación (Ritchie Bros, Equippo) lo hacen aportando
    **confianza transaccional**: inspección, certificado, proceso. Es la
    prueba de que la comisión se justifica con servicio — nuestra propuesta
    (inspección presencial, fotos reales, transporte confirmado) va en esa
@@ -95,6 +102,26 @@ sube en proporción — el número que no se mueve es el 25.
 | Google Ads (desde oct) | 20 | 20-30 €/día, CPC 0,5–1,5 € |
 | Llamadas y recuperación | 15 | 162 priorizados + colas de cada campaña |
 | SEO y alertas | 4 | marginal este año, compuesto en 2027 |
+
+### Tres escenarios de planificación
+
+| | Leads necesarios | Supuesto |
+|---|---:|---|
+| Optimista | 250 | conversión por encima de benchmark en todo |
+| **Base (el que planificamos)** | **350** | lead→oferta 40% · cierre 20% |
+| Conservador | 500 | tasas de benchmark B2B genérico |
+
+Se planifica y dimensiona con el base; el conservador marca cuánto canal
+extra habría que abrir si septiembre convierte peor de lo previsto.
+
+### Demanda insatisfecha: el «Want-to-Buy»
+
+Cuando una petición no tiene stock que ofertar, no se pierde: se registra
+como **demanda insatisfecha** (máquina + presupuesto + zona + plazo), el
+cliente queda suscrito a la alerta de esa categoría (sistema ya construido)
+y la lista agregada llega **cada semana a David como lista de la compra**.
+Es lo que MachineryTrader hace en pasivo, hecho en activo: la demanda sin
+stock deja de ser una pérdida y pasa a dirigir la captación de oferta.
 
 ### La rampa mensual
 

@@ -374,6 +374,14 @@
    "tarea": "Escalar sólo lo ganador + roadmap growth 6-12 meses",
    "resp": "Equipo",
    "estado": "Pendiente"
+  },
+  {
+   "id": 39,
+   "fase": "SEPT · ACTIVAR",
+   "semana": "S3",
+   "tarea": "Want-to-Buy: registrar demanda sin stock (máquina+presupuesto+zona) → alerta al cliente → lista de la compra semanal a David",
+   "resp": "Claude",
+   "estado": "Pendiente"
   }
  ],
  "notion": "https://app.notion.com/p/8063a3b7723447a190e073df3b107dc6"
