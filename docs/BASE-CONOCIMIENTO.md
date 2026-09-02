@@ -67,20 +67,81 @@ es «te vendo», es: *«si la obra se alarga, llega un mes en el que el
 alquiler pasa a costar más que la unidad — echa el número antes de firmar
 la próxima renovación»*, con enlace a la calculadora.
 
-## 4 · A quién le hablamos (ICP)
+## 4 · El ICP de compraventa
 
-**Compra (encaje alto):** movimiento de tierras · excavaciones ·
-cimentaciones y pilotaje · demolición · obra civil / infraestructura ·
-constructoras con parque propio · industria con logística propia ·
-alquiladores que renuevan flota.
+Construido con dato propio: las 131 peticiones de compra de los últimos 12
+meses, los clics por máquina de las campañas y las respuestas reales del
+frío. Se revisa cada trimestre con las operaciones cerradas.
 
-**Fuera:** ingenierías, consultoras, BIM, arquitectura, project management,
-promotoras/inmobiliarias puras, reformas de interior. *No compran
-excavadoras.*
+### El comprador núcleo (ICP-A) — la pyme que usa la máquina a diario
 
-**Cargos que deciden:** gerente / propietario / administrador · jefe o
-responsable de maquinaria · jefe de obra · director de operaciones ·
-compras.
+- **Quién:** empresas de movimiento de tierras, excavaciones, demolición,
+  obra civil y construcción con parque propio. Típicamente **2-50
+  empleados**, muchas familiares, decisor = dueño.
+- **Qué compra:** la máquina con la que trabaja cada día. Tickets de
+  **10.000-60.000 €**: mixtas, mini y midi excavadoras, minicargadoras,
+  plataformas, telescópicas.
+- **Cómo decide:** rápido y por teléfono/WhatsApp. Sabe exactamente lo que
+  quiere — *"mixta 30-40 mil, mínimo 3 cazos y martillo, mejor pala de
+  almeja"* (respuesta real de un lead). La ficha técnica no le convence:
+  le convencen las horas reales, poder verla y probarla, y un precio sin
+  sorpresas.
+- **Su alternativa:** portales de anuncios (llamar a 10 vendedores) o el
+  concesionario local (más caro). Nuestra cuña: precio cerrado + inspección
+  + acompañamiento.
+- **Cargo al que hablar:** gerente/propietario. En las de 20-50 empleados,
+  responsable de maquinaria o jefe de obra.
+
+### ICP-B — industria y logística con flota propia
+
+- **Quién:** fábricas, almacenes, agroindustria, operadores logísticos que
+  poseen (no alquilan) sus carretillas y manutención. La mejor apertura de
+  todo el ABM (24,1%) fue la campaña de carretillas.
+- **Qué compra:** carretillas diésel/eléctricas, transpaletas, apiladores.
+  Tickets 6.000-20.000 €. Recurrente: renuevan unidades sueltas cada año.
+- **Cargo:** responsable de logística/almacén, compras, gerencia.
+
+### ICP-C — obra que necesita instalación, no máquina
+
+- **Quién:** constructoras e instaladoras que montan obra: casetas,
+  aseos, contenedores, generadores. El **25,9% de toda la demanda** entra
+  por aquí y suele empezar pidiendo *alquiler* — el ángulo que convierte es
+  alquiler-vs-compra.
+- **Qué compra:** obra modular nueva (3.000-7.400 €) y generadores. Ticket
+  bajo, ciclo corto, decisión casi impulsiva si el precio está delante.
+- **Incluye autónomos y profesionales** (muchos leads reales llegan desde
+  gmail): válidos si el uso es profesional.
+
+### ICP-D — alquiladores que compran para su flota
+
+- **Quién:** empresas de alquiler pequeñas y medianas que amplían o
+  renuevan flota (ya les vendemos vallas y casetas: AXOR, GAM). Compran
+  varias unidades de golpe y repiten.
+- **Trato distinto:** precio de volumen, relación directa de David, nunca
+  campañas masivas.
+
+### Señales de compra (ordenadas por fuerza)
+
+1. **Responde al frío o al templado describiendo máquina y presupuesto**
+2. Pide compra directa en la web («Solicitud de Consulta Por Compra»)
+3. Clica una máquina concreta en una campaña (la Manitou: 15 clics)
+4. Pide alquiler de larga duración o con opción de compra
+5. Usa la calculadora alquilar-vs-comprar o se da de alta en alertas
+6. Pidió alquiler de una categoría en los últimos 12 meses (base de 3.112)
+
+### Fuera del ICP (no gastar ni un euro)
+
+Ingenierías, consultoras, BIM, arquitectura, project management,
+promotoras/inmobiliarias puras, reformas de interior, topografía,
+gestorías. *Aparecen bajo "construcción" en cualquier base de datos y no
+compran excavadoras.* El filtro está codificado en `scripts/captar_leads.py`.
+
+### Matices geográficos
+
+España entera (la demanda real llega de las 50 provincias) **y Portugal**:
+en las campañas han clicado y comprado interés desde Portugal (West Sea,
+BRW) sin haberlo buscado. No se descarta un lead portugués; no se invierte
+en captarlos aún.
 
 ## 5 · Identidad, contacto y firma
 
