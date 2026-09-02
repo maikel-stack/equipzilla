@@ -16,6 +16,9 @@ import urllib.parse
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SALIDA = os.path.join(RAIZ, "campanas")
 TEAL, OSCURO, TINTA, TINTA2, LINEA = "#387E7F", "#17323A", "#14181C", "#3A424E", "#D9DEE4"
+# Fotos limpias de proveedor, servidas por commit fijo para que no caduquen
+CDN_FOTOS = ("https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla"
+             "@389cd51d91ae9fb8ab1899fb32cd03c8cac25d9e/email_assets/machines/")
 WA = "34606836581"
 NOTA_PRECIO = "Unidad revisada · IVA y transporte no incluidos"
 
@@ -29,23 +32,23 @@ GRUPOS = {
     eyebrow="Elevación · recién entradas",
     asunto_f2="¿Cuál de las cinco te encaja?",
     maquinas=[
-      dict(etq="Tijera eléctrica", titulo="JLG 1930ES", precio="3.000 €",
+      dict(etq="Tijera eléctrica", titulo="JLG 1930ES", foto="EL-JLG1930ES-2025.jpg", precio="3.000 €",
            datos=[("Altura de trabajo", "8 m"), ("Año", "2008"), ("Energía", "eléctrica")],
            texto="La tijera de interior de toda la vida. Para mantenimiento, "
                  "instalaciones y almacén. El precio de entrada del lote."),
-      dict(etq="Articulada eléctrica", titulo="Genie Z-30/20N RJ", precio="6.500 €",
+      dict(etq="Articulada eléctrica", titulo="Genie Z-30/20N RJ", foto="EL-GENIEZ3020-2025.jpg", precio="6.500 €",
            datos=[("Altura de trabajo", "11 m"), ("Año", "2010"), ("Horas", "1.206"), ("Energía", "eléctrica")],
            texto="Articulada eléctrica compacta: interior y suelos delicados, "
                  "con alcance para esquivar obstáculos."),
-      dict(etq="Articulada diésel", titulo="Haulotte HA20PX", precio="17.500 €",
+      dict(etq="Articulada diésel", titulo="Haulotte HA20PX", foto="EL-HA20PX10-2025.jpg", precio="17.500 €",
            datos=[("Altura de trabajo", "20 m"), ("Año", "2010"), ("Horas", "3.968"), ("Tracción", "4x4 diésel")],
            texto="La todoterreno de 20 metros más pedida de nuestra base. "
                  "Obra, fachada e industria."),
-      dict(etq="Articulada eléctrica", titulo="Manitou 170 AETJL", precio="20.500 €",
+      dict(etq="Articulada eléctrica", titulo="Manitou 170 AETJL", foto="GAM-MANITOU170-2025.jpg", precio="20.500 €",
            datos=[("Altura de trabajo", "17 m"), ("Año", "2015"), ("Energía", "eléctrica")],
            texto="La máquina más consultada de nuestras últimas campañas. "
                  "17 metros eléctricos, lista para trabajar."),
-      dict(etq="Camión plataforma", titulo="Iveco Multitel 160 ALU DS", precio="27.000 €",
+      dict(etq="Camión plataforma", titulo="Iveco Multitel 160 ALU DS", foto="EL-MULTITEL160-2025.jpg", precio="27.000 €",
            datos=[("Altura de trabajo", "16 m"), ("Año", "2011"), ("Sobre", "camión diésel · carné B")],
            texto="Plataforma sobre camión: llegas, estabilizas y trabajas. "
                  "Sin góndola ni transporte especial entre obras."),
@@ -59,23 +62,23 @@ GRUPOS = {
     eyebrow="Movimiento de tierras · recién entradas",
     asunto_f2="La Doosan del 23 tiene 40 horas — ¿te cuento más?",
     maquinas=[
-      dict(etq="Miniexcavadora 1,7 t", titulo="Kubota U 17-3N VHG AT", precio="18.500 €",
+      dict(etq="Miniexcavadora 1,7 t", titulo="Kubota U 17-3N VHG AT", foto="MT-KU17-2025.jpg", precio="18.500 €",
            datos=[("Año", "2023"), ("Horas", "950"), ("Peso", "1,7 t")],
            texto="La mini que cabe por una puerta. Zanjas, reformas y obra "
                  "urbana, con la fiabilidad Kubota."),
-      dict(etq="Dumper de ruedas", titulo="Wacker Neuson 1601", precio="18.500 €",
+      dict(etq="Dumper de ruedas", titulo="Wacker Neuson 1601", foto="MT-WN1601-2025.jpg", precio="18.500 €",
            datos=[("Año", "2021"), ("Horas", "900"), ("Carga", "1,6 t")],
            texto="El compañero de la mini: saca tierra y mueve material sin "
                  "castigar la obra."),
-      dict(etq="Minicargadora", titulo="Bobcat S70", precio="23.500 €",
+      dict(etq="Minicargadora", titulo="Bobcat S70", foto="MT-BOBS70-2025.jpg", precio="23.500 €",
            datos=[("Año", "2023"), ("Horas", "350"), ("Ancho", "compacta")],
            texto="La Bobcat pequeña de verdad: pasa por donde ninguna otra y "
                  "con solo 350 horas."),
-      dict(etq="Miniexcavadora 3,8 t", titulo="Kubota U 36-4 GL", precio="32.500 €",
+      dict(etq="Miniexcavadora 3,8 t", titulo="Kubota U 36-4 GL", foto="KB313-2025.jpg", precio="32.500 €",
            datos=[("Año", "2023"), ("Horas", "900"), ("Peso", "3,8 t")],
            texto="La 3,8 toneladas del 23: tamaño serio con consumo de mini. "
                  "De las más consultadas de nuestra base."),
-      dict(etq="Miniexcavadora 3,5 t", titulo="Doosan DX 35 Z-7", precio="45.500 €",
+      dict(etq="Miniexcavadora 3,5 t", titulo="Doosan DX 35 Z-7", foto="MT-DX35Z-2025.jpg", precio="45.500 €",
            datos=[("Año", "2023"), ("Horas", "40"), ("Peso", "3,5 t · giro cero")],
            texto="Prácticamente nueva: 40 horas. Giro cero para trabajar "
                  "pegado a pared, con precio de usado."),
@@ -91,10 +94,15 @@ def ficha(p, primera=False):
     wa = "https://wa.me/" + WA + "?text=" + urllib.parse.quote(
         f"Hola, me interesa la {p['titulo']} de {p['precio']}")
     borde = f"box-shadow:0 0 0 2px {TEAL};" if primera else ""
+    foto = ""
+    if p.get("foto"):
+        foto = (f'<tr><td style="padding:0; background:#EDF1F4; line-height:0; font-size:0;">'
+                f'<img class="pimg" src="{CDN_FOTOS}{p["foto"]}" alt="{htmllib.escape(p["titulo"])}" '
+                f'width="534" style="width:100%; max-width:534px; height:auto; display:block;"></td></tr>')
     return f'''
       <td class="px" style="padding:{'22px' if primera else '14px'} 32px 6px; background:#FBFCFD;">
         <table role="presentation" width="100%" style="table-layout:fixed; border-collapse:separate; background:#FFFFFF; border:1px solid {LINEA}; border-radius:10px; overflow:hidden; {borde}"><tbody>
-          <tr><td style="padding:20px 22px 18px; background:{OSCURO};">
+          {foto}<tr><td style="padding:20px 22px 18px; background:{OSCURO};">
             <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:#8FD3C0; margin-bottom:8px;">{htmllib.escape(p["etq"])}</div>
             <div class="arx" style="font-size:20px; font-weight:700; color:#FFFFFF; line-height:1.28; margin-bottom:14px;">{htmllib.escape(p["titulo"])}</div>
             <table role="presentation" width="100%" style="border-collapse:collapse; border-top:1px solid rgba(255,255,255,.14);"><tbody>{filas}</tbody></table>
