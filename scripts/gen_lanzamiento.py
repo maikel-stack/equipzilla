@@ -18,7 +18,7 @@ SALIDA = os.path.join(RAIZ, "campanas")
 TEAL, OSCURO, TINTA, TINTA2, LINEA = "#387E7F", "#17323A", "#14181C", "#3A424E", "#D9DEE4"
 # Fotos limpias de proveedor, servidas por commit fijo para que no caduquen
 CDN_FOTOS = ("https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla"
-             "@389cd51d91ae9fb8ab1899fb32cd03c8cac25d9e/email_assets/machines/")
+             "@dd61ffae18068ab51b2504bc4688a1792783edfd/email_assets/machines/")
 WA = "34606836581"
 NOTA_PRECIO = "Unidad revisada · IVA y transporte no incluidos"
 
@@ -62,7 +62,7 @@ GRUPOS = {
     eyebrow="Movimiento de tierras · recién entradas",
     asunto_f2="La Doosan del 23 tiene 40 horas — ¿te cuento más?",
     maquinas=[
-      dict(etq="Miniexcavadora 1,7 t", titulo="Kubota U 17-3N VHG AT", foto="MT-KU17-2025.jpg", precio="18.500 €",
+      dict(etq="Miniexcavadora 1,7 t", titulo="Kubota U 17-3N VHG AT", foto="MT-KU17-2025.jpg", foto_w=400, precio="18.500 €",
            datos=[("Año", "2023"), ("Horas", "950"), ("Peso", "1,7 t")],
            texto="La mini que cabe por una puerta. Zanjas, reformas y obra "
                  "urbana, con la fiabilidad Kubota."),
@@ -74,7 +74,7 @@ GRUPOS = {
            datos=[("Año", "2023"), ("Horas", "350"), ("Ancho", "compacta")],
            texto="La Bobcat pequeña de verdad: pasa por donde ninguna otra y "
                  "con solo 350 horas."),
-      dict(etq="Miniexcavadora 3,8 t", titulo="Kubota U 36-4 GL", foto="KB313-2025.jpg", precio="32.500 €",
+      dict(etq="Miniexcavadora 3,8 t", titulo="Kubota U 36-4 GL", foto="KB313-2025.jpg", foto_w=400, precio="32.500 €",
            datos=[("Año", "2023"), ("Horas", "900"), ("Peso", "3,8 t")],
            texto="La 3,8 toneladas del 23: tamaño serio con consumo de mini. "
                  "De las más consultadas de nuestra base."),
@@ -96,9 +96,10 @@ def ficha(p, primera=False):
     borde = f"box-shadow:0 0 0 2px {TEAL};" if primera else ""
     foto = ""
     if p.get("foto"):
-        foto = (f'<tr><td style="padding:0; background:#EDF1F4; line-height:0; font-size:0;">'
+        fw = p.get("foto_w", 534)
+        foto = (f'<tr><td align="center" style="padding:0; background:#EDF1F4; line-height:0; font-size:0;">'
                 f'<img class="pimg" src="{CDN_FOTOS}{p["foto"]}" alt="{htmllib.escape(p["titulo"])}" '
-                f'width="534" style="width:100%; max-width:534px; height:auto; display:block;"></td></tr>')
+                f'width="{fw}" style="width:100%; max-width:{fw}px; height:auto; display:block; margin:0 auto;"></td></tr>')
     return f'''
       <td class="px" style="padding:{'22px' if primera else '14px'} 32px 6px; background:#FBFCFD;">
         <table role="presentation" width="100%" style="table-layout:fixed; border-collapse:separate; background:#FFFFFF; border:1px solid {LINEA}; border-radius:10px; overflow:hidden; {borde}"><tbody>
