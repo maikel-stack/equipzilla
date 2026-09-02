@@ -64,31 +64,64 @@ experimento para subirlo.
 
 ---
 
-## 3 · Objetivos septiembre → diciembre
+## 3 · El objetivo oficial: 25 ventas y 500.000 € de GMV a 31 de diciembre
 
-Construidos desde nuestro embudo real (11 peticiones/mes entrantes, 2.582
-contactos por reactivar, frío a 40 leads/día, Ads desde octubre), con los
-benchmarks como techo de cordura. **Se revisan cada fin de mes con el dato.**
+Ticket medio implícito: **20.000 €**. Encaja con vender el mix que el
+mercado pide (plataformas ~14.000 €, carretillas ~11.000 €, mini ~40.000 €,
+casetas 3.000–7.400 €) — pero exige que caigan también máquinas de
+40.000–60.000 €, no solo obra modular.
 
-| Objetivo mensual | Sep | Oct | Nov | Dic |
-|---|---:|---:|---:|---:|
-| Leads de compra (todos los canales) | 30 | 50 | 65 | 80 |
-| Ofertas enviadas (lead→oferta ≥40%) | 12 | 20 | 26 | 32 |
-| **Operaciones cerradas** | **3** | **5** | **8** | **12** |
-| Tasa de cierre sobre oferta | ≥10% | ≥15% | ≥20% | ≥25% |
-| Respuesta en frío | ≥2,5% | ≥3% | ≥3,5% | ≥4% |
-| Apertura campañas segmentadas | ≥20% | ≥20% | ≥22% | ≥22% |
-| Base propia trabajada (acum.) | 60% | 100% | 2ª vuelta | 2ª vuelta |
-| Mediana primera respuesta | <60 min | <15 min | <15 min | <15 min |
+### El embudo, del revés
+
+| Etapa | Tasa objetivo | Cuánto hace falta |
+|---|---:|---:|
+| **Ventas** | — | **25** |
+| Ofertas enviadas | cierre ≥20% | **125 ofertas** |
+| Leads de compra cualificados | lead→oferta ≥40% | **~315 leads** |
+| Con colchón de seguridad | — | **350 leads · ~88/mes** |
+
+El 20% de cierre y el 40% lead→oferta están por encima del B2B genérico
+(10–20% y 10–20%) y se justifican porque nuestra entrada declara la máquina
+que quiere. Si el dato real de septiembre sale peor, el objetivo de leads
+sube en proporción — el número que no se mueve es el 25.
+
+### De dónde salen los ~88 leads/mes
+
+| Canal | Leads/mes objetivo | Base |
+|---|---:|---|
+| Inbound web (quiz, chat, fichas) | 12 | hoy 11/mes, creciendo +36% |
+| Reactivación segmentada | 25 | 2.582 contactos + 2ª vuelta (~2% pasa a lead) |
+| Frío | 12 | ~2.000 contactados en el periodo × ~3% respuesta |
+| Google Ads (desde oct) | 20 | 20-30 €/día, CPC 0,5–1,5 € |
+| Llamadas y recuperación | 15 | 162 priorizados + colas de cada campaña |
+| SEO y alertas | 4 | marginal este año, compuesto en 2027 |
+
+### La rampa mensual
+
+| Objetivo mensual | Sep | Oct | Nov | Dic | Total |
+|---|---:|---:|---:|---:|---:|
+| Leads de compra | 45 | 85 | 105 | 115 | 350 |
+| Ofertas enviadas | 18 | 32 | 38 | 40 | 128 |
+| **Ventas** | **3** | **5** | **8** | **9** | **25** |
+| **GMV** | **60k** | **100k** | **160k** | **180k** | **500k** |
+| Tasa de cierre sobre oferta | ≥12% | ≥16% | ≥20% | ≥22% | ≥20% |
+| Respuesta en frío | ≥2,5% | ≥3% | ≥3,5% | ≥4% | — |
+| Apertura campañas segmentadas | ≥20% | ≥20% | ≥22% | ≥22% | — |
+| Base propia trabajada (acum.) | 60% | 100% | 2ª vuelta | 2ª vuelta | — |
+| Mediana primera respuesta | <60 min | <15 min | <15 min | <15 min | — |
 
 - **Los 3 cierres de septiembre** salen de lo ya caliente: 13 ofertas
   enviadas + 162 llamadas. No dependen de captación nueva.
-- **28 operaciones acumuladas a diciembre.** A margen de mercado
-  (3.000–5.000 €/operación — *hipótesis hasta medir el nuestro*), serían
-  **84.000–140.000 €** de margen en el cuatrimestre. El primer mes de datos
-  reales sustituye la hipótesis.
-- Objetivo de margen: **no se fija hasta tener 30 días de registro.** Fijar
-  un número inventado solo serviría para decorar.
+- El GMV mensual asume ticket medio 20.000 €; si el mix real pesa hacia
+  casetas, harán falta más unidades — se recalibra con el primer mes.
+- A margen de mercado (comisión 8% puro → 40.000 €; mix con compra directa
+  al 15–25% → 75.000–100.000 € — *hipótesis hasta medir el nuestro*).
+- **Condición dura para que el 25 sea posible:** los 4 campos del CRM y el
+  SLA funcionando en septiembre. Sin registro no hay tasa de cierre que
+  gestionar, y sin velocidad el 40% lead→oferta no se alcanza.
+- Dos riesgos que lo tumban: quedarse sin leads de frío (recargar cada
+  ~25 días) y no tener stock de 40-60k € que ofertar (la oferta la lleva
+  David — este objetivo también es suyo).
 
 ---
 
