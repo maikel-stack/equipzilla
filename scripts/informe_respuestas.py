@@ -21,6 +21,7 @@ Scoring (documentado para que nadie discuta el número):
   +10 por cada clic adicional
   +20 ya tenía historial en Pipedrive
   +10 tenemos su teléfono
+  +20 la respuesta incluye presupuesto o teléfono (señal de compra clara)
   HOT ≥ 60 (llamar hoy) · WARM 30-59 (seguimiento) · <30 no sale en el informe
 """
 import csv
@@ -87,6 +88,52 @@ import urllib.parse  # noqa: E402  (después de definirse pipedrive por claridad
 
 def desde():
     return dt.datetime.utcnow() - dt.timedelta(hours=VENTANA_H)
+
+
+def texto_respuesta(email):
+    """Texto de la última respuesta del lead en el frío, sin el citado."""
+    try:
+        lead = smartlead(f"/leads/?email={urllib.parse.quote(email)}")
+        lid = lead.get("id")
+        if not lid:
+            return ""
+        h = smartlead(f"/campaigns/{CAMPANA_FRIO}/leads/{lid}/message-history")
+        respuestas = [m for m in (h.get("history") or []) if m.get("type") == "REPLY"]
+        if not respuestas:
+            return ""
+        crudo = re.sub(r"<[^>]+>", " ", respuestas[-1].get("email_body") or "")
+        crudo = re.sub(r"\s+", " ", crudo).strip()
+        # cortar el mensaje original citado
+        crudo = re.split(r"(El\s+El\s|El\s+\w{3},?\s+\d|On\s.{3,40}wrote:|"
+                         r"De:\s|From:\s|-{4,}\s*Original)", crudo)[0]
+        return crudo.strip()[:300]
+    except Exception:
+        return ""
+
+
+AUTOREPLY = re.compile(r"vacacion|fuera de la oficina|out of office|"
+                       r"no estar[eé] disponible|respuesta autom|ya no est[aá] en uso|"
+                       r"nueva direcci[oó]n|automatic reply", re.I)
+RECHAZO = re.compile(r"\bno usamos\b|no (?:nos|me) interesa|no estamos interesad|"
+                     r"no,? gracias|dar(?:me|nos) de baja|unsubscribe|"
+                     r"borra(?:me|nos)|quitad?me", re.I)
+NUEVO_EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
+
+
+def clasificar(texto):
+    """comprador / autoreply / cambio_email / rechazo / neutro."""
+    if not texto:
+        return "neutro"
+    if RECHAZO.search(texto):
+        return "rechazo"
+    if AUTOREPLY.search(texto):
+        if "ya no est" in texto.lower() or "nueva direcci" in texto.lower():
+            return "cambio_email"
+        return "autoreply"
+    if re.search(r"\d{2}[\.,]?\d{3}|mil\s?€|€|euros|\b[6789]\d{8}\b|presupuesto|"
+                 r"busco|buscando|necesito|interesa|tenéis|teneis|precio", texto, re.I):
+        return "comprador"
+    return "neutro"
 
 
 def senales_frio():
@@ -259,25 +306,47 @@ def recoger():
 
     filas = []
     for email, lead in todos.items():
+        lead["respuesta"] = ""
+        if "respuesta_frio" in lead["senales"]:
+            lead["respuesta"] = texto_respuesta(email)
+        tipo = clasificar(lead["respuesta"])
         pid, tel, hist = enriquecer(lead)
         score = puntuar(lead, bool(tel), hist)
-        if score < 30:
+        if tipo == "comprador":
+            score = min(score + 20, 100)
+        elif tipo == "autoreply":
+            score = min(score, 40)
+        elif tipo in ("rechazo", "cambio_email"):
+            score = 0  # informativo: sale en el informe pero no como lead
+        if score < 30 and tipo not in ("rechazo", "cambio_email"):
             continue
-        try:
-            estado_crm = a_pipedrive(lead, pid)
-        except Exception as err:
-            # Un lead que no entra en el CRM no debe tumbar el informe entero.
-            estado_crm = f"error: {err}"[:60]
+        if tipo in ("rechazo", "cambio_email"):
+            estado_crm = "no procede"
+        else:
+            try:
+                estado_crm = a_pipedrive(lead, pid)
+            except Exception as err:
+                # Un lead que no entra en el CRM no debe tumbar el informe.
+                estado_crm = f"error: {err}"[:60]
         filas.append(dict(
             SCORE=score,
-            NIVEL="HOT" if score >= 60 else "WARM",
+            NIVEL=("NO" if tipo == "rechazo" else
+                   "EMAIL" if tipo == "cambio_email" else
+                   "AUTO" if tipo == "autoreply" else
+                   "HOT" if score >= 60 else "WARM"),
             NOMBRE=lead.get("nombre", ""), EMPRESA=lead.get("empresa", ""),
             EMAIL=email, TELEFONO=tel,
             ORIGEN=lead["origen"],
             DETALLE=(" · ".join(sorted(lead["maquinas"])) or
                      ", ".join(sorted(lead["campanas"])) or "-")[:80],
+            RESPUESTA=lead.get("respuesta", ""),
             CRM=estado_crm,
-            ACCION="Llamar hoy" if score >= 60 else "Seguimiento"))
+            ACCION=("Descartar · no interesado" if tipo == "rechazo" else
+                    ("Actualizar email → " + (NUEVO_EMAIL.findall(
+                        lead["respuesta"].split("nueva")[-1]) or ["?"])[0])
+                    if tipo == "cambio_email" else
+                    "Autoreply · reintentar a la vuelta" if tipo == "autoreply" else
+                    "Llamar hoy" if score >= 60 else "Seguimiento")))
         time.sleep(0.25)  # límite de 10 peticiones/ventana de Pipedrive
 
     filas.sort(key=lambda f: -f["SCORE"])
@@ -300,13 +369,18 @@ def enviar(filas, url_sheet=""):
     else:
         celdas = "".join(
             f"<tr><td style='padding:6px 10px;text-align:center;font-weight:700;"
-            f"color:{'#B23A2A' if f['NIVEL']=='HOT' else '#8A6210'}'>{f['SCORE']}</td>"
+            f"color:{'#B23A2A' if f['NIVEL']=='HOT' else '#667085' if f['NIVEL'] in ('NO','AUTO','EMAIL') else '#8A6210'}'>"
+            f"{f['SCORE'] if f['NIVEL'] not in ('NO','EMAIL') else f['NIVEL']}</td>"
             f"<td style='padding:6px 10px'>{f['NOMBRE'] or '-'}<br>"
             f"<span style='color:#667085;font-size:12px'>{f['EMPRESA'] or ''}</span></td>"
             f"<td style='padding:6px 10px'>{f['EMAIL']}<br>"
             f"<b>{f['TELEFONO'] or 'sin teléfono'}</b></td>"
             f"<td style='padding:6px 10px'>{f['ORIGEN']}<br>"
-            f"<span style='color:#667085;font-size:12px'>{f['DETALLE']}</span></td>"
+            f"<span style='color:#667085;font-size:12px'>{f['DETALLE']}</span>"
+            + (f"<div style='margin-top:6px;padding:8px 10px;background:#F0F5F4;"
+               f"border-left:3px solid #387E7F;font-size:13px'>"
+               f"\u201c{f['RESPUESTA']}\u201d</div>" if f.get('RESPUESTA') else "")
+            + "</td>"
             f"<td style='padding:6px 10px'><b>{f['ACCION']}</b></td></tr>"
             for f in filas)
         cuerpo_tabla = (
@@ -318,6 +392,7 @@ def enviar(filas, url_sheet=""):
     enlace = (f"<p><a href='{url_sheet}'>Abrir en Google Sheets</a> para marcar "
               f"las llamadas.</p>" if url_sheet else "")
     hot = sum(1 for f in filas if f["NIVEL"] == "HOT")
+    filas = sorted(filas, key=lambda f: (f["NIVEL"] in ("NO", "EMAIL", "AUTO"), -int(f["SCORE"])))
     html = (f"<div style='font-family:system-ui,sans-serif;max-width:720px'>"
             f"<h2 style='margin:0 0 4px'>Respuestas y leads calientes · {hoy}</h2>"
             f"<p style='color:#3A424E'>{len(filas)} leads con señal en las últimas "
