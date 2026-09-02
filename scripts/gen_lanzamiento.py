@@ -18,7 +18,7 @@ SALIDA = os.path.join(RAIZ, "campanas")
 TEAL, OSCURO, TINTA, TINTA2, LINEA = "#387E7F", "#17323A", "#14181C", "#3A424E", "#D9DEE4"
 # Fotos limpias de proveedor, servidas por commit fijo para que no caduquen
 CDN_FOTOS = ("https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla"
-             "@dd61ffae18068ab51b2504bc4688a1792783edfd/email_assets/machines/")
+             "@f80c113d60052a5368e7e81a84b2a6c41fd64015/email_assets/machines/")
 WA = "34606836581"
 NOTA_PRECIO = "Unidad revisada · IVA y transporte no incluidos"
 
