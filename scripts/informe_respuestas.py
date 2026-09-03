@@ -365,7 +365,10 @@ def recoger():
 def enviar(filas, url_sheet=""):
     hoy = dt.date.today().strftime("%d/%m/%Y")
     if not filas:
-        cuerpo_tabla = "<p>Hoy no hay respuestas ni clics nuevos. El frío sigue enviando.</p>"
+        # Pedido por Maikel (03/09): el informe sale dos veces al día pero
+        # SOLO cuando hay señal nueva; sin leads no se envía nada.
+        print("sin respuestas nuevas en la ventana → no se envía email")
+        return
     else:
         celdas = "".join(
             f"<tr><td style='padding:6px 10px;text-align:center;font-weight:700;"
