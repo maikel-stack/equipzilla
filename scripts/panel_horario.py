@@ -266,6 +266,19 @@ def construir():
                           a["coste"], a["cpc"], a["conversiones"], a["cpa"]])
     except Exception as e:
         filas.append(["Google Ads no responde: %s" % str(e)[:120]])
+    filas += [[], ["SEO (Search Console · 28 días)"]]
+    try:
+        import gsc_metricas
+        tot, quick, com, _ = gsc_metricas.resumen(28)
+        filas += [["Clics", tot["clics"], "Impresiones", tot["impresiones"],
+                   "Consultas", tot["consultas"]],
+                  ["Consultas con intención de compra", len(com)],
+                  [], ["Quick wins (posición 4-20)", "Posición", "Impresiones", "Clics"]]
+        for r in quick[:12]:
+            filas.append([r["keys"][0], round(r["position"], 1),
+                          r["impressions"], r["clicks"]])
+    except Exception as e:
+        filas.append(["Search Console no responde: %s" % str(e)[:120]])
     filas += [[], ["CRM (Pipedrive · compraventa)"]] + crm()
     return filas
 
