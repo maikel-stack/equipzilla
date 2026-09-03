@@ -113,11 +113,35 @@ def texto_respuesta(email):
 
 AUTOREPLY = re.compile(r"vacacion|fuera de la oficina|out of office|"
                        r"no estar[eé] disponible|respuesta autom|ya no est[aá] en uso|"
-                       r"nueva direcci[oó]n|automatic reply", re.I)
+                       r"nueva direcci[oó]n|automatic reply|"
+                       # avisos de buzón que se cierra: no son leads, son un
+                       # cambio de dirección que hay que llevar al CRM
+                       r"ser[aá] deshabilitado|dejar[aá] de estar (?:operativ|activ)|"
+                       r"utilicen los siguientes correos|utilice[nd]? (?:el|los) correos?|"
+                       r"a partir de ahora,? (?:puedes|pueden) contactar", re.I)
 RECHAZO = re.compile(r"\bno usamos\b|no (?:nos|me) interesa|no estamos interesad|"
                      r"no,? gracias|dar(?:me|nos) de baja|unsubscribe|"
                      r"borra(?:me|nos)|quitad?me", re.I)
 NUEVO_EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
+
+
+def email_util(texto, actual=""):
+    """De un aviso con varias direcciones, la que nos sirve a nosotros.
+
+    Estos avisos suelen listar facturación, RRHH, contabilidad y obras. La
+    nuestra es la de obras/técnica/compras, no la primera que aparezca.
+    """
+    candidatos = [e for e in NUEVO_EMAIL.findall(texto or "")
+                  if e.lower() != (actual or "").lower()]
+    if not candidatos:
+        return ""
+    orden = ("oficinatecnica", "tecnic", "obras", "compras", "comercial",
+             "ventas", "maquinaria", "info", "admin")
+    for pref in orden:
+        for c in candidatos:
+            if c.lower().startswith(pref):
+                return c
+    return candidatos[0]
 
 
 def clasificar(texto):
@@ -127,7 +151,10 @@ def clasificar(texto):
     if RECHAZO.search(texto):
         return "rechazo"
     if AUTOREPLY.search(texto):
-        if "ya no est" in texto.lower() or "nueva direcci" in texto.lower():
+        t = texto.lower()
+        if any(x in t for x in ("ya no est", "nueva direcci", "deshabilitado",
+                                "siguientes correos", "utilicen el correo",
+                                "puedes contactar", "pueden contactar")):
             return "cambio_email"
         return "autoreply"
     if re.search(r"\d{2}[\.,]?\d{3}|mil\s?€|€|euros|\b[6789]\d{8}\b|presupuesto|"
@@ -342,8 +369,8 @@ def recoger():
             RESPUESTA=lead.get("respuesta", ""),
             CRM=estado_crm,
             ACCION=("Descartar · no interesado" if tipo == "rechazo" else
-                    ("Actualizar email → " + (NUEVO_EMAIL.findall(
-                        lead["respuesta"].split("nueva")[-1]) or ["?"])[0])
+                    ("Actualizar email → " +
+                     (email_util(lead["respuesta"], email) or "?"))
                     if tipo == "cambio_email" else
                     "Autoreply · reintentar a la vuelta" if tipo == "autoreply" else
                     "Llamar hoy" if score >= 60 else "Seguimiento")))
