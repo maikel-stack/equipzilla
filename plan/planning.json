@@ -125,7 +125,7 @@
       "semana": "S1",
       "tarea": "Conectar el conector de Google Ads en claude.ai para auditar la cuenta",
       "resp": "Maikel",
-      "estado": "Pendiente"
+      "estado": "Hecha de otra forma (03/09 · puente por repo con la sesión de Ads: docs/PLAYBOOK-GOOGLE-ADS.md; faltan variables GOOGLE_ADS_* en el entorno)"
     },
     {
       "id": 8,
@@ -229,7 +229,7 @@
       "semana": "S4",
       "tarea": "Montar estructura de Google Ads + etiquetado de conversiones (sin encender)",
       "resp": "Claude + Maikel",
-      "estado": "Pendiente"
+      "estado": "Hecha (por la sesión de Ads · búsqueda 7 grupos/39 kw + shopping con feed de 15 máquinas + conversiones etiquetadas)"
     },
     {
       "id": 21,
@@ -261,7 +261,7 @@
       "semana": "S2",
       "tarea": "Encender Google Ads a 20-30 €/día (modelo exacto + categoría con stock)",
       "resp": "Claude + Maikel",
-      "estado": "Pendiente"
+      "estado": "Hecha (por la sesión de Ads · 2 campañas ACTIVAS a 20 €/día cada una; CPC ~0,24 €)"
     },
     {
       "id": 25,

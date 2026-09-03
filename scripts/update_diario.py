@@ -244,6 +244,28 @@ def main():
         except Exception as e:
             lineas += [f"_Smartlead no responde: {e}_", ""]
 
+    # Google Ads compraventa (puente con la sesión de Ads: docs/PLAYBOOK-GOOGLE-ADS.md).
+    # Las credenciales viven como variables de entorno del ENTORNO; si faltan, una línea y seguimos.
+    if os.environ.get("GOOGLE_ADS_DEVELOPER_TOKEN"):
+        try:
+            import subprocess
+            r = subprocess.run(
+                [sys.executable, os.path.join(os.path.dirname(AQUI), "marketing", "google-ads", "report_metrics.py"),
+                 "--days", "7"],
+                capture_output=True, text=True, timeout=120)
+            lineas += ["## Google Ads (compraventa · últimos 7 días)", ""]
+            if r.returncode == 0 and r.stdout.strip():
+                lineas += [l for l in r.stdout.strip().splitlines() if not l.startswith("{")][:14]
+            else:
+                lineas.append(f"_report_metrics falló: {(r.stderr or r.stdout)[:200]}_")
+            lineas.append("")
+        except Exception as e:
+            lineas += [f"_Google Ads no responde: {e}_", ""]
+    else:
+        lineas += ["## Google Ads (compraventa)", "",
+                   "_Credenciales pendientes: faltan las variables GOOGLE_ADS_* en los "
+                   "ajustes del entorno (ver docs/PLAYBOOK-GOOGLE-ADS.md §2)._", ""]
+
     print("\n".join(lineas))
 
     foto = dict(fecha=hoy.isoformat(), **tot)

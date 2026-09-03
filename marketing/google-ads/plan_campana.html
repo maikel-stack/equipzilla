@@ -1,0 +1,542 @@
+<title>Equipzilla · Plan de Campaña Google Ads — Maquinaria de Construcción 2ª Mano</title>
+<style>
+  :root{
+    --bg:#F1EEE7; --panel:#FBF9F5; --panel-2:#F5F2EA;
+    --ink:#211E18; --ink-soft:#5B554A; --ink-faint:#8A8175;
+    --line:#DED8CC; --line-strong:#C6BEAE;
+    --amber:#D97A0B; --amber-soft:#F0A83B; --amber-wash:#FBEFDD;
+    --steel:#33474F; --steel-soft:#5E7580;
+    --good:#3E7C4A; --warn:#B4791A; --crit:#B23B2E;
+    --shadow:0 1px 2px rgba(33,30,24,.05),0 8px 24px rgba(33,30,24,.06);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#141209; --panel:#1D1A12; --panel-2:#211D14;
+      --ink:#EDE7DA; --ink-soft:#B4AC9B; --ink-faint:#847C6C;
+      --line:#2E2A20; --line-strong:#3B362A;
+      --amber:#F2A93C; --amber-soft:#F5BC5E; --amber-wash:#2A2214;
+      --steel:#8FA6AE; --steel-soft:#6E858E;
+      --good:#6FB07A; --warn:#D6A24A; --crit:#E0705F;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#F1EEE7; --panel:#FBF9F5; --panel-2:#F5F2EA;
+    --ink:#211E18; --ink-soft:#5B554A; --ink-faint:#8A8175;
+    --line:#DED8CC; --line-strong:#C6BEAE;
+    --amber:#D97A0B; --amber-soft:#F0A83B; --amber-wash:#FBEFDD;
+    --steel:#33474F; --steel-soft:#5E7580;
+    --good:#3E7C4A; --warn:#B4791A; --crit:#B23B2E;
+    --shadow:0 1px 2px rgba(33,30,24,.05),0 8px 24px rgba(33,30,24,.06);
+  }
+  :root[data-theme="dark"]{
+    --bg:#141209; --panel:#1D1A12; --panel-2:#211D14;
+    --ink:#EDE7DA; --ink-soft:#B4AC9B; --ink-faint:#847C6C;
+    --line:#2E2A20; --line-strong:#3B362A;
+    --amber:#F2A93C; --amber-soft:#F5BC5E; --amber-wash:#2A2214;
+    --steel:#8FA6AE; --steel-soft:#6E858E;
+    --good:#6FB07A; --warn:#D6A24A; --crit:#E0705F;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px 96px}
+  .disp{font-weight:800;letter-spacing:-.02em;line-height:1.05;text-wrap:balance}
+  .mono{font-family:"SFMono-Regular",ui-monospace,"Cascadia Code",Menlo,Consolas,monospace}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* Header */
+  header.top{position:relative;padding:64px 22px 40px;overflow:hidden}
+  .hazard{height:8px;width:100%;background:repeating-linear-gradient(-45deg,var(--amber) 0 18px,var(--ink) 18px 36px);opacity:.9}
+  @media (prefers-color-scheme:dark){.hazard{background:repeating-linear-gradient(-45deg,var(--amber) 0 18px,#0d0b06 18px 36px)}}
+  :root[data-theme="dark"] .hazard{background:repeating-linear-gradient(-45deg,var(--amber) 0 18px,#0d0b06 18px 36px)}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;text-transform:uppercase;
+    letter-spacing:.16em;font-size:12px;font-weight:700;color:var(--amber)}
+  .eyebrow::before{content:"";width:26px;height:2px;background:var(--amber)}
+  header.top h1{font-size:clamp(30px,5vw,50px);margin:16px 0 14px}
+  header.top .lede{font-size:clamp(16px,2.1vw,19px);color:var(--ink-soft);max-width:60ch;margin:0}
+  .metarow{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);
+    border-radius:999px;padding:7px 14px;font-size:13px;color:var(--ink-soft)}
+  .chip b{color:var(--ink);font-weight:700}
+  .urlbar{margin-top:18px;display:inline-block;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:9px 13px;font-size:13px;color:var(--steel)}
+
+  /* Sections */
+  section{margin-top:52px}
+  .kicker{display:flex;align-items:baseline;gap:12px;margin-bottom:20px}
+  .kicker .no{font-weight:800;font-size:13px;color:var(--amber);letter-spacing:.05em}
+  .kicker h2{font-size:clamp(21px,3vw,27px);margin:0}
+  .kicker .rule{flex:1;height:1px;background:var(--line);align-self:center}
+  p{color:var(--ink-soft)}
+  p strong{color:var(--ink)}
+
+  /* KPI tiles */
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 16px;box-shadow:var(--shadow)}
+  .tile .lab{font-size:11.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--ink-faint);font-weight:700}
+  .tile .val{font-size:26px;font-weight:800;margin-top:8px;letter-spacing:-.01em}
+  .tile .sub{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+  .tile .val.amber{color:var(--amber)}
+
+  /* generic cards / grid */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+  .card h3{margin:0 0 12px;font-size:16px;font-weight:800;display:flex;align-items:center;gap:9px}
+  .card h3 .dot{width:9px;height:9px;border-radius:2px;background:var(--amber);flex:none}
+
+  /* tables */
+  .tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;font-size:14px;background:var(--panel);min-width:520px}
+  th,td{text-align:left;padding:11px 15px;border-bottom:1px solid var(--line)}
+  thead th{background:var(--panel-2);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--ink-faint);font-weight:700}
+  tbody tr:last-child td{border-bottom:none}
+  td.k{color:var(--ink);font-weight:600}
+  .mt{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;letter-spacing:.03em}
+  .mt.ex{background:var(--amber-wash);color:var(--amber)}
+  .mt.ph{background:var(--panel-2);color:var(--steel);border:1px solid var(--line)}
+
+  /* ad group blocks */
+  .ag{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden;box-shadow:var(--shadow)}
+  .ag .hd{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:15px 18px;background:var(--panel-2);border-bottom:1px solid var(--line)}
+  .ag .hd h3{margin:0;font-size:15.5px;font-weight:800}
+  .ag .hd .tag{font-size:11.5px;color:var(--ink-faint);font-weight:700;white-space:nowrap}
+  .ag .bd{padding:16px 18px;display:grid;grid-template-columns:1.05fr 1fr;gap:20px}
+  @media(max-width:720px){.ag .bd{grid-template-columns:1fr}}
+  .ag .bd h4{margin:0 0 9px;font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-faint);font-weight:700}
+  .kwlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+  .kwlist li{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink)}
+  .kwlist .mt{flex:none}
+
+  /* ad preview */
+  .adprev{border:1px solid var(--line-strong);border-radius:10px;padding:14px 15px;background:var(--bg)}
+  .adprev .badge{font-size:11px;font-weight:800;color:var(--ink);border:1px solid var(--ink-soft);border-radius:4px;padding:0 5px;margin-right:7px}
+  .adprev .u{font-size:12.5px;color:var(--good)}
+  .adprev .t{font-size:17px;color:#1a5fbf;font-weight:600;line-height:1.3;margin:5px 0 6px}
+  @media (prefers-color-scheme:dark){.adprev .t{color:#7db0ff}}
+  :root[data-theme="dark"] .adprev .t{color:#7db0ff}
+  .adprev .d{font-size:13px;color:var(--ink-soft);margin:0}
+
+  /* pills / lists */
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-size:13px;color:var(--ink-soft)}
+  .pill.neg{color:var(--crit)}
+  ul.clean{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
+  ul.clean li{position:relative;padding-left:24px;color:var(--ink-soft)}
+  ul.clean li::before{content:"";position:absolute;left:0;top:9px;width:11px;height:11px;border-radius:3px;
+    background:var(--amber);transform:rotate(45deg)}
+  ul.clean li b{color:var(--ink)}
+
+  /* phase roadmap */
+  .phase{display:grid;grid-template-columns:130px 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+  .phase + .phase{margin-top:14px}
+  .phase .when{background:var(--steel);color:#fff;padding:18px 16px;font-weight:800;font-size:15px;display:flex;flex-direction:column;justify-content:center;gap:3px}
+  .phase .when span{font-weight:600;font-size:12px;opacity:.85}
+  .phase .what{background:var(--panel);padding:16px 18px}
+  .phase .what ul{margin:0;padding-left:18px;color:var(--ink-soft);font-size:14px}
+  .phase .what li{margin:4px 0}
+  @media(max-width:620px){.phase{grid-template-columns:1fr}}
+
+  /* steps */
+  ol.steps{counter-reset:s;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  ol.steps li{position:relative;padding-left:44px;color:var(--ink-soft)}
+  ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:-2px;
+    width:30px;height:30px;border-radius:8px;background:var(--amber);color:#241a08;
+    font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+  ol.steps li b{color:var(--ink)}
+  code{font-family:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--steel)}
+
+  .note{background:var(--amber-wash);border:1px solid var(--amber-soft);border-left:4px solid var(--amber);
+    border-radius:8px;padding:14px 16px;font-size:14px;color:var(--ink)}
+  .files{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:620px){.files{grid-template-columns:1fr}}
+  .file{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 15px;box-shadow:var(--shadow)}
+  .file .ic{width:34px;height:34px;border-radius:7px;background:var(--amber-wash);color:var(--amber);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex:none}
+  .file .fn{font-weight:700;font-size:13.5px;color:var(--ink)}
+  .file .fd{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+  footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink-faint);font-size:13px;text-align:center}
+</style>
+
+<div class="hazard"></div>
+<header class="top">
+  <div class="wrap" style="padding-bottom:0;padding-left:0;padding-right:0">
+    <div class="eyebrow">Plan de campaña · Google Ads Search</div>
+    <h1 class="disp">Compra de maquinaria de<br>construcción de 2ª mano</h1>
+    <p class="lede">Campaña de captación de leads para Equipzilla, diseñada para atraer a compradores profesionales con intención de compra alta y convertirlos en solicitudes de información y llamadas.</p>
+    <div class="metarow">
+      <span class="chip"><b>Mercado</b> España</span>
+      <span class="chip"><b>Idioma</b> Español</span>
+      <span class="chip"><b>Objetivo</b> Leads (formulario + llamada)</span>
+      <span class="chip"><b>Fecha</b> Julio 2026</span>
+    </div>
+    <div class="urlbar mono">→ equipzilla.com/compra/maquinaria/ocasion/maquinaria-construccion-segunda-mano</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 01 RESUMEN -->
+  <section>
+    <div class="kicker"><span class="no">01</span><h2 class="disp">Resumen ejecutivo</h2><span class="rule"></span></div>
+    <p>El comprador de maquinaria de obra <strong>investiga por tipo de máquina y por marca</strong> ("excavadora segunda mano", "kubota ocasión") y decide en función de precio, estado del equipo y confianza en el vendedor. La estrategia ataca esa intención con <strong>7 grupos de anuncios temáticos y ajustados</strong>, cada uno con su propio anuncio adaptable y palabras clave de intención comercial. Arrancamos en Búsqueda pura —el canal de mayor intención— y reservamos Performance Max para una segunda fase, una vez el píxel de conversiones tenga datos.</p>
+    <div class="tiles" style="margin-top:24px">
+      <div class="tile"><div class="lab">Presupuesto/día</div><div class="val amber num">50 €</div><div class="sub">≈ 1.500 €/mes</div></div>
+      <div class="tile"><div class="lab">Tipo de campaña</div><div class="val">Search</div><div class="sub">Solo red de búsqueda</div></div>
+      <div class="tile"><div class="lab">CPA objetivo</div><div class="val num">15–30 €</div><div class="sub">por lead cualificado</div></div>
+      <div class="tile"><div class="lab">Leads estimados</div><div class="val num">3–6/día</div><div class="sub">tras optimización</div></div>
+    </div>
+    <p style="margin-top:14px;font-size:13px;color:var(--ink-faint)">Estimaciones de partida para un CPC medio de 0,60–1,00 € y una tasa de conversión de landing del 5–8 %. Se recalibran con datos reales del primer mes.</p>
+  </section>
+
+  <!-- 02 CONFIG -->
+  <section>
+    <div class="kicker"><span class="no">02</span><h2 class="disp">Configuración de la campaña</h2><span class="rule"></span></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Parámetro</th><th>Recomendación</th><th>Por qué</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Objetivo</td><td>Clientes potenciales (Leads)</td><td>Optimiza hacia envíos de formulario y llamadas</td></tr>
+          <tr><td class="k">Tipo</td><td>Búsqueda</td><td>Máxima intención de compra; el resto se añade en fase 2</td></tr>
+          <tr><td class="k">Redes</td><td>Solo Búsqueda de Google</td><td>Desactivar Partners de búsqueda y Display al inicio</td></tr>
+          <tr><td class="k">Ubicación</td><td>España · «Presencia»</td><td>Segmentar por presencia física, no por interés, evita clics fuera de mercado</td></tr>
+          <tr><td class="k">Idioma</td><td>Español</td><td>Coherente con la landing y el público objetivo</td></tr>
+          <tr><td class="k">Puja (fase 1)</td><td>Maximizar conversiones</td><td>Sin CPA objetivo hasta acumular ~20–30 conversiones</td></tr>
+          <tr><td class="k">Puja (fase 2)</td><td>CPA objetivo</td><td>Fijar 20–25 € una vez el algoritmo tenga histórico</td></tr>
+          <tr><td class="k">Calendario</td><td>L–V 8:00–20:00 · S 9:00–14:00</td><td>Horario laboral de obra; ampliar tras revisar datos</td></tr>
+          <tr><td class="k">Dispositivos</td><td>Todos</td><td>Vigilar móvil por volumen de llamadas</td></tr>
+          <tr><td class="k">Rotación anuncios</td><td>Optimizar</td><td>Deja que Google priorice el mejor RSA</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note" style="margin-top:16px">México (tel. 800 953 1517) se trabaja en <strong>campaña independiente</strong>: distinta divisa, distintos CPC y estacionalidad. No mezclar mercados en la misma campaña.</div>
+  </section>
+
+  <!-- 03 ESTRUCTURA -->
+  <section>
+    <div class="kicker"><span class="no">03</span><h2 class="disp">Estructura de grupos de anuncios</h2><span class="rule"></span></div>
+    <p>Siete grupos temáticos y ajustados. Cada uno agrupa palabras clave muy afines para que el anuncio hable exactamente del equipo que busca el usuario — clave para un buen Nivel de Calidad y un CPC más bajo.</p>
+
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:20px">
+
+      <div class="ag">
+        <div class="hd"><h3>1 · Excavadoras 2ª mano</h3><span class="tag">7 keywords · RSA</span></div>
+        <div class="bd">
+          <div>
+            <h4>Palabras clave</h4>
+            <ul class="kwlist">
+              <li><span class="mt ex">EXACTA</span> excavadora segunda mano</li>
+              <li><span class="mt ex">EXACTA</span> excavadora ocasion</li>
+              <li><span class="mt ex">EXACTA</span> comprar excavadora usada</li>
+              <li><span class="mt ph">FRASE</span> excavadora oruga segunda mano</li>
+              <li><span class="mt ph">FRASE</span> excavadora usada precio</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Anuncio (vista previa)</h4>
+            <div class="adprev">
+              <div><span class="badge">Anuncio</span><span class="u">equipzilla.com/Ocasion/Maquinaria</span></div>
+              <div class="t">Excavadoras 2ª Mano · Revisadas y Listas p/ Obra</div>
+              <p class="d">Excavadoras de segunda mano revisadas y operativas. Doosan, Kubota y Develon. Envío a toda España.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag">
+        <div class="hd"><h3>2 · Miniexcavadoras 2ª mano</h3><span class="tag">6 keywords · RSA</span></div>
+        <div class="bd">
+          <div>
+            <h4>Palabras clave</h4>
+            <ul class="kwlist">
+              <li><span class="mt ex">EXACTA</span> miniexcavadora segunda mano</li>
+              <li><span class="mt ex">EXACTA</span> mini excavadora ocasion</li>
+              <li><span class="mt ex">EXACTA</span> comprar miniexcavadora usada</li>
+              <li><span class="mt ph">FRASE</span> miniexcavadora kubota segunda mano</li>
+              <li><span class="mt ph">FRASE</span> miniexcavadora precio ocasion</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Anuncio (vista previa)</h4>
+            <div class="adprev">
+              <div><span class="badge">Anuncio</span><span class="u">equipzilla.com/Ocasion/Maquinaria</span></div>
+              <div class="t">Miniexcavadoras Ocasión · Kubota desde 13.900 €</div>
+              <p class="d">Miniexcavadoras de segunda mano revisadas. Compactas y listas para trabajar. Pide info sin compromiso.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag">
+        <div class="hd"><h3>3 · Minicargadoras 2ª mano</h3><span class="tag">5 keywords · RSA</span></div>
+        <div class="bd">
+          <div>
+            <h4>Palabras clave</h4>
+            <ul class="kwlist">
+              <li><span class="mt ex">EXACTA</span> minicargadora segunda mano</li>
+              <li><span class="mt ex">EXACTA</span> minicargadora ocasion</li>
+              <li><span class="mt ph">FRASE</span> cargadora compacta usada</li>
+              <li><span class="mt ph">FRASE</span> comprar minicargadora usada</li>
+              <li><span class="mt ph">FRASE</span> bobcat segunda mano</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Anuncio (vista previa)</h4>
+            <div class="adprev">
+              <div><span class="badge">Anuncio</span><span class="u">equipzilla.com/Ocasion/Maquinaria</span></div>
+              <div class="t">Minicargadoras 2ª Mano · Listas para Trabajar</div>
+              <p class="d">Cargadoras compactas de segunda mano revisadas y operativas. Asesoramiento experto de compra.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag">
+        <div class="hd"><h3>4 · Dumpers 2ª mano</h3><span class="tag">5 keywords · RSA</span></div>
+        <div class="bd">
+          <div>
+            <h4>Palabras clave</h4>
+            <ul class="kwlist">
+              <li><span class="mt ex">EXACTA</span> dumper segunda mano</li>
+              <li><span class="mt ex">EXACTA</span> dumper ocasion</li>
+              <li><span class="mt ex">EXACTA</span> comprar dumper usado</li>
+              <li><span class="mt ph">FRASE</span> dumper de obra usado</li>
+              <li><span class="mt ph">FRASE</span> dumper articulado segunda mano</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Anuncio (vista previa)</h4>
+            <div class="adprev">
+              <div><span class="badge">Anuncio</span><span class="u">equipzilla.com/Ocasion/Maquinaria</span></div>
+              <div class="t">Dumpers de Obra 2ª Mano · Articulados y Rígidos</div>
+              <p class="d">Dumpers de obra de segunda mano revisados y operativos. Listos para trabajar. Envío a toda España.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag">
+        <div class="hd"><h3>5 · Rodillos y compactadores 2ª mano</h3><span class="tag">5 keywords · RSA</span></div>
+        <div class="bd">
+          <div>
+            <h4>Palabras clave</h4>
+            <ul class="kwlist">
+              <li><span class="mt ex">EXACTA</span> rodillo compactador segunda mano</li>
+              <li><span class="mt ex">EXACTA</span> rodillo compactador ocasion</li>
+              <li><span class="mt ph">FRASE</span> compactadora usada</li>
+              <li><span class="mt ph">FRASE</span> rodillo tandem segunda mano</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Anuncio (vista previa)</h4>
+            <div class="adprev">
+              <div><span class="badge">Anuncio</span><span class="u">equipzilla.com/Ocasion/Maquinaria</span></div>
+              <div class="t">Rodillos Compactadores · Tándem y Mixtos Ocasión</div>
+              <p class="d">Rodillos compactadores de segunda mano revisados. Listos para trabajar. Pide info sin compromiso.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag">
+        <div class="hd"><h3>6 · Maquinaria construcción 2ª mano (genérico)</h3><span class="tag">6 keywords · RSA</span></div>
+        <div class="bd">
+          <div>
+            <h4>Palabras clave</h4>
+            <ul class="kwlist">
+              <li><span class="mt ph">FRASE</span> maquinaria construccion segunda mano</li>
+              <li><span class="mt ph">FRASE</span> maquinaria de obra usada</li>
+              <li><span class="mt ph">FRASE</span> maquinaria pesada ocasion</li>
+              <li><span class="mt ph">FRASE</span> comprar maquinaria construccion usada</li>
+              <li><span class="mt ex">EXACTA</span> maquinaria construccion ocasion</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Anuncio (vista previa)</h4>
+            <div class="adprev">
+              <div><span class="badge">Anuncio</span><span class="u">equipzilla.com/Ocasion/Maquinaria</span></div>
+              <div class="t">Maquinaria de Obra 2ª Mano · Desde 13.900 €</div>
+              <p class="d">Maquinaria de construcción de 2ª mano revisada. Excavadoras, dumpers, rodillos y más. Envío a España.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag">
+        <div class="hd"><h3>7 · Marcas ocasión — Doosan · Kubota · Develon</h3><span class="tag">5 keywords · RSA</span></div>
+        <div class="bd">
+          <div>
+            <h4>Palabras clave</h4>
+            <ul class="kwlist">
+              <li><span class="mt ph">FRASE</span> excavadora doosan segunda mano</li>
+              <li><span class="mt ph">FRASE</span> kubota segunda mano</li>
+              <li><span class="mt ph">FRASE</span> develon ocasion</li>
+              <li><span class="mt ph">FRASE</span> doosan usada</li>
+              <li><span class="mt ph">FRASE</span> maquinaria kubota ocasion</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Anuncio (vista previa)</h4>
+            <div class="adprev">
+              <div><span class="badge">Anuncio</span><span class="u">equipzilla.com/Ocasion/Maquinaria</span></div>
+              <div class="t">Doosan · Kubota · Develon de Ocasión</div>
+              <p class="d">Maquinaria de marca de segunda mano revisada y operativa. Al mejor precio. Asesoramiento de compra.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <p style="margin-top:16px;font-size:13px;color:var(--ink-faint)">Total: <strong style="color:var(--ink)">39 palabras clave</strong> en concordancia exacta y de frase. Se evita la concordancia amplia al arrancar para controlar el gasto; se introducirá de forma selectiva junto con pujas inteligentes cuando haya datos de conversión.</p>
+  </section>
+
+  <!-- 04 NEGATIVAS -->
+  <section>
+    <div class="kicker"><span class="no">04</span><h2 class="disp">Palabras clave negativas</h2><span class="rule"></span></div>
+    <p>Lista negativa compartida a nivel de campaña. Filtra la intención que no queremos pagar: <strong>alquiler y renting</strong> (van en otra campaña), formación/empleo, juguetes y radiocontrol, recambios y desguace, y curiosos sin intención de compra.</p>
+    <div class="pills" style="margin-top:16px">
+      <span class="pill neg">alquiler</span><span class="pill neg">alquilar</span><span class="pill neg">renting</span>
+      <span class="pill neg">leasing</span><span class="pill neg">gratis</span><span class="pill neg">curso</span>
+      <span class="pill neg">carnet</span><span class="pill neg">formacion</span><span class="pill neg">empleo</span>
+      <span class="pill neg">trabajo</span><span class="pill neg">juguete</span><span class="pill neg">rc</span>
+      <span class="pill neg">teledirigida</span><span class="pill neg">radiocontrol</span><span class="pill neg">escala</span>
+      <span class="pill neg">gta</span><span class="pill neg">simulador</span><span class="pill neg">juego</span>
+      <span class="pill neg">minecraft</span><span class="pill neg">lego</span><span class="pill neg">playmobil</span>
+      <span class="pill neg">pdf</span><span class="pill neg">manual</span><span class="pill neg">despiece</span>
+      <span class="pill neg">para colorear</span><span class="pill neg">chatarra</span><span class="pill neg">desguace</span>
+      <span class="pill neg">+8 más</span>
+    </div>
+    <div class="note" style="margin-top:16px">Revisa el <strong>informe de términos de búsqueda</strong> cada semana el primer mes y añade negativas nuevas. Es la palanca de eficiencia más rentable de una campaña de búsqueda.</div>
+  </section>
+
+  <!-- 05 EXTENSIONES -->
+  <section>
+    <div class="kicker"><span class="no">05</span><h2 class="disp">Extensiones (recursos)</h2><span class="rule"></span></div>
+    <p>Los recursos amplían el anuncio, mejoran el CTR y ocupan más espacio en la SERP. Imprescindibles para maquinaria, donde la llamada y la confianza pesan mucho.</p>
+    <div class="grid2" style="margin-top:18px">
+      <div class="card">
+        <h3><span class="dot"></span>Enlaces de sitio</h3>
+        <ul class="clean" style="gap:9px">
+          <li><b>Excavadoras 2ª mano</b> — Oruga y ruedas revisadas</li>
+          <li><b>Miniexcavadoras</b> — Compactas desde 13.900 €</li>
+          <li><b>Dumpers de obra</b> — Articulados y rígidos</li>
+          <li><b>Asesoramiento</b> — Te ayudamos a elegir, sin compromiso</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Textos destacados</h3>
+        <div class="pills">
+          <span class="pill">Equipos revisados</span><span class="pill">Envío a toda España</span>
+          <span class="pill">Asesoramiento experto</span><span class="pill">Marcas Doosan y Kubota</span>
+          <span class="pill">Stock disponible</span><span class="pill">Atención personalizada</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Llamada · Ubicación · Precio</h3>
+        <ul class="clean" style="gap:9px">
+          <li><b>Llamada:</b> 911 238 750 (mostrar en horario de atención)</li>
+          <li><b>Ubicación:</b> vincular perfil de empresa si hay sede física</li>
+          <li><b>Precio:</b> Miniexcavadoras 13.900 € · Excavadoras 87.500 € · Cargadoras 197.900 €</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Fragmentos + Formulario</h3>
+        <ul class="clean" style="gap:9px">
+          <li><b>Fragmentos:</b> Marcas → Doosan, Kubota, Develon · Tipos → Excavadoras, Dumpers, Rodillos</li>
+          <li><b>Formulario de leads:</b> «Recibe asesoramiento de compra» captando nombre, teléfono y máquina buscada</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 SEGUIMIENTO -->
+  <section>
+    <div class="kicker"><span class="no">06</span><h2 class="disp">Seguimiento de conversiones</h2><span class="rule"></span></div>
+    <div class="note" style="margin-bottom:18px"><strong>Sin conversiones no hay campaña.</strong> Configurar el seguimiento <em>antes</em> de dar al play; las pujas inteligentes dependen por completo de estos datos.</div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Conversión</th><th>Cómo</th><th>Valor / Recuento</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Envío de formulario</td><td>Etiqueta Google Ads + GA4 en la página de gracias</td><td>Principal · Cada una</td></tr>
+          <tr><td class="k">Llamada desde anuncio</td><td>Extensión de llamada + reenvío de Google</td><td>Principal · &gt; 60 s</td></tr>
+          <tr><td class="k">Clic a WhatsApp</td><td>Evento de clic en el botón de WhatsApp</td><td>Secundaria</td></tr>
+          <tr><td class="k">Clic a teléfono (móvil)</td><td>Evento clic en tel: de la landing</td><td>Secundaria</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px">Recomendado enlazar con <strong>Pipedrive</strong> para importar conversiones offline (lead cualificado / presupuesto / venta) y optimizar hacia leads que de verdad cierran, no solo hacia formularios. Encaja con el sistema de scoring que Equipzilla ya tiene en marcha.</p>
+    <p style="font-size:13px;color:var(--ink-faint)">Plantilla de seguimiento (UTM) aplicada a todos los anuncios:<br><code>{lpurl}?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=compra-maquinaria-2mano&amp;utm_content={adgroupid}&amp;utm_term={keyword}</code></p>
+  </section>
+
+  <!-- 07 PRESUPUESTO -->
+  <section>
+    <div class="kicker"><span class="no">07</span><h2 class="disp">Presupuesto y pujas por fases</h2><span class="rule"></span></div>
+    <div class="phase">
+      <div class="when">Fase 1<span>Semanas 1–3</span></div>
+      <div class="what"><ul>
+        <li><b>Puja:</b> Maximizar conversiones (sin CPA objetivo)</li>
+        <li><b>Presupuesto:</b> 50 €/día · foco en recoger datos limpios</li>
+        <li>Vigilar términos de búsqueda a diario y ampliar negativas</li>
+        <li>Meta: acumular 20–30 conversiones para alimentar el algoritmo</li>
+      </ul></div>
+    </div>
+    <div class="phase">
+      <div class="when">Fase 2<span>Semanas 4–8</span></div>
+      <div class="what"><ul>
+        <li><b>Puja:</b> pasar a CPA objetivo (20–25 €) cuando haya histórico</li>
+        <li>Pausar keywords con gasto y 0 conversiones; subir pujas donde convierte</li>
+        <li>Probar concordancia amplia selectiva en los grupos ganadores</li>
+        <li>Test A/B de titulares y descripciones en los RSA</li>
+      </ul></div>
+    </div>
+    <div class="phase">
+      <div class="when">Fase 3<span>Mes 3+</span></div>
+      <div class="what"><ul>
+        <li>Escalar presupuesto en los grupos con CPA rentable</li>
+        <li>Lanzar <b>Performance Max</b> con feed de inventario y públicos de la web</li>
+        <li>Remarketing a visitantes que no convirtieron</li>
+        <li>Importar conversiones offline desde Pipedrive (lead → venta)</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 08 IMPORTAR -->
+  <section>
+    <div class="kicker"><span class="no">08</span><h2 class="disp">Cómo cargarla en Google Ads</h2><span class="rule"></span></div>
+    <ol class="steps">
+      <li>Descarga e instala <b>Google Ads Editor</b> y conéctalo a la cuenta de Equipzilla.</li>
+      <li>Menú <b>Cuenta → Importar → Desde archivo</b> y selecciona <code>equipzilla_campana_import.csv</code>.</li>
+      <li>Revisa la vista previa de cambios: 1 campaña, 7 grupos, 39 keywords y 7 anuncios adaptables.</li>
+      <li>Importa también <code>equipzilla_negativas.csv</code> como lista de palabras clave negativas.</li>
+      <li>Antes de publicar: fija <b>presupuesto</b>, <b>ubicación (España)</b>, <b>calendario</b> y verifica el <b>seguimiento de conversiones</b>.</li>
+      <li>Añade las <b>extensiones</b> (enlaces, destacados, llamada, precio) desde la interfaz web.</li>
+      <li>Pulsa <b>Publicar</b> y activa la campaña en «Maximizar conversiones».</li>
+    </ol>
+    <div class="note" style="margin-top:18px">Los CSV usan formato de Google Ads Editor y están validados: todos los titulares ≤ 30, descripciones ≤ 90 y rutas ≤ 15 caracteres. Ajusta la <b>URL final</b> a páginas filtradas por tipo de máquina cuando existan, para mejorar la relevancia.</div>
+  </section>
+
+  <!-- 09 ENTREGABLES -->
+  <section>
+    <div class="kicker"><span class="no">09</span><h2 class="disp">Archivos entregados</h2><span class="rule"></span></div>
+    <div class="files">
+      <div class="file"><div class="ic">CSV</div><div><div class="fn">equipzilla_campana_import.csv</div><div class="fd">Campaña + 7 grupos + 39 keywords + 7 RSA. Listo para Google Ads Editor.</div></div></div>
+      <div class="file"><div class="ic">CSV</div><div><div class="fn">equipzilla_negativas.csv</div><div class="fd">35 palabras clave negativas a nivel de campaña.</div></div></div>
+      <div class="file"><div class="ic">PY</div><div><div class="fn">build_campaign.py</div><div class="fd">Genera y valida los CSV. Edita textos y regenera cuando quieras.</div></div></div>
+      <div class="file"><div class="ic">HTML</div><div><div class="fn">plan_campana.html</div><div class="fd">Este documento estratégico.</div></div></div>
+    </div>
+  </section>
+
+  <footer>
+    Plan de campaña Google Ads · Equipzilla — Maquinaria de construcción de 2ª mano · Julio 2026<br>
+    Estimaciones de rendimiento orientativas; se recalibran con los datos reales de la cuenta.
+  </footer>
+</div>
