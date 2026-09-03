@@ -1,6 +1,6 @@
 {
   "titulo": "Equipzilla · Demand Engine · Planning de ejecución",
-  "actualizado": "2026-09-02",
+  "actualizado": "2026-09-03",
   "fases": [
     "SEPT · ACTIVAR",
     "OCT · CAPTAR",
@@ -117,7 +117,7 @@
       "semana": "S1",
       "tarea": "Pasar credenciales de DinoRank",
       "resp": "Maikel",
-      "estado": "Pendiente"
+      "estado": "Hecha (03/09 · clave DinoRank recibida y verificada)"
     },
     {
       "id": 7,
@@ -277,7 +277,7 @@
       "semana": "S3",
       "tarea": "SEO Agent: ciclo DinoRank semanal en producción (2-3 piezas/semana)",
       "resp": "Claude",
-      "estado": "Pendiente"
+      "estado": "En curso (03/09 · research hecho: 354 grupos de keyword en Sheet de mando; 2 primeros artículos redactados; falta dominio/blog para publicar)"
     },
     {
       "id": 27,
