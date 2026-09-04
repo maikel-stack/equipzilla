@@ -144,7 +144,14 @@ RECHAZO = re.compile(r"\bno usamos\b|no (?:nos|me) interesa|no estamos interesad
                      r"no (?:precisamos|necesitamos|requerimos)|"
                      r"no (?:lo )?(?:vamos a|tenemos previsto) (?:necesitar|comprar)|"
                      r"de momento no|por ahora no|"
-                     r"no (?:tenemos|hay) necesidad", re.I)
+                     r"no (?:tenemos|hay) necesidad|"
+                     # "no es lo mío": no encaja el perfil, no el momento.
+                     # Estos hay que sacarlos de la lista, no reintentarlos.
+                     r"no trabaj(?:o|amos) con|no (?:me )?dedic(?:o|amos)|"
+                     r"no somos (?:una )?(?:empresa|constructora)|"
+                     r"nada que ver|no (?:tengo|tenemos) nada que ver|"
+                     r"te (?:equivocas|has equivocado)|"
+                     r"de d[oó]nde (?:te )?sacas", re.I)
 NUEVO_EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
 # Tipos de máquina de nuestro catálogo: nombrarlos ya es intención de compra.
 MAQUINA = re.compile(
