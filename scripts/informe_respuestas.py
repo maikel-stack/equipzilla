@@ -129,11 +129,31 @@ AUTOREPLY = re.compile(r"vacacion|fuera de la oficina|out of office|"
                        # cambio de dirección que hay que llevar al CRM
                        r"ser[aá] deshabilitado|dejar[aá] de estar (?:operativ|activ)|"
                        r"utilicen los siguientes correos|utilice[nd]? (?:el|los) correos?|"
-                       r"a partir de ahora,? (?:puedes|pueden) contactar", re.I)
+                       r"a partir de ahora,? (?:puedes|pueden) contactar|"
+                       # avisos del servidor de correo (retraso, cola, no
+                       # entregado): no los ha escrito una persona
+                       r"creado por el servidor de correo|"
+                       r"a[uú]n no ha podido ser entregado|permanecer m[aá]s de|"
+                       r"delivery (?:status notification|has been delayed)|"
+                       r"mail delivery (?:system|subsystem)|undelivered mail",
+                       re.I)
 RECHAZO = re.compile(r"\bno usamos\b|no (?:nos|me) interesa|no estamos interesad|"
                      r"no,? gracias|dar(?:me|nos) de baja|unsubscribe|"
-                     r"borra(?:me|nos)|quitad?me", re.I)
+                     r"borra(?:me|nos)|quitad?me|"
+                     # negativas educadas: dicen que no, aunque suenen amables
+                     r"no (?:precisamos|necesitamos|requerimos)|"
+                     r"no (?:lo )?(?:vamos a|tenemos previsto) (?:necesitar|comprar)|"
+                     r"de momento no|por ahora no|"
+                     r"no (?:tenemos|hay) necesidad", re.I)
 NUEVO_EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
+# Tipos de máquina de nuestro catálogo: nombrarlos ya es intención de compra.
+MAQUINA = re.compile(
+    r"mini ?excavador|mini ?cargador|minicargador|excavador|retroexcavador|"
+    r"carretilla|transpaleta|toro\b|plataforma (?:elevadora|de tijera)|"
+    r"tijera\b|manipulador telesc|telesc[oó]pic|dumper|pala cargadora|"
+    r"cargadora|rodillo|compactador|generador|grupo electr[oó]gen|"
+    r"caseta de obra|contenedor mar[ií]timo|bobcat|kubota|manitou|jlg|"
+    r"haulotte|genie|doosan|develon|hyster|yale|jungheinrich|clark", re.I)
 
 
 def email_util(texto, actual=""):
@@ -170,6 +190,10 @@ def clasificar(texto):
         return "autoreply"
     if re.search(r"\d{2}[\.,]?\d{3}|mil\s?€|€|euros|\b[6789]\d{8}\b|presupuesto|"
                  r"busco|buscando|necesito|interesa|tenéis|teneis|precio", texto, re.I):
+        return "comprador"
+    # Quien nombra la máquina que quiere es un comprador aunque no diga ni
+    # precio ni "necesito" ("Una miniexcavadora de 2 a 3 toneladas...").
+    if MAQUINA.search(texto):
         return "comprador"
     return "neutro"
 
@@ -211,7 +235,13 @@ def senales_brevo():
     """Clics de campañas recientes vía export de destinatarios (el
     globalStats de la API devuelve 0 por un bug conocido)."""
     corte = desde()
-    camps = brevo("/emailCampaigns?limit=15&sort=desc").get("campaigns", [])
+    try:
+        camps = brevo("/emailCampaigns?limit=15&sort=desc").get("campaigns", [])
+    except Exception as err:
+        # Si Brevo no responde (clave, IP no autorizada, caída), el informe sigue
+        # con las respuestas del frío: perder los clics no debe costar los leads.
+        print(f"  aviso: Brevo no responde ({err}) → informe sólo con el frío")
+        return {}
     recientes = [c for c in camps if c.get("status") == "sent" and
                  (c.get("sentDate") or "") >= (dt.datetime.utcnow() -
                   dt.timedelta(days=10)).strftime("%Y-%m-%d")]

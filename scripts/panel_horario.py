@@ -78,8 +78,15 @@ def pipedrive(ruta, **params):
 
 
 def campanas(limite=12):
-    """Últimas campañas enviadas del motor ABM, con sus números reales."""
+    """Últimas campañas enviadas del motor ABM, con sus números reales.
+
+    Si Brevo devuelve error (clave, IP no autorizada, caída) se propaga: el
+    panel tiene que decirlo, no publicar una tabla a cero que se leería como
+    que las campañas se han caído.
+    """
     d = brevo("/emailCampaigns?type=classic&status=sent&limit=50&sort=desc")
+    if "_error" in d:
+        raise RuntimeError("Brevo %s · %s" % (d["_error"], d.get("_body", "")[:120]))
     filas = []
     for c in (d.get("campaigns") or []):
         nombre = c.get("name", "")
@@ -257,7 +264,13 @@ def construir():
               "Clics totales", "% apertura", "% clic"]]
     tot = dict(enviados=0, entregados=0, aberturas=0,
                aberturas_rastreables=0, clics=0, clics_totales=0)
-    for c in campanas():
+    try:
+        lista = campanas()
+    except RuntimeError as err:
+        filas.append(["⚠ SIN DATOS DE BREVO — " + str(err) +
+                      " · las campañas siguen vivas, es la lectura la que falla"])
+        lista = []
+    for c in lista:
         pa = round(100 * c["aberturas"] / c["entregados"], 1) if c["entregados"] else ""
         pc = round(100 * c["clics"] / c["entregados"], 2) if c["entregados"] else ""
         filas.append([c["nombre"], c["fecha"], c["enviados"], c["entregados"],
@@ -265,11 +278,12 @@ def construir():
                       c["clics"], c["clics_totales"], pa, pc])
         for k in tot:
             tot[k] += c[k]
-    filas.append(["TOTAL", "", tot["enviados"], tot["entregados"], "",
-                  tot["aberturas"], tot["aberturas_rastreables"],
-                  tot["clics"], tot["clics_totales"],
-                  round(100 * tot["aberturas"] / tot["entregados"], 1) if tot["entregados"] else "",
-                  round(100 * tot["clics"] / tot["entregados"], 2) if tot["entregados"] else ""])
+    if lista:
+        filas.append(["TOTAL", "", tot["enviados"], tot["entregados"], "",
+                      tot["aberturas"], tot["aberturas_rastreables"],
+                      tot["clics"], tot["clics_totales"],
+                      round(100 * tot["aberturas"] / tot["entregados"], 1) if tot["entregados"] else "",
+                      round(100 * tot["clics"] / tot["entregados"], 2) if tot["entregados"] else ""])
     filas += [[], ["FRÍO (Smartlead)"],
               ["Campaña", "Estado", "Enviados", "Respuestas", "Clics", "Rebotes",
                "Leads cargados", "% respuesta"]]
@@ -393,5 +407,9 @@ if __name__ == "__main__":
     if "--sheet" in sys.argv:
         subir(filas)
         # cola de llamadas con los clickers de las campañas de los últimos días
-        recientes = [(c["id"], c["nombre"], c["fecha"]) for c in campanas(4)]
-        subir(cola_llamadas(recientes), "Clics nuevos · auto")
+        try:
+            recientes = [(c["id"], c["nombre"], c["fecha"]) for c in campanas(4)]
+        except RuntimeError as err:
+            print("\n[clics sin actualizar: %s]" % err)
+        else:
+            subir(cola_llamadas(recientes), "Clics nuevos · auto")
