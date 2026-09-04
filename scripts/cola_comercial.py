@@ -23,7 +23,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from panel_horario import (SHEET_ID, brevo, campanas, clickers,  # noqa: E402
-                           maquina_de_url, pipedrive, subir)
+                           falta, maquina_de_url, pipedrive, subir)
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -216,6 +216,14 @@ def construir(dias=60):
 
 
 if __name__ == "__main__":
+    # Sin credenciales la cola saldría vacía; publicarla borraría las
+    # oportunidades buenas del Sheet (ver el mismo guardarraíl en panel_horario).
+    ausentes = falta("brevo_key", "pipedrive_key")
+    if ausentes:
+        raise SystemExit(
+            "COLA NO ACTUALIZADA · faltan credenciales: " + ", ".join(ausentes) +
+            "\nEl contenedor las ha perdido. No se escribe en el Sheet.")
+
     dias = next((int(a) for a in sys.argv[1:] if a.isdigit()), 60)
     filas = construir(dias)
     for f in filas[:28]:

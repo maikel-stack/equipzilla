@@ -35,8 +35,18 @@ PREFIJOS = ("Compraventa ·", "Plataformas Elevación ·", "Lanzamiento ·",
 
 
 def clave(nombre):
+    """Credencial desde ~/.outbound/ o, si el contenedor se ha reiniciado y ha
+    perdido el fichero, desde la variable de entorno equivalente en mayúsculas
+    (brevo_key -> BREVO_KEY). Las variables del entorno sí sobreviven."""
     p = os.path.join(CRED, nombre)
-    return open(p).read().strip() if os.path.exists(p) else ""
+    if os.path.exists(p):
+        return open(p).read().strip()
+    return os.environ.get(nombre.upper().replace(".", "_"), "").strip()
+
+
+def falta(*nombres):
+    """Nombres de las credenciales que no están ni en fichero ni en el entorno."""
+    return [n for n in nombres if not clave(n)]
 
 
 def pedir(url, cabeceras, timeout=90):
@@ -341,8 +351,9 @@ def sheets(ruta, metodo="GET", cuerpo=None, cab=None):
 
 def subir(filas, pestana="Panel · en vivo"):
     """Escribe la pestaña del panel. No toca la lista de llamadas del equipo."""
-    if not os.path.exists(os.path.join(CRED, "google_sa.json")):
-        print("\n[sin subir: falta ~/.outbound/google_sa.json]")
+    if not clave("google_sa.json"):
+        print("\n[sin subir: falta la credencial google_sa.json "
+              "(ni ~/.outbound/ ni la variable GOOGLE_SA_JSON)]")
         return
     tk = token_google(["https://www.googleapis.com/auth/spreadsheets"])
     cab = {"Authorization": "Bearer " + tk, "Content-Type": "application/json"}
@@ -365,6 +376,17 @@ def subir(filas, pestana="Panel · en vivo"):
 
 
 if __name__ == "__main__":
+    # Si el contenedor se ha reiniciado y ha perdido las credenciales, el panel
+    # saldría todo a cero. Publicar esos ceros en el Sheet del equipo es peor
+    # que no publicar nada: parecería que las campañas se han caído.
+    ausentes = falta("brevo_key", "smartlead_key", "pipedrive_key")
+    if ausentes:
+        print("PANEL NO ACTUALIZADO · faltan credenciales: " +
+              ", ".join(ausentes) +
+              "\nEl contenedor las ha perdido. No se escribe en el Sheet para "
+              "no sustituir los datos buenos por ceros.")
+        sys.exit(1)
+
     filas = construir()
     for f in filas:
         print(" | ".join(str(x) for x in f))

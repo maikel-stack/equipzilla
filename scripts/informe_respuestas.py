@@ -49,7 +49,18 @@ NAVEGADOR = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
 
 
 def clave(nombre):
-    return open(os.path.expanduser(f"~/.outbound/{nombre}")).read().strip()
+    """Credencial desde ~/.outbound/ o, si el contenedor se ha reiniciado y ha
+    perdido el fichero, desde la variable de entorno equivalente en mayúsculas
+    (brevo_key -> BREVO_KEY). Las variables del entorno sí sobreviven."""
+    p = os.path.expanduser(f"~/.outbound/{nombre}")
+    if os.path.exists(p):
+        return open(p).read().strip()
+    v = os.environ.get(nombre.upper().replace(".", "_"), "").strip()
+    if not v:
+        raise SystemExit(
+            f"falta la credencial {nombre}: no está en ~/.outbound/ ni en la "
+            f"variable {nombre.upper()}. El contenedor la ha perdido.")
+    return v
 
 
 def pedir(url, cab, metodo="GET", cuerpo=None, timeout=90):
