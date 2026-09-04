@@ -77,17 +77,23 @@ def campanas(limite=12):
             continue
         st = c.get("statistics") or {}
         # globalStats viene a 0 en campañas multi-lista: hay que sumar por lista.
-        env = ent = ab = cl = reb = 0
+        env = ent = ab = abr = cl = clt = reb = 0
         for s in st.get("campaignStats") or []:
             env += s.get("sent") or 0
             ent += s.get("delivered") or 0
-            ab += s.get("trackableViews") or 0
-            cl += s.get("uniqueClicks") or 0
+            # `uniqueViews` es la cifra que enseña el panel de Brevo; los
+            # `trackableViews` son sólo las aperturas con píxel cargado, así que
+            # salen más bajas. Se muestran las dos para poder cuadrarlo.
+            ab += s.get("uniqueViews") or 0
+            abr += s.get("trackableViews") or 0
+            cl += s.get("uniqueClicks") or 0      # personas que han clicado
+            clt += s.get("clickers") or 0         # clics totales
             reb += (s.get("softBounces") or 0) + (s.get("hardBounces") or 0)
         filas.append(dict(id=c.get("id"), nombre=nombre[:52],
                           fecha=(c.get("sentDate") or "")[:16].replace("T", " "),
                           enviados=env, entregados=ent, rebotes=reb,
-                          aberturas=ab, clics=cl))
+                          aberturas=ab, aberturas_rastreables=abr,
+                          clics=cl, clics_totales=clt))
         if len(filas) >= limite:
             break
     return filas
@@ -237,19 +243,23 @@ def construir():
               "actualizado " + ahora.strftime("%d/%m/%Y %H:%M") + " (Madrid)"],
              [], ["CAMPAÑAS BREVO (motor ABM)"],
              ["Campaña", "Enviada", "Enviados", "Entregados", "Rebotes",
-              "Aperturas", "Clics", "% apertura", "% clic"]]
-    tot = dict(enviados=0, entregados=0, aberturas=0, clics=0)
+              "Aperturas", "Aperturas rastreables", "Personas que clican",
+              "Clics totales", "% apertura", "% clic"]]
+    tot = dict(enviados=0, entregados=0, aberturas=0,
+               aberturas_rastreables=0, clics=0, clics_totales=0)
     for c in campanas():
         pa = round(100 * c["aberturas"] / c["entregados"], 1) if c["entregados"] else ""
-        pc = round(100 * c["clics"] / c["entregados"], 1) if c["entregados"] else ""
+        pc = round(100 * c["clics"] / c["entregados"], 2) if c["entregados"] else ""
         filas.append([c["nombre"], c["fecha"], c["enviados"], c["entregados"],
-                      c["rebotes"], c["aberturas"], c["clics"], pa, pc])
+                      c["rebotes"], c["aberturas"], c["aberturas_rastreables"],
+                      c["clics"], c["clics_totales"], pa, pc])
         for k in tot:
             tot[k] += c[k]
     filas.append(["TOTAL", "", tot["enviados"], tot["entregados"], "",
-                  tot["aberturas"], tot["clics"],
+                  tot["aberturas"], tot["aberturas_rastreables"],
+                  tot["clics"], tot["clics_totales"],
                   round(100 * tot["aberturas"] / tot["entregados"], 1) if tot["entregados"] else "",
-                  round(100 * tot["clics"] / tot["entregados"], 1) if tot["entregados"] else ""])
+                  round(100 * tot["clics"] / tot["entregados"], 2) if tot["entregados"] else ""])
     filas += [[], ["FRÍO (Smartlead)"],
               ["Campaña", "Estado", "Enviados", "Respuestas", "Clics", "Rebotes",
                "Leads cargados", "% respuesta"]]

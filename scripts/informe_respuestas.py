@@ -206,6 +206,12 @@ def senales_brevo():
                   dt.timedelta(days=10)).strftime("%Y-%m-%d")]
     salida = {}
     for c in recientes[:8]:
+        # Brevo rechaza el export si la campaña no tiene ni un clic, así que se
+        # descarta antes de pedirlo (evita un aviso falso y 2 min de espera).
+        st = c.get("statistics") or {}
+        if not sum((x.get("clickers") or 0)
+                   for x in st.get("campaignStats") or []):
+            continue
         try:
             proc = brevo(f"/emailCampaigns/{c['id']}/exportRecipients", "POST",
                          {"recipientsType": "clickers"})
