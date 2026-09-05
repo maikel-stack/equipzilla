@@ -225,7 +225,12 @@ if __name__ == "__main__":
             "\nEl contenedor las ha perdido. No se escribe en el Sheet.")
 
     dias = next((int(a) for a in sys.argv[1:] if a.isdigit()), 60)
-    filas = construir(dias)
+    try:
+        filas = construir(dias)
+    except RuntimeError as err:
+        # Sin Brevo no hay clics que cruzar: se avisa y se deja la cola como
+        # está, en vez de vaciar la pestaña del equipo.
+        raise SystemExit("COLA NO ACTUALIZADA · %s" % err)
     for f in filas[:28]:
         print(" | ".join(str(x) for x in f))
     print("\n(%d oportunidades en la cola)" % (len(filas) - 4))

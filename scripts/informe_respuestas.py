@@ -382,8 +382,12 @@ def recoger():
             e["empresa"] = e["empresa"] or lead.get("empresa", "")
             e["maquinas"] |= lead.get("maquinas", set())
             e["campanas"] |= lead.get("campanas", set())
+            # Un clic del frío no es una respuesta: si se etiquetan igual, el
+            # equipo abre la ficha esperando un texto que no existe.
             if "respuesta_frio" in lead["senales"]:
                 e["origen"] = "Respuesta frío"
+            elif origen == "Respuesta frío" and "clic_frio" in lead["senales"]:
+                e["origen"] = "Clic frío"
 
     filas = []
     for email, lead in todos.items():
