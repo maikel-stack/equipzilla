@@ -20,10 +20,12 @@ import json
 import os
 import re
 import sys
+import time
+import urllib.parse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from panel_horario import (SHEET_ID, brevo, campanas, clickers,  # noqa: E402
-                           falta, maquina_de_url, pipedrive, subir)
+                           falta, maquina_de_url, pipedrive, smartlead, subir)
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -169,6 +171,52 @@ def puntuar(g, hoy):
     return p, " · ".join(que)
 
 
+_CACHE_CONTACTO = {}
+
+
+def contacto(email):
+    """Nombre y teléfono del lead. Sin teléfono la cola no sirve para llamar.
+
+    Se busca en las tres fuentes que tenemos, por orden de fiabilidad:
+    Pipedrive (lo ha metido el equipo), Smartlead (viene del scraping del frío)
+    y Brevo (atributos de la lista ABM, que suele traer sólo el nombre).
+    """
+    if email in _CACHE_CONTACTO:
+        return _CACHE_CONTACTO[email]
+    nombre, tel = "", ""
+    try:
+        r = pipedrive("/persons/search", term=email, fields="email", limit=1)
+        it = ((r.get("data") or {}).get("items") or [])
+        if it:
+            item = it[0]["item"]
+            nombre = item.get("name") or ""
+            tels = [t for t in (item.get("phones") or []) if t]
+            tel = tels[0] if tels else ""
+    except Exception:
+        pass
+    if not tel:
+        try:
+            l = smartlead("/leads/?email=" + urllib.parse.quote(email))
+            if isinstance(l, dict):
+                tel = l.get("phone_number") or ""
+                nombre = nombre or " ".join(
+                    x for x in (l.get("first_name"), l.get("last_name")) if x)
+                nombre = nombre or (l.get("company_name") or "")
+        except Exception:
+            pass
+    if not nombre:
+        try:
+            b = brevo("/contacts/" + urllib.parse.quote(email))
+            at = b.get("attributes") or {}
+            nombre = at.get("NOMBRE") or at.get("FIRSTNAME") or ""
+            tel = tel or at.get("SMS") or at.get("TELEFONO") or ""
+        except Exception:
+            pass
+    _CACHE_CONTACTO[email] = (nombre.strip(), str(tel).strip())
+    time.sleep(0.2)   # Pipedrive limita a 10 peticiones por ventana
+    return _CACHE_CONTACTO[email]
+
+
 def construir(dias=60):
     hoy = dt.date.today()
     inv = stock()
@@ -176,7 +224,7 @@ def construir(dias=60):
     filas = [["COLA COMERCIAL PRIORIZADA · generada %s" % dt.datetime.now(dt.timezone(dt.timedelta(hours=2))).strftime("%d/%m/%Y %H:%M")],
              ["Ordenada por probabilidad de venta. No sustituye a la lista manual del equipo."],
              [],
-             ["Score", "Prioridad", "Email", "Qué miró", "Categoría", "Presupuesto señalado",
+             ["Score", "Prioridad", "Nombre", "Teléfono", "Email", "Qué miró", "Categoría", "Presupuesto señalado",
               "Qué tenemos que encaja", "Origen", "Última señal", "Por qué", "Siguiente acción"]]
     filas_datos = []
     for g in recoger(dias).values():
@@ -205,7 +253,8 @@ def construir(dias=60):
                   if score >= 35 else "Email de seguimiento con su categoría")
         if not ops and cat:
             accion = "Llamar y anotar en Want-to-Buy: no tenemos stock que encaje"
-        filas_datos.append([score, nivel, g["email"],
+        nombre, tel = contacto(g["email"])
+        filas_datos.append([score, nivel, nombre or "—", tel or "sin teléfono", g["email"],
                             " · ".join(dict.fromkeys(g["maquinas"]))[:70] or "—",
                             ETIQUETA.get(cat, "—"),
                             ("%s €" % format(pref, ",d").replace(",", ".")) if pref else "—",
