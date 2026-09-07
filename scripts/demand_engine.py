@@ -798,17 +798,13 @@ def main():
 
     cab = cabeceras()
     print("\nEscribiendo pestañas...")
-    escribir(libro, "01 · DASHBOARD", tab_dashboard(deals, camp, frio, ads, seo), cab)
-    escribir(libro, "02 · FUNNEL", tab_funnel(deals), cab)
-    escribir(libro, "04 · PIPELINE", tab_pipeline(deals), cab)
-    escribir(libro, "05 · COMERCIAL", tab_comercial(deals), cab)
-    escribir(libro, "07 · MARKETING", tab_marketing(camp, frio, ads), cab)
-    escribir(libro, "08 · SEO", tab_seo(seo, quick), cab)
-    escribir(libro, "09 · LEARNING LOG", tab_learning(), cab)
-    escribir(libro, "09b · EXPERIMENTOS", tab_experimentos(), cab)
-    escribir(libro, "10 · ALERTAS", tab_alertas(deals, camp, frio, ads), cab)
-    escribir(libro, "11 · ACTION BOARD", tab_action_board(), cab)
-    escribir(libro, "00 · AUDITORÍA", tab_auditoria(deals), cab)
+    escribir(libro, "DASHBOARD", tab_dashboard_simple(deals, camp, frio, ads, seo), cab)
+    escribir(libro, "PIPELINE", tab_pipeline_simple(deals), cab)
+    escribir(libro, "CANALES", tab_canales_simple(camp, frio, ads, seo, quick), cab)
+    escribir(libro, "ACCIONES", tab_acciones_simple(), cab)
+    escribir(libro, "AUDITORÍA", tab_auditoria_simple(deals), cab)
+    limpiar_pestanas(libro, {"DASHBOARD", "PIPELINE", "CANALES", "ACCIONES",
+                             "AUDITORÍA"}, cab)
 
     e = embudo(deals)
     print("\nRESUMEN")
@@ -821,6 +817,194 @@ def main():
              sum(1 for a in alertas if a[0].startswith("🟠"))))
     print("   https://docs.google.com/spreadsheets/d/%s/edit" % libro)
 
+
+
+# ── VERSIÓN SIMPLE (pedida por Maikel el 07/09: "sólo lo esencial, de un vistazo")
+def tab_dashboard_simple(deals, camp, frio, ads, seo):
+    e = embudo(deals)
+    c = por_comercial(deals)
+    m = por_mes(deals)
+    hoy = dt.date.today()
+    sin_importe = sum(1 for x in deals if x.get("status") == "open" and not x.get("value"))
+    sin_accion = sum(d["sin_actividad"] for d in c.values())
+    estancadas = sum(d["estancadas"] for d in c.values())
+    mp = motivos_perdida(deals)
+    tot_p = sum(mp.values())
+    sin_motivo = mp.get("OTRAS - General", 0) + mp.get("(sin motivo)", 0)
+
+    f = [["EQUIPZILLA · DEMAND ENGINE", "", "", "",
+          "actualizado " + dt.datetime.now().strftime("%d/%m %H:%M")],
+         [],
+         ["¿LLEGAMOS?", "Real", "Objetivo", "Falta"],
+         ["Operaciones", e["ganadas"], META_OPS, META_OPS - e["ganadas"]],
+         ["GMV", eur(e["gmv"]), eur(META_GMV),
+          "no medible: %d ofertas abiertas sin importe" % sin_importe],
+         [],
+         ["EMBUDO", "Real", "Objetivo", "Lectura"],
+         ["Leads → oferta", pct(e["lead_oferta"]), "≥ 40 %",
+          "bien" if e["lead_oferta"] >= OFERTA_OBJ else "flojo"],
+         ["Oferta → venta", pct(e["oferta_venta"]), "≥ 20 %",
+          "AQUÍ SE ROMPE" if e["oferta_venta"] < CIERRE_OBJ else "bien"],
+         ["Ofertas vivas", e["abiertas"], "", "%d sin próxima acción · %d paradas +21 días"
+          % (sin_accion, estancadas)],
+         [],
+         ["RITMO", "Leads", "Ofertas", "Ventas"]]
+    for n, l, o, v, g in OBJETIVOS:
+        k = {"Septiembre": "2026-09", "Octubre": "2026-10",
+             "Noviembre": "2026-11", "Diciembre": "2026-12"}[n]
+        r = m.get(k, dict(leads=0, ofertas=0, ventas=0))
+        f.append([n, "%d / %d" % (r["leads"], l), "%d / %d" % (r["ofertas"], o),
+                  "%d / %d" % (r["ventas"], v)])
+    f += [[], ["DEMANDA ESTE MES", "Volumen", "Resultado", "Contra objetivo"]]
+    if camp:
+        rec = [x for x in camp if x["fecha"] >= hoy.strftime("%Y-%m-01")]
+        te = sum(x["ent"] for x in rec); ta = sum(x["ab"] for x in rec)
+        tc = sum(x["cl"] for x in rec)
+        f.append(["Reactivación (Brevo)", "%d entregados" % te,
+                  "%s apertura · %d clican" % (pct(ta / te) if te else "—", tc),
+                  "≥ 20 %: " + ("bien" if te and ta / te >= 0.2 else "flojo")])
+    for x in frio:
+        r = x["resp"] / x["env"] if x["env"] else 0
+        f.append(["Frío (Smartlead)", "%d enviados" % x["env"],
+                  "%d respuestas · %s" % (x["resp"], pct(r)),
+                  "≥ 2,5 %: " + ("bien" if r >= 0.025 else "POR DEBAJO")])
+    if ads:
+        f.append(["Google Ads (30 d)", eur(ads["coste"]),
+                  "%d leads · CPL %s" % (ads["conv"],
+                  eur(ads["coste"] / ads["conv"]) if ads["conv"] else "—"),
+                  "Shopping pierde el 60 % por presupuesto"])
+    if seo:
+        f.append(["SEO (28 d)", "%s impresiones" % seo["impr"],
+                  "%s clics" % seo["clics"], "no se puede atar a ventas"])
+    f += [[], ["QUÉ HACER YA", "Quién", "Por qué"],
+          ["Autopsia de las últimas 20 ofertas perdidas", "Maikel + Zilia/David",
+           "%d de %d pérdidas sin motivo real" % (sin_motivo, tot_p)],
+          ["Cargar importes de las ofertas abiertas", "Comercial",
+           "sin ellos no hay GMV"],
+          ["Llamar a los HOT de la cola comercial", "David",
+           "tienen máquina y presupuesto"],
+          [], ["LO QUE HOY NO SE PUEDE MEDIR", "Por qué"],
+          ["De qué canal viene cada venta", "campo de origen vacío en el 100 % de los tratos"],
+          ["Margen", "no existe el campo en Pipedrive"],
+          ["Tiempo hasta la primera llamada", "no se registran llamadas"]]
+    return f
+
+
+def tab_pipeline_simple(deals):
+    hoy = dt.date.today()
+    f = [["PIPELINE — espejo de Pipedrive, sólo lectura"], [],
+         ["Empresa", "Contacto", "Etapa", "Responsable", "Importe", "Días abierta",
+          "Próxima acción", "Estado / motivo de pérdida"]]
+    abiertos = [x for x in deals if x.get("status") == "open"]
+    cerrados = [x for x in deals if x.get("status") != "open"]
+    for x in abiertos + sorted(cerrados, key=lambda d: d.get("update_time") or "",
+                               reverse=True)[:40]:
+        org, per, u = x.get("org_id"), x.get("person_id"), x.get("user_id")
+        try:
+            dias = (hoy - dt.date.fromisoformat((x.get("add_time") or "")[:10])).days
+        except ValueError:
+            dias = ""
+        estado = ("ABIERTA" if x.get("status") == "open" else
+                  "GANADA" if x.get("status") == "won" else
+                  "perdida · " + (x.get("lost_reason") or "sin motivo")[:40])
+        f.append([(org.get("name") if isinstance(org, dict) else "") or "—",
+                  (per.get("name") if isinstance(per, dict) else "") or "—",
+                  ETAPAS_T.get(x.get("stage_id"), x.get("stage_id")),
+                  (u.get("name") if isinstance(u, dict) else "") or "—",
+                  eur(x.get("value") or 0) if x.get("value") else "0 €",
+                  dias,
+                  (x.get("next_activity_date") or "")[:10] or
+                  ("SIN PRÓXIMA ACCIÓN" if x.get("status") == "open" else ""),
+                  estado])
+    f.insert(2, ["%d abiertas arriba · las 40 últimas cerradas debajo" % len(abiertos)])
+    return f
+
+
+def tab_canales_simple(camp, frio, ads, seo, quick):
+    f = [["CANALES — actividad de marketing"],
+         ["Esto es señal, no negocio: hasta que el origen se rellene en Pipedrive no "
+          "se puede saber qué canal vende."], [],
+         ["BREVO · reactivación", "Fecha", "Entregados", "Aperturas", "% apertura",
+          "Personas que clican"]]
+    for c in camp[:12]:
+        f.append([c["nombre"][:48], c["fecha"], c["ent"], c["ab"],
+                  pct(c["ab"] / c["ent"] if c["ent"] else 0), c["cl"]])
+    f += [[], ["SMARTLEAD · frío", "Enviados", "Respuestas", "% respuesta", "Clics",
+               "Rebotes"]]
+    for c in frio:
+        f.append([c["nombre"][:48], c["env"], c["resp"],
+                  pct(c["resp"] / c["env"] if c["env"] else 0), c["cl"], c["reb"]])
+    if ads:
+        f += [[], ["GOOGLE ADS · 30 días", "Inversión", "Clics", "CPC", "Leads", "CPL"],
+              ["Búsqueda + Shopping", eur(ads["coste"]), ads["clics"],
+               "%.2f €" % (ads["coste"] / ads["clics"]) if ads["clics"] else "—",
+               ads["conv"], eur(ads["coste"] / ads["conv"]) if ads["conv"] else "—"]]
+    if seo:
+        f += [[], ["SEO · 28 días", "Impresiones", "Clics", "CTR", "Consultas de compra"],
+              ["equipzilla.com", seo["impr"], seo["clics"], seo.get("ctr", "—"),
+               seo.get("comerciales", "—")],
+              [], ["Dónde ya rankeamos (pos. 4-20)", "Posición", "Impresiones", "Clics"]]
+        for k in quick[:8]:
+            f.append([k[0], k[1], k[2], k[3]])
+    return f
+
+
+def tab_acciones_simple():
+    f = [["ACCIONES"], ["Marcar Hecho a mano. Lo demás lo actualiza el sistema."], [],
+         ["Cuándo", "Qué", "Quién", "Por qué", "Hecho"]]
+    for a in [
+        ("YA", "Autopsia de las últimas 20 ofertas perdidas", "Maikel + Zilia/David",
+         "El 29 % de las pérdidas no tiene motivo"),
+        ("YA", "Cargar los importes de las ofertas abiertas", "Comercial", "Están a 0 €"),
+        ("HOY", "Llamar a los HOT de «Cola comercial»", "David",
+         "Tienen máquina y presupuesto señalados"),
+        ("HOY", "Quitar 'OTRAS - General' de los motivos de pérdida", "Maikel",
+         "Sin diagnóstico no hay arreglo"),
+        ("SEMANA", "Rellenar el origen al crear cada trato", "Equipo",
+         "Para saber qué canal vende"),
+        ("SEMANA", "Decidir Shopping 20 → 50 €/día", "Maikel",
+         "Pierde el 60 % de impresiones por presupuesto"),
+        ("SEMANA", "Auditar la lista de frío", "Claude",
+         "Han clicado centros culturales y un competidor"),
+        ("BLOQUEADO", "Publicar 8 artículos SEO", "Maikel", "Faltan accesos del blog"),
+        ("BLOQUEADO", "Migrar la compraventa al pipeline 16", "Maikel",
+         "Existe con las etapas correctas y está vacío"),
+    ]:
+        f.append(list(a) + [""])
+    return f
+
+
+def tab_auditoria_simple(deals):
+    n = len(deals)
+    con_imp = sum(1 for x in deals if x.get("value"))
+    f = [["AUDITORÍA — por qué hay cosas que no se pueden medir"], [],
+         ["Hallazgo", "Consecuencia", "Arreglo"],
+         ["El pipeline 16 «Compraventa» está vacío; todo va al 6 mezclado con alquiler",
+          "El funnel se mide con etapas de alquiler", "Migrar al 16"],
+         ["Sólo %d de %d tratos tienen importe" % (con_imp, n),
+          "No hay GMV", "Cargar importes al enviar la oferta"],
+         ["Origen, UTM, scoring, categoría, provincia, sector: 0 %% relleno en %d tratos" % n,
+          "No hay atribución ni ICP", "Rellenar el origen al crear el trato"],
+         ["No existe campo de margen", "Objetivo de margen no medible", "Crear el campo"],
+         ["No se registran llamadas como actividad", "SLA de respuesta no medible",
+          "Registrar la llamada en Pipedrive"],
+         ["137 de %d tratos asignados a Zilia; David tiene 7" % n,
+          "El responsable comercial no es quien creíamos", "Reasignar o confirmar"],
+         [], ["FUENTES CONECTADAS", "Estado"],
+         ["Pipedrive", "OK"], ["Brevo", "OK"], ["Smartlead", "OK"],
+         ["Google Ads", "OK"], ["Search Console", "OK"],
+         ["Web / formularios", "llegan sin origen"], ["LinkedIn", "no conectado"]]
+    return f
+
+
+def limpiar_pestanas(libro, conservar, cab):
+    """Borra las pestañas que ya no forman parte del sistema."""
+    meta = sheets("%s?fields=sheets.properties" % libro, cab=cab)
+    reqs = [{"deleteSheet": {"sheetId": x["properties"]["sheetId"]}}
+            for x in meta.get("sheets", [])
+            if x["properties"]["title"] not in conservar]
+    if reqs:
+        sheets("%s:batchUpdate" % libro, "POST", {"requests": reqs}, cab)
 
 if __name__ == "__main__":
     main()
