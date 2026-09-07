@@ -125,9 +125,30 @@ def en_crm():
     return abiertos
 
 
+def segmentos():
+    """Nombre de la lista de la que salió cada campaña.
+
+    Andrés preguntó (07/09) de dónde sale cada persona de la cola. La campaña
+    no lo dice: lo dice la LISTA a la que se envió ("Alquiló Miniexcavadoras",
+    "Reactivación · Plataformas"...), que es la segmentación de verdad.
+    """
+    nombres = {l["id"]: l["name"] for l in
+               brevo("/contacts/lists?limit=50").get("lists", [])}
+    fuera = {34}                       # lista 34 es la copia interna del equipo
+    mapa = {}
+    d = brevo("/emailCampaigns?type=classic&status=sent&limit=50&sort=desc")
+    for c in d.get("campaigns", []):
+        ls = [nombres.get(s.get("listId"), "")
+              for s in (c.get("statistics", {}).get("campaignStats") or [])
+              if s.get("listId") not in fuera and s.get("sent")]
+        mapa[c["id"]] = " + ".join(x for x in dict.fromkeys(ls) if x)
+    return mapa
+
+
 def recoger(dias=60):
     """Todo el que ha clicado en las campañas ABM de los últimos `dias`."""
     corte = (dt.date.today() - dt.timedelta(days=dias)).isoformat()
+    segs = segmentos()
     gente = {}
     for c in campanas(20):
         if (c["fecha"] or "")[:10] < corte:
@@ -140,7 +161,9 @@ def recoger(dias=60):
                     if k.startswith("http") and (v or "").strip()]
             miro = [x for x in dict.fromkeys(miro) if x and x not in ("web", "WhatsApp")]
             g = gente.setdefault(em, dict(email=em, clics=0, campanas=set(),
-                                          maquinas=[], ultima=""))
+                                          listas=set(), maquinas=[], ultima=""))
+            if segs.get(c["id"]):
+                g["listas"].add(segs[c["id"]])
             try:
                 g["clics"] += int(r.get("Clicked_Links_Count") or 0)
             except ValueError:
@@ -225,7 +248,7 @@ def construir(dias=60):
              ["Ordenada por probabilidad de venta. No sustituye a la lista manual del equipo."],
              [],
              ["Score", "Prioridad", "Nombre", "Teléfono", "Email", "Qué miró", "Categoría", "Presupuesto señalado",
-              "Qué tenemos que encaja", "Origen", "Última señal", "Por qué", "Siguiente acción"]]
+              "Qué tenemos que encaja", "De qué lista sale", "Campaña", "Última señal", "Por qué", "Siguiente acción"]]
     filas_datos = []
     for g in recoger(dias).values():
         if g["email"] in crm:
@@ -258,7 +281,9 @@ def construir(dias=60):
                             " · ".join(dict.fromkeys(g["maquinas"]))[:70] or "—",
                             ETIQUETA.get(cat, "—"),
                             ("%s €" % format(pref, ",d").replace(",", ".")) if pref else "—",
-                            encaja[:90], " / ".join(sorted(g["campanas"]))[:60],
+                            encaja[:90],
+                            " / ".join(sorted(g["listas"]))[:70] or "—",
+                            " / ".join(sorted(g["campanas"]))[:60],
                             g["ultima"][:16], porque, accion])
     filas_datos.sort(key=lambda f: -f[0])
     return filas + filas_datos
