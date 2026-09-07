@@ -22,8 +22,8 @@ filas, formatos = [], []
 
 def bloque(titulo):
     filas.append([""])
-    formatos.append(("seccion", len(filas)))
     filas.append([titulo])
+    formatos.append(("seccion", len(filas)))
 
 
 def cabecera(*celdas):
@@ -50,11 +50,11 @@ cabecera("Paso del embudo", "Real medido", "Lo que asumía el plan", "Veredicto"
 fila("Lead → oferta enviada", "48 %  (94 de 195)", "37 %", "MEJOR de lo previsto")
 fila("Oferta enviada → venta", "2,1 %  (2 de 94)", "19,5 %", "9 VECES PEOR ← aquí está el cuello", marca="alerta")
 fila("")
-fila("Traducido: enviamos ofertas y no se cierran. 75 ofertas muertas contra 2 ganadas.")
-fila("Y las 2 ganadas son de febrero de 2025, con importe 0 €, y parecen la misma operación duplicada.")
+fila("Traducido: enviamos ofertas y no se cierran — 75 muertas contra 2 ganadas. Y esas 2 son de "
+     "febrero de 2025, con importe 0 €, y parecen la misma operación duplicada.")
 
 bloque("0b · POR QUÉ SE PIERDEN (178 operaciones perdidas)")
-cabecera("Motivo registrado", "Nº", "% ", "Qué significa")
+cabecera("Motivo registrado", "Nº", "%", "Qué significa")
 fila("OTRAS - General", "52", "29 %", "SIN DIAGNÓSTICO. Casi un tercio no sabemos por qué murió.", marca="alerta")
 fila("Falta de respuesta tras varios intentos", "22", "12 %", "Contactamos tarde o pocas veces")
 fila("No tiene interés real", "17", "10 %", "Lead mal cualificado")
@@ -66,8 +66,8 @@ fila("Precio no competitivo", "5", "3 %", "El precio NO es el problema principal
 fila("No tenemos alquilador para dar servicio", "4", "2 %", "Hueco de sourcing")
 fila("Solo estaba comparando precios", "4", "2 %", "")
 fila("")
-fila("Suma la lectura: 18 % se pierde por no llegar a tiempo al cliente, 19 % por leads que nunca")
-fila("fueron reales, 8 % porque no teníamos la máquina — y solo un 3 % por precio.")
+fila("Suma la lectura: 18 % se pierde por no llegar a tiempo al cliente, 19 % por leads que nunca "
+     "fueron reales, 8 % porque no teníamos la máquina — y solo un 3 % por precio.")
 
 bloque("1 · ¿LLEGAMOS A 25 OPERACIONES EL 31/12?")
 cabecera("Escenario", "Ofertas/mes", "% cierre", "Ventas a 31/12", "GMV estimado")
@@ -77,9 +77,9 @@ fila("Si arreglamos cierre Y triplicamos ofertas", "24", "15 %", "16", "320.000 
 fila("Lo que haría falta para los 25", "24", "24 %", "25", "500.000 €")
 fila("")
 fila("Quedan 16 semanas. Con los números de hoy, 25 operaciones no sale.", marca="destacado")
-fila("Con el cierre arreglado y triplicando ofertas nos plantamos en 15-16 operaciones (~320.000 €).")
-fila("Prefiero decírtelo ahora que en diciembre. El objetivo no se salva metiendo más leads arriba:")
-fila("se salva arreglando la mitad de abajo del embudo.")
+fila("Con el cierre arreglado y triplicando ofertas nos plantamos en 15-16 operaciones (~320.000 €). "
+     "Prefiero decírtelo ahora que en diciembre: el objetivo no se salva metiendo más leads arriba, "
+     "se salva arreglando la mitad de abajo del embudo.")
 
 bloque("2 · LAS TRES PALANCAS, POR ORDEN DE EVIDENCIA")
 cabecera("#", "Palanca", "Evidencia que la respalda", "Impacto esperado")
@@ -190,47 +190,78 @@ def escribir():
                 "startColumnIndex": c0, "endColumnIndex": c1}
 
     reqs = [
-        # limpiar formato previo
+        # partir de un formato limpio: si no, quedan restos de versiones previas
         {"repeatCell": {"range": rango(0, 200), "cell": {"userEnteredFormat": {
             "backgroundColor": BLANCO, "textFormat": {"bold": False, "fontSize": 10,
             "foregroundColor": {"red": 0.1, "green": 0.1, "blue": 0.1}},
-            "verticalAlignment": "TOP", "wrapStrategy": "WRAP"}},
+            "verticalAlignment": "MIDDLE", "wrapStrategy": "WRAP",
+            "padding": {"top": 4, "bottom": 4, "left": 8, "right": 8}}},
             "fields": "userEnteredFormat"}},
+        {"unmergeCells": {"range": rango(0, 200)}},
         {"updateSheetProperties": {"properties": {"sheetId": sid, "gridProperties":
-            {"frozenRowCount": 2}}, "fields": "gridProperties.frozenRowCount"}},
-        # anchos
+            {"frozenRowCount": 2, "hideGridlines": True}},
+            "fields": "gridProperties(frozenRowCount,hideGridlines)"}},
         {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "COLUMNS",
-            "startIndex": 0, "endIndex": 1}, "properties": {"pixelSize": 300}, "fields": "pixelSize"}},
+            "startIndex": 0, "endIndex": 1}, "properties": {"pixelSize": 290}, "fields": "pixelSize"}},
         {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "COLUMNS",
-            "startIndex": 1, "endIndex": 4}, "properties": {"pixelSize": 165}, "fields": "pixelSize"}},
+            "startIndex": 1, "endIndex": 4}, "properties": {"pixelSize": 150}, "fields": "pixelSize"}},
         {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "COLUMNS",
-            "startIndex": 4, "endIndex": 5}, "properties": {"pixelSize": 430}, "fields": "pixelSize"}},
-        # título
-        {"repeatCell": {"range": rango(0, 2), "cell": {"userEnteredFormat": {
-            "backgroundColor": TINTA, "textFormat": {"bold": True, "fontSize": 14,
-            "foregroundColor": BLANCO}, "verticalAlignment": "MIDDLE"}},
-            "fields": "userEnteredFormat(backgroundColor,textFormat,verticalAlignment)"}},
+            "startIndex": 4, "endIndex": 5}, "properties": {"pixelSize": 420}, "fields": "pixelSize"}},
         {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "ROWS",
-            "startIndex": 0, "endIndex": 1}, "properties": {"pixelSize": 40}, "fields": "pixelSize"}},
+            "startIndex": 0, "endIndex": 200}, "properties": {"pixelSize": 30}, "fields": "pixelSize"}},
+        # título
+        {"mergeCells": {"range": rango(0, 1, 0, 5), "mergeType": "MERGE_ALL"}},
+        {"mergeCells": {"range": rango(1, 2, 0, 5), "mergeType": "MERGE_ALL"}},
+        {"repeatCell": {"range": rango(0, 2), "cell": {"userEnteredFormat": {
+            "backgroundColor": TINTA, "textFormat": {"bold": True, "fontSize": 15,
+            "foregroundColor": BLANCO}, "verticalAlignment": "MIDDLE",
+            "padding": {"top": 6, "bottom": 6, "left": 12, "right": 8}}},
+            "fields": "userEnteredFormat(backgroundColor,textFormat,verticalAlignment,padding)"}},
+        {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "ROWS",
+            "startIndex": 0, "endIndex": 1}, "properties": {"pixelSize": 46}, "fields": "pixelSize"}},
+        {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "ROWS",
+            "startIndex": 1, "endIndex": 2}, "properties": {"pixelSize": 32}, "fields": "pixelSize"}},
     ]
+
     estilos = {
         "seccion":   {"backgroundColor": TINTA, "textFormat": {"bold": True, "fontSize": 12,
                       "foregroundColor": BLANCO}},
-        "cabecera":  {"backgroundColor": SUAVE, "textFormat": {"bold": True},
-                      "borders": {"bottom": {"style": "SOLID", "color": TINTA}}},
-        "alerta":    {"backgroundColor": {"red": 0.99, "green": 0.92, "blue": 0.90},
-                      "textFormat": {"bold": True, "foregroundColor": ALERTA}},
-        "bien":      {"backgroundColor": {"red": 0.90, "green": 0.96, "blue": 0.91},
-                      "textFormat": {"bold": True}},
+        "cabecera":  {"backgroundColor": SUAVE, "textFormat": {"bold": True, "fontSize": 10},
+                      "borders": {"bottom": {"style": "SOLID_MEDIUM", "color": TINTA}}},
+        "alerta":    {"backgroundColor": {"red": 0.99, "green": 0.91, "blue": 0.89},
+                      "textFormat": {"bold": True, "foregroundColor": ALERTA, "fontSize": 10}},
+        "bien":      {"backgroundColor": {"red": 0.88, "green": 0.95, "blue": 0.89},
+                      "textFormat": {"bold": True, "fontSize": 10}},
         "destacado": {"backgroundColor": CREMA, "textFormat": {"bold": True, "fontSize": 11}},
     }
+    marcadas = set()
     for marca, i in formatos:
+        marcadas.add(i - 1)
         e = estilos[marca]
-        campos = "userEnteredFormat(backgroundColor,textFormat)"
-        if "borders" in e:
-            campos = "userEnteredFormat(backgroundColor,textFormat,borders)"
+        campos = ("userEnteredFormat(backgroundColor,textFormat,borders)"
+                  if "borders" in e else "userEnteredFormat(backgroundColor,textFormat)")
         reqs.append({"repeatCell": {"range": rango(i - 1), "cell": {"userEnteredFormat": e},
                                     "fields": campos}})
+        if marca == "seccion":
+            reqs.append({"mergeCells": {"range": rango(i - 1, i, 0, 5), "mergeType": "MERGE_ALL"}})
+            reqs.append({"updateDimensionProperties": {"range": {"sheetId": sid,
+                "dimension": "ROWS", "startIndex": i - 1, "endIndex": i},
+                "properties": {"pixelSize": 34}, "fields": "pixelSize"}})
+
+    # Las frases sueltas ocupan una sola celda: si no se fusionan, el texto se
+    # corta en la columna A y la hoja no hay quien la lea.
+    for n, f in enumerate(filas):
+        if n in marcadas or len(f) != 1 or not str(f[0]).strip():
+            continue
+        reqs.append({"mergeCells": {"range": rango(n, n + 1, 0, 5), "mergeType": "MERGE_ALL"}})
+
+    # filas de tabla con texto largo en la última columna: que respiren
+    for n, f in enumerate(filas):
+        if len(f) >= 5 and len(str(f[-1])) > 90:
+            reqs.append({"updateDimensionProperties": {"range": {"sheetId": sid,
+                "dimension": "ROWS", "startIndex": n, "endIndex": n + 1},
+                "properties": {"pixelSize": 58}, "fields": "pixelSize"}})
+
     r = sheets("%s:batchUpdate" % SHEET_ID, "POST", {"requests": reqs}, cab)
     if "_error" in r:
         raise SystemExit("Formato ERROR: %s" % r)
