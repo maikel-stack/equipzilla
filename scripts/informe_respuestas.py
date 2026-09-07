@@ -135,7 +135,13 @@ AUTOREPLY = re.compile(r"vacacion|fuera de la oficina|out of office|"
                        r"creado por el servidor de correo|"
                        r"a[uú]n no ha podido ser entregado|permanecer m[aá]s de|"
                        r"delivery (?:status notification|has been delayed)|"
-                       r"mail delivery (?:system|subsystem)|undelivered mail",
+                       r"mail delivery (?:system|subsystem)|undelivered mail|"
+                       # autorespondedores de buzones de información: contestan
+                       # con un enlace genérico, no con una persona detrás
+                       r"para cualquier informaci[oó]n puede consultar|"
+                       r"puede consultar (?:el enlace|nuestra web|la web)|"
+                       r"consulte (?:nuestra web|el siguiente enlace)|"
+                       r"este es un mensaje autom",
                        re.I)
 RECHAZO = re.compile(r"\bno usamos\b|no (?:nos|me) interesa|no estamos interesad|"
                      r"no,? gracias|dar(?:me|nos) de baja|unsubscribe|"
@@ -205,6 +211,27 @@ def clasificar(texto):
     return "neutro"
 
 
+def escaner(f):
+    """True si el 'clic' lo ha hecho un antivirus de correo, no una persona.
+
+    Los gateways de seguridad abren cada enlace para escanearlo nada más
+    entregar el mensaje. La huella es inconfundible: apertura y clic en el
+    MISMO segundo, y a los pocos segundos del envío. Colar eso en la cola de
+    llamadas le hace perder la mañana al comercial.
+    """
+    ab, cl, env = f.get("open_time"), f.get("click_time"), f.get("sent_time")
+    if not (ab and cl and env):
+        return False
+    if ab[:19] != cl[:19]:          # persona: abre y clica en momentos distintos
+        return False
+    try:
+        t_env = dt.datetime.strptime(env[:19], "%Y-%m-%dT%H:%M:%S")
+        t_cl = dt.datetime.strptime(cl[:19], "%Y-%m-%dT%H:%M:%S")
+    except ValueError:
+        return False
+    return (t_cl - t_env).total_seconds() <= 180
+
+
 def senales_frio():
     """Respuestas y clics del frío en la ventana."""
     filas, offset = [], 0
@@ -221,6 +248,8 @@ def senales_frio():
     for f in filas:
         email = (f.get("lead_email") or "").lower()
         if not email:
+            continue
+        if escaner(f):
             continue
         for campo, tipo in (("reply_time", "respuesta_frio"), ("click_time", "clic_frio")):
             v = f.get(campo)
