@@ -73,7 +73,9 @@ EXCLUIR = re.compile(
     r"ayuntamiento|diputaci|junta de|"
     # Competidores: alquiladores de maquinaria. Les mandábamos nuestros precios.
     r"alquiler de maquinaria|alquiler de plataformas|alquiler de carretillas|"
-    r"maquinaria de alquiler|\brent\b|rental|kiloutou|loxam|\bgam\b|mateco", re.I)
+    r"maquinaria de alquiler|\brent\b|rental|kiloutou|loxam|\bgam\b|mateco|"
+    # eléctricas y grandes corporaciones: su buzón genérico contesta con tickets
+    r"central t[eé]rmica|endesa|iberdrola|naturgy|repsol|telef[oó]nica", re.I)
 
 # Correos que no son de la empresa o no sirven para vender.
 EMAIL_MALO = re.compile(

@@ -141,7 +141,13 @@ AUTOREPLY = re.compile(r"vacacion|fuera de la oficina|out of office|"
                        r"para cualquier informaci[oó]n puede consultar|"
                        r"puede consultar (?:el enlace|nuestra web|la web)|"
                        r"consulte (?:nuestra web|el siguiente enlace)|"
-                       r"este es un mensaje autom",
+                       r"este es un mensaje autom|"
+                       # acuses de recibo de sistemas de tickets (Endesa, 08/09):
+                       # "hemos recibido correctamente tu solicitud nº 343854191"
+                       r"hemos recibido (?:correctamente )?(?:tu|su) (?:solicitud|email|mensaje|correo)|"
+                       r"se ha generado (?:la|una) solicitud|"
+                       r"solicitud n[ºo°]\s*\d{4,}|ticket n[ºo°]?\s*\d{4,}|"
+                       r"n[uú]mero de (?:solicitud|ticket|caso|incidencia)",
                        re.I)
 RECHAZO = re.compile(r"\bno usamos\b|no (?:nos|me) interesa|no estamos interesad|"
                      r"no,? gracias|dar(?:me|nos) de baja|unsubscribe|"
@@ -166,7 +172,8 @@ MAQUINA = re.compile(
     r"tijera\b|manipulador telesc|telesc[oó]pic|dumper|pala cargadora|"
     r"cargadora|rodillo|compactador|generador|grupo electr[oó]gen|"
     r"caseta de obra|contenedor mar[ií]timo|bobcat|kubota|manitou|jlg|"
-    r"haulotte|genie|doosan|develon|hyster|yale|jungheinrich|clark", re.I)
+    r"haulotte|genie|doosan|develon|hyster|yale|jungheinrich|clark|takeuchi|"
+    r"\d+\s*(?:u|o)\s*\d+\s*toneladas|\d+\s*toneladas|\d+\s*t\b", re.I)
 
 
 def email_util(texto, actual=""):
