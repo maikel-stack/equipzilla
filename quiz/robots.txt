@@ -13,4 +13,4 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-Sitemap: https://equipzilla-quiz.vercel.app/sitemap.xml
+Sitemap: https://ocasion.equipzilla.com/sitemap.xml

@@ -26,7 +26,7 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORIGEN = os.path.join(RAIZ, "seo", "articulos")
 QUIZ = os.path.join(RAIZ, "quiz")
 GUIAS = os.path.join(QUIZ, "guias")
-BASE = os.environ.get("BASE", "https://equipzilla-quiz.vercel.app").rstrip("/")
+BASE = os.environ.get("BASE", "https://ocasion.equipzilla.com").rstrip("/")
 HOY = dt.date.today().isoformat()
 INICIO, FIN = "<!-- guias-seo:inicio -->", "<!-- guias-seo:fin -->"
 
