@@ -565,13 +565,15 @@ def construir(dias=60):
     inv = stock()
     nombres_etapa = etapas()
     abiertos = deals("open")
-    print("Pipedrive: %d tratos abiertos de compraventa" % len(abiertos))
+    print("Pipedrive: %d tratos abiertos de compraventa" % len(abiertos), flush=True)
     tiempos = tiempos_embudo(abiertos)
+    print("tiempos del embudo calculados", flush=True)
     en_crm = {((x.get("person_id") or {}).get("email") or [{}])[0].get("value", "").lower()
               for x in abiertos if x.get("person_id")}
     filas = []
     for x in abiertos:
         filas.append(fila_crm(x, inv, nombres_etapa))
+    print("filas CRM: %d" % len(filas), flush=True)
     try:
         clics = clics_brevo(dias)
     except RuntimeError as err:
