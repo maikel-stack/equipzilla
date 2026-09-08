@@ -87,7 +87,7 @@ module.exports = async (req, res) => {
 <div style="font-size:44px">🔔</div>
 <h1 style="font-size:24px;margin:10px 0 8px">Alertas activadas</h1>
 <p style="font-size:15px;color:#4A5C5E;line-height:1.6">Te avisaremos en <b>${esc(email)}</b> cuando una máquina baje de precio o entre una nueva que encaje. Sin spam.</p>
-<a href="https://equipzilla-quiz.vercel.app" style="display:inline-block;margin-top:18px;background:#387E7F;color:#fff;font-weight:700;padding:13px 22px;border-radius:10px;text-decoration:none">Ver el asesor de compra</a>
+<a href="https://ocasion.equipzilla.com" style="display:inline-block;margin-top:18px;background:#387E7F;color:#fff;font-weight:700;padding:13px 22px;border-radius:10px;text-decoration:none">Ver el asesor de compra</a>
 <p style="font-size:12px;color:#788B8D;margin-top:22px">Equipzilla · 911 238 750 · clientes@equipzilla.com</p>
 </div></body></html>`);
   }

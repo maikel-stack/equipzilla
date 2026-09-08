@@ -1,6 +1,6 @@
 // Widget de chat "Asesor de compra" de Equipzilla.
 // Para incrustarlo en cualquier web (equipzilla.com incluida):
-//   <script src="https://equipzilla-quiz.vercel.app/widget.js" defer></script>
+//   <script src="https://ocasion.equipzilla.com/widget.js" defer></script>
 // Habla con /api/chat en el mismo dominio del script.
 (function () {
   if (window.__ezChatLoaded) return;
