@@ -74,7 +74,7 @@ EXCLUIR = re.compile(
     r"interiorismo|decoraci|abogad|asesor[ií]a|gestor[ií]a|seguros|"
     r"inmueble|tasaci|topograf|proyect[oa]s de ingenier|"
     # Se colaron en la tanda 1 (auditoría del 08/09): no compran máquina
-    r"museo|arqueol|enclave|conjunto arqueol|centro de arte|fundaci|loter|"
+    r"museo|arqueo|enclave|conjunto arqueol|centro de arte|castro de|concello|fundaci|loter|"
     r"vaciado de pisos|vaciado de casas|recogida de muebles|academ|"
     r"ayuntamiento|diputaci|junta de|"
     # Competidores: alquiladores de maquinaria. Les mandábamos nuestros precios.
