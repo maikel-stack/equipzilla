@@ -58,8 +58,11 @@ def main():
     por_lista = collections.Counter()
     for f in filas_cola:
         for l in (f[9] or "").split(" / "):
-            if l.strip() and l.strip() != "—":
-                por_lista[l.strip()[:44]] += 1
+            l = l.strip()
+            if l and l != "—":
+                # nombre completo: la columna A ya ajusta el texto; recortar
+                # partía nombres y dejaba restos como "Compraventa ·"
+                por_lista[l] += 1
 
     # ── 3. Lista manual de llamadas del equipo (solo lectura)
     man = leer("Untitled", cab=cab)
