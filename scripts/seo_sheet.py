@@ -47,7 +47,9 @@ def articulo(kw, gs):
     mejor, punt = "", 0
     for f, g in gs.items():
         n = len(w & g["bolsa"])
-        if n >= 2 and n == len(w) and n > punt:
+        # todas las palabras con sentido de la keyword han de estar en la guía;
+        # si la keyword solo tiene una ("excavadora de segunda mano"), vale una
+        if n == len(w) and n >= 1 and n > punt:
             mejor, punt = f, n
     return mejor
 
