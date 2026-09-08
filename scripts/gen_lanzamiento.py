@@ -83,6 +83,34 @@ GRUPOS = {
            texto="Prácticamente nueva: 40 horas. Giro cero para trabajar "
                  "pegado a pared, con precio de usado."),
     ]),
+  "novedades": dict(
+    # Fichas del Sheet «Stock Outreach PANEL» de David, fecha de salida 09/09.
+    # Sin fotos: los enlaces del Sheet son de los proveedores y no pueden
+    # llegar al cliente. Horas "-" en el Sheet → no se publican.
+    asunto="Cinco unidades que salen mañana · carretilla eléctrica desde 7.000 €",
+    titular="Salen mañana: cinco unidades recién entradas",
+    entrada="Una carretilla eléctrica, tres plataformas de 14 a 20 metros y un "
+            "manipulador telescópico. <strong>Entran mañana</strong> con el "
+            "precio puesto delante — el que llega primero, elige primero.",
+    eyebrow="Novedades · salida 9 de septiembre",
+    asunto_f2="¿Te encaja alguna de las cinco de ayer?",
+    maquinas=[
+      dict(etq="Carretilla eléctrica 2,5 t", titulo="Clark EPX25", precio="7.000 €",
+           datos=[("Año", "2011"), ("Horas", "801"), ("Capacidad", "2.500 kg"), ("Energía", "Eléctrica")],
+           texto="Contrapesada eléctrica de 2,5 t con 801 horas. Para nave y muelle: sin humos, sin ruido y con el mantenimiento más barato de las tres energías."),
+      dict(etq="Tijera eléctrica 14 m", titulo="Haulotte Compact-14", precio="10.500 €",
+           datos=[("Año", "2018"), ("Horas", "89"), ("Altura de trabajo", "14 m"), ("Energía", "Eléctrica")],
+           texto="Tijera eléctrica del 2018 con 89 horas: prácticamente sin uso. Catorce metros de altura de trabajo para interior y suelo firme."),
+      dict(etq="Articulada eléctrica 17 m", titulo="Manitou 170 AETJL-BI", precio="17.100 €",
+           datos=[("Año", "2016"), ("Altura de trabajo", "17 m"), ("Energía", "Bi-energía")],
+           texto="Articulada bi-energía: eléctrica dentro, diésel fuera. Diecisiete metros con cesta de plumín para salvar obstáculos."),
+      dict(etq="Articulada diésel 20 m", titulo="JLG 600AJ", precio="30.300 €",
+           datos=[("Año", "2007"), ("Altura de trabajo", "20 m"), ("Energía", "Diésel")],
+           texto="Brazo articulado diésel de 20 metros. La referencia del sector para fachada y estructura en exterior, con alcance horizontal para trabajar por encima de obstáculos."),
+      dict(etq="Manipulador telescópico 14 m", titulo="JLG 4014PS", precio="30.950 €",
+           datos=[("Año", "2014"), ("Horas", "5.324"), ("Altura", "14 m")],
+           texto="Telescópico de 14 metros: la navaja suiza de la obra. Carga paletizada, horquillas y cesta en una sola máquina."),
+    ]),
 }
 
 
