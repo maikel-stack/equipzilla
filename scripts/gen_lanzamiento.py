@@ -93,6 +93,7 @@ GRUPOS = {
             "20 metros y una carretilla eléctrica. <strong>Entran mañana</strong> con "
             "el precio puesto delante — el que llega primero, elige primero.",
     eyebrow="Novedades · salida 9 de septiembre",
+    cierre=" <strong>Pregunta por nuestra opci&oacute;n de mantenimiento y garant&iacute;a.</strong>",
     asunto_f2="El telescópico de ayer sigue disponible — ¿te cuento más?",
     maquinas=[
       dict(etq="Manipulador telescópico 14 m", titulo="JLG 4014PS", precio="30.950 €",
@@ -191,7 +192,7 @@ def construir(g):
     <tr><td class="px" style="padding:30px 32px 4px; background:#FBFCFD;">
       <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.14em; font-weight:500; color:{TEAL}; text-transform:uppercase; margin-bottom:10px;">Reci&eacute;n entradas &middot; precio cerrado</div>
       <h1 class="arx" style="margin:0 0 12px; font-size:25px; line-height:1.25; letter-spacing:-0.01em; color:{TINTA}; font-weight:700;">{htmllib.escape(g["titular"])}</h1>
-      <p style="margin:0; font-size:15px; line-height:1.7; color:{TINTA2};">{g["entrada"]} Todas con <strong>inspecci&oacute;n y prueba presencial</strong> antes de comprar, fotos reales de la unidad y transporte confirmado antes de que decidas.</p>
+      <p style="margin:0; font-size:15px; line-height:1.7; color:{TINTA2};">{g["entrada"]} Todas con <strong>inspecci&oacute;n y prueba presencial</strong> antes de comprar, fotos reales de la unidad y transporte confirmado antes de que decidas.{g.get("cierre", "")}</p>
     </td></tr>
     {fichas}
     <tr><td class="px" style="padding:22px 32px 6px; background:#FBFCFD;">
