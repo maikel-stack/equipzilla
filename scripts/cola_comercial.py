@@ -439,11 +439,11 @@ def datos_contacto(email, persona_pd=None):
 
 
 # ---------------------------------------------------------------- construir
-CABECERA = ["Score", "Prioridad", "Canal de entrada", "Etapa CRM", "Contacto", "Nombre", "Empresa",
+CABECERA = ["Score", "Prioridad", "Canal de entrada", "Etapa CRM", "Contacto", "Propietario", "Nombre", "Empresa",
             "Tipo de empresa", "Teléfono", "Email", "Qué pide / qué miró", "Categoría",
             "Presupuesto / valor", "Qué tenemos que encaja [ref]", "Lista / campaña", "Última señal",
             "Última actualización en Pipedrive", "Días desde entrada", "Días en etapa",
-            "Días hasta oferta", "Propietario", "Por qué", "Siguiente acción"]
+            "Días hasta oferta", "Por qué", "Siguiente acción"]
 
 
 def fila_crm(x, inv, nombres_etapa):
@@ -512,14 +512,13 @@ def fila_crm(x, inv, nombres_etapa):
         score, nivel = 0, "⚠ FUERA DE ICP"
         accion = "Descartar en Pipedrive: no compra maquinaria (museo, eléctrica, competidor…)"
         porque = ["entró por el frío y no es perfil comprador"]
-    return [score, nivel, canal_de(x, p), etapa, est, nombre or "—", empresa or "—", tipo or "—",
+    return [score, nivel, canal_de(x, p), etapa, est, x.get("owner_name") or "—", nombre or "—", empresa or "—", tipo or "—",
             tel or "sin teléfono", email or "—", pide, ETIQUETA.get(cat, "—"),
             ("%s €" % eur(valor)) if valor else (("hasta %s €" % eur(pmax)) if pmax else "—"),
             encaja[:110], "Pipedrive · %s" % titulo.split(" - ")[0][:30], fmt(x.get("update_time")),
             "%s · %s" % (fmt(cuando), que) if cuando else que,
             d_in if d_in is not None else "—", d_et if d_et is not None else "—",
-            d_of if d_of is not None else "—", x.get("owner_name") or "—",
-            " · ".join(porque), accion]
+            d_of if d_of is not None else "—", " · ".join(porque), accion]
 
 
 def fila_fuera_crm(email, canal, maquinas, listas, campanas_, ultima, senal, inv, ir=None):
@@ -555,11 +554,11 @@ def fila_fuera_crm(email, canal, maquinas, listas, campanas_, ultima, senal, inv
               "Llamar esta semana con las alternativas" if score >= 45 else "Email de seguimiento con su categoría")
     if not ops and cat:
         accion = "Llamar y anotar en Want-to-Buy: no tenemos stock que encaje"
-    return [score, nivel, canal, "Fuera del CRM", "Sin contactar", nombre or "—", empresa or "—",
+    return [score, nivel, canal, "Fuera del CRM", "Sin contactar", "sin asignar", nombre or "—", empresa or "—",
             (actividad or tipo_empresa(empresa, email)) or "—", tel or "sin teléfono", email, miro,
             ETIQUETA.get(cat, "—"), ("hasta %s €" % eur(pref)) if pref else "—", encaja[:110],
             " / ".join(sorted(listas or campanas_))[:70] or "—", fmt(ultima), "— (no está en Pipedrive)",
-            "—", "—", "—", "—", " · ".join(porque), accion]
+            "—", "—", "—", " · ".join(porque), accion]
 
 
 def construir(dias=60):
@@ -604,8 +603,8 @@ def construir(dias=60):
         canal = "Smartlead · respuesta frío" if resp else "Smartlead · clic frío"
         f = fila_fuera_crm(em, canal, [texto[:80]] if texto else [], set(), {"Frío Madrid"}, "",
                            dict(respuesta=resp, clics=s["senales"].count("clic_frio")), inv)
-        if s.get("empresa") and f[6] == "—":
-            f[6] = s["empresa"]
+        if s.get("empresa") and f[7] == "—":
+            f[7] = s["empresa"]
         filas.append(f)
         n_frio += 1
     print("Brevo fuera del CRM: %d · Smartlead fuera del CRM: %d" % (n_brevo, n_frio))
@@ -626,7 +625,7 @@ def formatear(pestana="Cola comercial", fila_cab=9, ncol=len(CABECERA)):
                 if sh["properties"]["title"] == pestana), None)
     if sid is None:
         return
-    anchos = [55, 95, 190, 170, 140, 150, 200, 170, 120, 210, 260, 150, 120, 300, 180, 90, 300, 80, 80, 80, 110, 240, 300]
+    anchos = [55, 95, 190, 170, 140, 110, 150, 200, 170, 120, 210, 260, 150, 120, 300, 180, 90, 300, 80, 80, 80, 240, 300]
     req = [
         {"repeatCell": {"range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": 1},
                         "cell": {"userEnteredFormat": {"textFormat": {"bold": True, "fontSize": 13}}},
