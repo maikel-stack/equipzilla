@@ -233,7 +233,7 @@ def construir_f2(g):
   <p style="margin:0 0 14px;">Hola:</p>
   <p style="margin:0 0 14px;">Hace unos d&iacute;as te pas&eacute; las unidades que acaban de entrar. Te las dejo en una l&iacute;nea cada una, por si el otro correo se te escap&oacute;:</p>
   <table role="presentation" width="100%" style="border-collapse:collapse; margin:0 0 16px;"><tbody>{lineas}</tbody></table>
-  <p style="margin:0 0 14px;">Todas con inspecci&oacute;n y prueba presencial antes de comprar. Si alguna te encaja &mdash; o buscas otra cosa &mdash; <strong>resp&oacute;ndeme a este correo o esc&iacute;beme al 606&nbsp;836&nbsp;581</strong> y te digo disponibilidad y transporte a tu zona.</p>
+  <p style="margin:0 0 14px;">Todas con inspecci&oacute;n y prueba presencial antes de comprar. Si alguna te encaja &mdash; o buscas otra cosa &mdash; <strong>resp&oacute;ndeme a este correo o escr&iacute;beme al 606&nbsp;836&nbsp;581</strong> y te digo disponibilidad y transporte a tu zona.</p>
   <p style="margin:0 0 4px;">Un saludo,</p>
   <p style="margin:0; font-weight:600;">David Devis<br>
   <span style="font-weight:400; color:#667085; font-size:13px;">Director de Desarrollo de Negocio &middot; Equipzilla &middot; 606 836 581</span></p>
