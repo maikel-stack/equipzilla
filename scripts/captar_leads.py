@@ -28,7 +28,13 @@ import time
 import urllib.error
 import urllib.request
 
-CLAVE = open(os.path.expanduser("~/.outbound/apify_key")).read().strip()
+def clave_apify():
+    """Se lee al usarla, no al importar: cola_comercial importa EXCLUIR de aquí
+    y no necesita Apify."""
+    ruta = os.path.expanduser("~/.outbound/apify_key")
+    if os.path.exists(ruta):
+        return open(ruta).read().strip()
+    return os.environ.get("APIFY_KEY") or ""
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LEADS = os.path.join(RAIZ, "leads")
 CRUDO = os.path.join(LEADS, "maps_crudo.json")
@@ -86,7 +92,7 @@ EMAIL_MALO = re.compile(
 
 def apify(ruta, metodo="GET", cuerpo=None, espera=60):
     url = f"https://api.apify.com/v2/{ruta}"
-    url += ("&" if "?" in url else "?") + "token=" + CLAVE
+    url += ("&" if "?" in url else "?") + "token=" + clave_apify()
     req = urllib.request.Request(
         url, method=metodo,
         headers={"content-type": "application/json"},
