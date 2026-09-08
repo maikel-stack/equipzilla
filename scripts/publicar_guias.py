@@ -83,6 +83,14 @@ def main():
     nuevas = "".join("  <url><loc>%s</loc><lastmod>%s</lastmod></url>\n" % (g["url"], g["fecha"])
                      for g in guias if g["url"] not in sm)
     sm = sm.replace("</urlset>", nuevas + "</urlset>")
+    # dedupe por <loc> (conserva la primera aparición)
+    vistos, limpio = set(), []
+    for bloque_url in re.findall(r"\s*<url>.*?</url>", sm, flags=re.S):
+        loc = re.search(r"<loc>(.*?)</loc>", bloque_url).group(1)
+        if loc not in vistos:
+            vistos.add(loc); limpio.append(bloque_url.strip())
+    cab = sm[:sm.find("<url>")]
+    sm = cab + "\n  ".join(limpio) + "\n</urlset>\n"
     open(ruta_sm, "w", encoding="utf-8").write(sm)
 
     # GEO: que ChatGPT, Claude, Gemini y Perplexity puedan leer y citar
