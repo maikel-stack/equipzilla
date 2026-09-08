@@ -35,8 +35,15 @@ CRUDO = os.path.join(LEADS, "maps_crudo.json")
 EMAILS = os.path.join(LEADS, "emails_crudo.json")
 SALIDA = os.path.join(LEADS, "frio_espana.csv")
 
+# Tanda 1 (agosto): los 4 primeros × 30 capitales → 996 leads con email.
+# Tanda 2 (septiembre): términos y provincias que la tanda 1 no tocó, para
+# que lo nuevo sea nuevo de verdad. Los 4 originales se mantienen sólo para
+# las provincias nuevas.
 TERMINOS = ["movimiento de tierras", "excavaciones", "demoliciones",
             "constructora obra civil"]
+TERMINOS_NUEVOS = ["obra pública", "cimentaciones", "urbanizaciones",
+                   "canalizaciones", "derribos", "empresa de obras",
+                   "pavimentos y asfaltos", "transporte de maquinaria"]
 
 PROVINCIAS = [
     "Madrid", "Barcelona", "Valencia", "Sevilla", "Zaragoza", "Málaga",
@@ -46,13 +53,27 @@ PROVINCIAS = [
     "Castellón", "Tarragona", "Lleida", "Girona", "Almería", "Jaén",
     "Salamanca",
 ]
+PROVINCIAS_NUEVAS = [
+    "Huelva", "Cádiz", "Cáceres", "Ourense", "Lugo", "León", "Burgos",
+    "Huesca", "Teruel", "Cuenca", "Guadalajara", "Ciudad Real", "Segovia",
+    "Ávila", "Zamora", "Palencia", "Soria", "Oviedo", "Las Palmas",
+    "Santa Cruz de Tenerife", "Cartagena", "Jerez de la Frontera",
+    "Elche", "Sabadell", "Terrassa", "Móstoles", "Alcalá de Henares",
+]
 
 # Fuera del ICP: no compran máquina pesada por mucho que la palabra
 # "construcción" aparezca en su ficha.
 EXCLUIR = re.compile(
     r"arquitect|ingenier[ií]a|consultor|inmobiliari|promotor|reforma|"
     r"interiorismo|decoraci|abogad|asesor[ií]a|gestor[ií]a|seguros|"
-    r"inmueble|tasaci|topograf|proyect[oa]s de ingenier", re.I)
+    r"inmueble|tasaci|topograf|proyect[oa]s de ingenier|"
+    # Se colaron en la tanda 1 (auditoría del 08/09): no compran máquina
+    r"museo|arqueol|enclave|conjunto arqueol|centro de arte|fundaci|loter|"
+    r"vaciado de pisos|vaciado de casas|recogida de muebles|academ|"
+    r"ayuntamiento|diputaci|junta de|"
+    # Competidores: alquiladores de maquinaria. Les mandábamos nuestros precios.
+    r"alquiler de maquinaria|alquiler de plataformas|alquiler de carretillas|"
+    r"maquinaria de alquiler|\brent\b|rental|kiloutou|loxam|\bgam\b|mateco", re.I)
 
 # Correos que no son de la empresa o no sirven para vender.
 EMAIL_MALO = re.compile(
@@ -103,7 +124,10 @@ def descargar(dataset_id):
 
 def fase_mapas(por_busqueda=20):
     os.makedirs(LEADS, exist_ok=True)
-    busquedas = [f"{t} {p}" for p in PROVINCIAS for t in TERMINOS]
+    # términos nuevos en todas las provincias + términos viejos sólo en las nuevas
+    busquedas = ([f"{t} {p}" for p in PROVINCIAS + PROVINCIAS_NUEVAS
+                  for t in TERMINOS_NUEVOS] +
+                 [f"{t} {p}" for p in PROVINCIAS_NUEVAS for t in TERMINOS])
     print(f"Google Maps: {len(busquedas)} búsquedas × {por_busqueda} sitios "
           f"= hasta {len(busquedas) * por_busqueda} negocios")
     r = apify("acts/compass~crawler-google-places/runs", "POST", {
@@ -184,6 +208,42 @@ def mejor_email(correos, dominio):
     return (propios or otros or [""])[0]
 
 
+def ya_en_smartlead():
+    """Emails y dominios que YA están en la campaña de frío, para no
+    recargar a quien ya recibió la tanda 1 (o ya dijo que no)."""
+    try:
+        clave_sl = open(os.path.expanduser("~/.outbound/smartlead_key")).read().strip()
+    except OSError:
+        return dict(emails=set(), dominios=set())
+    emails, doms, off = set(), set(), 0
+    cab = {"accept": "application/json", "referer": "https://app.smartlead.ai/",
+           "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"}
+    while True:
+        req = urllib.request.Request(
+            "https://server.smartlead.ai/api/v1/campaigns/3789100/leads"
+            f"?offset={off}&limit=100&api_key={clave_sl}", headers=cab)
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                data = json.load(r).get("data") or []
+        except Exception:
+            break
+        for x in data:
+            l = x.get("lead") or x
+            e = (l.get("email") or "").lower()
+            if e:
+                emails.add(e)
+                d = e.split("@")[-1]
+                if d not in ("gmail.com", "hotmail.com", "hotmail.es", "yahoo.es",
+                             "outlook.com", "yahoo.com"):
+                    doms.add(d)
+        if len(data) < 100:
+            break
+        off += 100
+    print(f"  ya en Smartlead: {len(emails)} emails · {len(doms)} dominios → se descartan")
+    return dict(emails=emails, dominios=doms)
+
+
 def fase_csv():
     negocios = {n["dominio"]: n for n in limpiar_mapas() if n["dominio"]}
     porweb = {}
@@ -194,11 +254,12 @@ def fase_csv():
             r"^https?://(www\.)?", "", reg.get("originalStartUrl") or "").split("/")[0]).lower()
         porweb.setdefault(dom, set()).update(reg.get("emails") or [])
 
-    filas, vistos = [], set()
+    ya = ya_en_smartlead()
+    filas, vistos = [], set(ya["emails"])
     for dom, correos in porweb.items():
         n = negocios.get(dom)
-        if not n:
-            continue
+        if not n or dom in ya["dominios"]:
+            continue          # esa empresa ya recibió la tanda 1
         email = mejor_email(sorted(correos), dom)
         if not email or email.lower() in vistos:
             continue
