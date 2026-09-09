@@ -88,7 +88,7 @@ GRUPOS = {
     # Fotos: ángulos sin referencias de proveedor (09/09). La JLG 600AJ va sin
     # foto porque todas las de origen llevan marca. Horas "-" → no se publican.
     asunto="Ya disponible: manipulador telescópico JLG 14 m · y cinco unidades más",
-    titular="Ya está disponible un telescópico de 14 m — y cinco unidades más",
+    titular="Ya está disponible un manipulador telescópico de 14 m — y cinco unidades más",
     entrada="Un manipulador telescópico JLG de 14 metros, cuatro plataformas de 14 a "
             "20 metros y una carretilla eléctrica. <strong>Ya están disponibles</strong> con "
             "el precio puesto delante — el que llega primero, elige primero.",
