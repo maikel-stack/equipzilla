@@ -99,17 +99,32 @@ def pendientes(tratos, acc, visto):
 
 
 def subir(conversiones):
-    tk = token_google(["https://www.googleapis.com/auth/adwords"])
-    req = urllib.request.Request(
-        "https://googleads.googleapis.com/%s/customers/%s:uploadClickConversions" % (VERSION, CUENTA),
-        data=json.dumps({"conversions": [c for _, c, _ in conversiones], "partialFailure": True}).encode(),
-        headers={"Authorization": "Bearer " + tk, "developer-token": open(DEV).read().strip(),
-                 "Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(req, timeout=90) as r:
-            return json.loads(r.read())
-    except urllib.error.HTTPError as e:
-        return {"error": e.code, "body": e.read().decode()[:500]}
+    """Google obliga a las integraciones nuevas a usar la Data Manager API
+    (ConversionUploadService queda solo para cuentas antiguas)."""
+    tk = token_google(["https://www.googleapis.com/auth/datamanager"])
+    por_accion = {}
+    for clave, c, x in conversiones:
+        por_accion.setdefault(c["conversionAction"].split("/")[-1], []).append((clave, c))
+    resultados, errores = [], []
+    for accion_id, lista in por_accion.items():
+        cuerpo = {
+            "destinations": [{"operatingAccount": {"accountId": str(CUENTA), "product": "GOOGLE_ADS"},
+                              "productDestinationId": accion_id}],
+            "events": [{"adIdentifiers": {"gclid": c["gclid"]},
+                        "eventTimestamp": c["conversionDateTime"].replace(" ", "T"),
+                        "conversionValue": c["conversionValue"], "currency": c["currencyCode"],
+                        "transactionId": clave} for clave, c in lista],
+            "encoding": "HEX", "consent": {"adUserData": "CONSENT_GRANTED", "adPersonalization": "CONSENT_GRANTED"},
+        }
+        req = urllib.request.Request("https://datamanager.googleapis.com/v1/events:ingest",
+                                     data=json.dumps(cuerpo).encode(),
+                                     headers={"Authorization": "Bearer " + tk, "Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=90) as r:
+                resultados += [json.loads(r.read())] * len(lista)
+        except urllib.error.HTTPError as e:
+            errores.append("%s: %s" % (e.code, e.read().decode()[:300]))
+    return {"results": resultados, "partialFailureError": "; ".join(errores) if errores else None}
 
 
 def main():
