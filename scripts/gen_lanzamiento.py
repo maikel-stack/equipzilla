@@ -18,7 +18,7 @@ SALIDA = os.path.join(RAIZ, "campanas")
 TEAL, OSCURO, TINTA, TINTA2, LINEA = "#387E7F", "#17323A", "#14181C", "#3A424E", "#D9DEE4"
 # Fotos limpias de proveedor, servidas por commit fijo para que no caduquen
 CDN_FOTOS = ("https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla"
-             "@51bfec124b8d7f69bd77562b07c5e142fcdeb279/email_assets/machines/")
+             "@93ce527712b8828a93979068ed8ca86618f3cc45/email_assets/machines/")
 WA = "34606836581"
 NOTA_PRECIO = "Unidad revisada · IVA y transporte no incluidos"
 
@@ -105,13 +105,13 @@ GRUPOS = {
       dict(etq="Tijera eléctrica 14 m", titulo="Haulotte Compact-14", foto="haulotte-compact-14-2018.jpg", precio="10.500 €",
            datos=[("Año", "2018"), ("Horas", "89"), ("Altura de trabajo", "14 m"), ("Energía", "Eléctrica")],
            texto="Tijera eléctrica del 2018 con 89 horas: prácticamente sin uso. Catorce metros de altura de trabajo para interior y suelo firme."),
-      dict(etq="Articulada eléctrica 17 m", titulo="Manitou 170 AETJL-BI", precio="17.100 €",
+      dict(etq="Articulada eléctrica 17 m", titulo="Manitou 170 AETJL-BI", foto="manitou-170aetjl-bi-2016.jpg", precio="17.100 €",
            datos=[("Año", "2016"), ("Altura de trabajo", "17 m"), ("Energía", "Bi-energía")],
            texto="Articulada bi-energía: eléctrica dentro, diésel fuera. Diecisiete metros con cesta de plumín para salvar obstáculos."),
       dict(etq="Articulada diésel 20 m", titulo="JLG 600AJ", foto="jlg-600aj-2007.jpg", precio="30.300 €",
            datos=[("Año", "2007"), ("Altura de trabajo", "20 m"), ("Energía", "Diésel")],
            texto="Brazo articulado diésel de 20 metros. La referencia del sector para fachada y estructura en exterior, con alcance horizontal para trabajar por encima de obstáculos."),
-      dict(etq="Articulada diésel 20 m", titulo="Haulotte HA20PX", precio="18.500 €",
+      dict(etq="Articulada diésel 20 m", titulo="Haulotte HA20PX", foto="haulotte-ha20px-2012.jpg", precio="18.500 €",
            datos=[("Año", "2012"), ("Horas", "2.841"), ("Altura de trabajo", "20 m"), ("Energía", "Diésel")],
            texto="Articulada diésel de 20 metros con 2.841 horas. Tracción 4x4 para terreno de obra y la alternativa más ajustada en precio dentro de las 20 m."),
     ]),
