@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- Google Ads: conversión «Lead · quiz ocasion.equipzilla.com» al enviar el quiz -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18345032067"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','AW-18345032067');</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Encuentra tu máquina · Equipzilla</title>
@@ -404,7 +407,7 @@
       try{
         fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({answers:answers,matches:finalMatches,recomendacion:recoText.replace(/<[^>]+>/g,'')})})
-          .then(function(r){if(r.ok){document.getElementById('sentok').style.display='block';}})
+          .then(function(r){if(r.ok){document.getElementById('sentok').style.display='block';try{gtag('event','conversion',{'send_to':'AW-18345032067/WyZYCL3Tl_IcEIPzy6tE','value':80,'currency':'EUR'});}catch(e){}}})
           .catch(function(){});
       }catch(e){}
     }

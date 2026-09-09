@@ -172,6 +172,13 @@
         var reply = (data && data.reply) ||
           "Se nos ha cruzado un cable 🙈 Escríbenos por WhatsApp al **606 836 581** y seguimos por ahí.";
         history.push({ role: "assistant", content: reply });
+        // Conversión de Google Ads «Lead · chat web» cuando el bot ha avisado al equipo
+        if (data && data.contacted) {
+          try {
+            if (typeof window.gtag === "function") window.gtag("event", "conversion", { send_to: "AW-18345032067/KHf3CMDTl_IcEIPzy6tE", value: 80, currency: "EUR" });
+            (window.dataLayer = window.dataLayer || []).push({ event: "lead_chat", lead_origen: "chat_web" });
+          } catch (e) {}
+        }
         add("bot", reply);
         save();
       })
