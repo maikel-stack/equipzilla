@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /crm/
+Disallow: /api/
+Disallow: /dashboard.html
+Disallow: /equipo-sistema.html
 
 User-agent: GPTBot
 Allow: /

@@ -95,7 +95,7 @@ def main():
 
     # GEO: que ChatGPT, Claude, Gemini y Perplexity puedan leer y citar
     open(os.path.join(QUIZ, "robots.txt"), "w").write(
-        "User-agent: *\nAllow: /\n\nUser-agent: GPTBot\nAllow: /\n\nUser-agent: ClaudeBot\nAllow: /\n\n"
+        "User-agent: *\nAllow: /\nDisallow: /crm/\nDisallow: /api/\nDisallow: /dashboard.html\nDisallow: /equipo-sistema.html\n\nUser-agent: GPTBot\nAllow: /\n\nUser-agent: ClaudeBot\nAllow: /\n\n"
         "User-agent: Google-Extended\nAllow: /\n\nUser-agent: PerplexityBot\nAllow: /\n\n"
         "Sitemap: %s/sitemap.xml\n" % BASE)
     print("%d guías integradas en quiz/guias · base %s" % (len(guias), BASE))
