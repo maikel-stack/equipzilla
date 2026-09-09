@@ -171,7 +171,7 @@ async function guardarNota({ email, quien, estado, nota }) {
     String(quien || "").slice(0, 40), String(estado || "").slice(0, 40), String(nota || "").slice(0, 500)];
   const cuerpo = { values: [fila] };
   try {
-    await sheets(tk, rango(TAB_NOTAS, "A1") + "?valueInputOption=RAW&insertDataOption=INSERT_ROWS", "POST", cuerpo);
+    await sheets(tk, rango(TAB_NOTAS, "A1") + ":append?valueInputOption=RAW&insertDataOption=INSERT_ROWS", "POST", cuerpo);
   } catch (e) {
     // primera vez: crear la pestaña con cabecera y reintentar
     await sheets(tk, ":batchUpdate", "POST", {
@@ -179,7 +179,7 @@ async function guardarNota({ email, quien, estado, nota }) {
     });
     await sheets(tk, rango(TAB_NOTAS, "A1") + "?valueInputOption=RAW", "PUT",
       { values: [["Fecha", "Email", "Quién", "Estado", "Nota"]] });
-    await sheets(tk, rango(TAB_NOTAS, "A1") + "?valueInputOption=RAW&insertDataOption=INSERT_ROWS", "POST", cuerpo);
+    await sheets(tk, rango(TAB_NOTAS, "A1") + ":append?valueInputOption=RAW&insertDataOption=INSERT_ROWS", "POST", cuerpo);
   }
   cache = { at: 0, data: null };
   return fila;
