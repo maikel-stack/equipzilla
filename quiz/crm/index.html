@@ -169,6 +169,13 @@
   .btn.danger{color:var(--hot);border-color:var(--hot-bg)}
   .btn.danger:hover{background:var(--hot-bg);border-color:var(--hot)}
   .hint{font-size:12.5px;color:var(--muted)}
+  .miday{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
+  .miday .panel h2 .n{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);font-weight:400;margin-left:6px}
+  .miday .hint{margin-bottom:8px}
+  .items{display:grid;gap:6px}
+  .item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13.5px;width:100%}
+  .item:hover{border-color:var(--teal)}
+  .item .it small{color:var(--ink2);display:block;font-size:12px;line-height:1.35;margin-top:2px}
   .stock-head{display:grid;grid-template-columns:1fr minmax(280px,380px);gap:14px;margin-bottom:14px}
   @media (max-width:900px){ .stock-head{grid-template-columns:1fr} }
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--dark);color:#fff;padding:10px 16px;border-radius:8px;font-size:13.5px;z-index:30;box-shadow:var(--shadow)}
@@ -200,8 +207,11 @@
     </div>
     <div class="spacer"></div>
     <div class="seg" role="group" aria-label="Vista">
-      <button id="vTablero" class="on" type="button">Tablero</button>
+      <button id="vMiDia" type="button">Mi día</button>
+      <button id="vTablero" class="on" type="button">Cola</button>
       <button id="vLista" type="button">Lista</button>
+      <button id="vCuentas" type="button">Cuentas</button>
+      <button id="vDemandas" type="button">Demandas</button>
       <button id="vStock" type="button">Stock</button>
     </div>
     <button class="btn ghost" id="refresh" type="button">Actualizar</button>
@@ -226,6 +236,9 @@
     </section>
     <section id="board" class="board"></section>
     <section id="lista" class="tablewrap" hidden></section>
+    <section id="midia" hidden></section>
+    <section id="cuentas" class="tablewrap" hidden></section>
+    <section id="demandas" class="board" hidden></section>
     <section id="stock" hidden>
       <div class="stock-head">
         <div class="kpis" id="stockKpis"></div>
@@ -352,7 +365,11 @@
   $("vTablero").addEventListener("click", function(){ setVista("tablero"); });
   $("vLista").addEventListener("click", function(){ setVista("lista"); });
   $("vStock").addEventListener("click", function(){ setVista("stock"); });
-  function setVista(v){ VISTA=v; store(KEY_VISTA,v); ["tablero","lista","stock"].forEach(function(x){ $("v"+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle("on",v===x); }); render(); }
+  $("vMiDia").addEventListener("click", function(){ setVista("miDia"); });
+  $("vCuentas").addEventListener("click", function(){ setVista("cuentas"); });
+  $("vDemandas").addEventListener("click", function(){ setVista("demandas"); });
+  var VISTAS = {miDia:"vMiDia", tablero:"vTablero", lista:"vLista", cuentas:"vCuentas", demandas:"vDemandas", stock:"vStock"};
+  function setVista(v){ VISTA=v; store(KEY_VISTA,v); Object.keys(VISTAS).forEach(function(x){ $(VISTAS[x]).classList.toggle("on",v===x); }); render(); }
 
   function filtrados(){
     var anyPrio = Object.keys(FIL.prio).some(function(k){ return FIL.prio[k]; });
@@ -376,9 +393,12 @@
     $("meta").textContent = "Cola generada "+(DATA.generado||"—")+" · leída del Sheet "+new Date(DATA.leido).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})+" · "+DATA.leads.length+" leads";
     $("count").textContent = L.length+" de "+DATA.leads.length;
     renderKpis(L); renderCharts(L);
-    $("board").hidden = VISTA!=="tablero"; $("lista").hidden = VISTA!=="lista"; $("stock").hidden = VISTA!=="stock";
-    document.querySelector(".charts").hidden = VISTA==="stock"; $("kpis").hidden = VISTA==="stock";
-    if (VISTA==="tablero") renderBoard(L); else if (VISTA==="lista") renderLista(L); else renderStock(L);
+    ["board","lista","stock","midia","cuentas","demandas"].forEach(function(id){ $(id).hidden = true; });
+    var sec = {miDia:"midia", tablero:"board", lista:"lista", cuentas:"cuentas", demandas:"demandas", stock:"stock"}[VISTA]; $(sec).hidden=false;
+    var conCharts = VISTA==="tablero" || VISTA==="lista";
+    document.querySelector(".charts").hidden = !conCharts; $("kpis").hidden = !conCharts;
+    if (VISTA==="tablero") renderBoard(L); else if (VISTA==="lista") renderLista(L); else if (VISTA==="stock") renderStock(L);
+    else if (VISTA==="miDia") renderMiDia(L); else if (VISTA==="cuentas") renderCuentas(L); else renderDemandas(L);
   }
 
   function renderKpis(L){
@@ -446,6 +466,132 @@
         col.addEventListener("dragleave",function(){ col.classList.remove("over"); });
         col.addEventListener("drop",function(ev){ ev.preventDefault(); col.classList.remove("over"); var l=DRAG; DRAG=null; if(!l || etapaDe(l)===k) return; mover(l, sid); });
       }
+      col.appendChild(cards); b.appendChild(col);
+    });
+  }
+
+  // ---------- modelo del CRM OS derivado de la cola (MVP sin base de datos) ----------
+  var GENERICOS = /gmail|hotmail|outlook|yahoo|icloud|live\.com|msn\.com|telefonica|movistar|orange\.es|ono\.com/;
+  function claveCuenta(l){
+    var e = String(l.empresa||"").trim();
+    if (e && e!=="—") return "n:"+e.toLowerCase().replace(/[^a-z0-9áéíóúñ ]/g,"").replace(/\b(sl|sa|slu|sau|s l|s a)\b/g,"").replace(/\s+/g," ").trim();
+    var dom = (l.email||"").split("@")[1]||"";
+    if (dom && !GENERICOS.test(dom)) return "d:"+dom.toLowerCase();
+    return "e:"+(l.email||l.nombre||Math.random());
+  }
+  function icpDe(tipo, pide){
+    var t=(tipo||"")+" "+(pide||"");
+    if (/alquilador|alquiler|rental/i.test(t)) return "D · Alquiler";
+    if (/industr|log[ií]st|transporte/i.test(t)) return "B · Industria / logística";
+    if (/caseta|contenedor|modular|instalac/i.test(t)) return "C · Obra / modular";
+    if (/constru|excavac|obra civil|movimiento de tierras|ingenier/i.test(t)) return "A · Comprador profesional";
+    return "";
+  }
+  function fechaSenal(l){ // "dd/mm" → Date de este año
+    var m=String(l.senal||"").match(/^(\d{2})\/(\d{2})/); if(!m) return null;
+    var d=new Date(); d.setMonth(+m[2]-1, +m[1]); d.setHours(0,0,0,0); if (d>new Date()) d.setFullYear(d.getFullYear()-1); return d;
+  }
+  function diasDesdeSenal(l){ var d=fechaSenal(l); return d? Math.round((Date.now()-d)/86400000) : null; }
+  function statusDemanda(l){
+    var e=etapaDe(l), sinStock=/sin stock/i.test(l.encaja||"");
+    if (prioDe(l)==="icp") return "EXCLUIDA";
+    if (e==="Fuera del CRM") return (l.categoria&&l.categoria!=="—")?"NEW":"SEÑAL";
+    if (e==="Entrega") return "WON";
+    if (e==="Oferta enviada"||e==="Oferta aceptada"||e==="Alquilador asignado") return "NEGOTIATING";
+    if (sinStock) return "SOURCING";
+    if (l.encaja && l.encaja!=="—") return "MATCHED";
+    return "ACTIVE";
+  }
+  function cuentas(L){
+    var map={};
+    L.forEach(function(l){
+      var k=claveCuenta(l), c=map[k];
+      if(!c){ c=map[k]={clave:k, nombre:(l.empresa&&l.empresa!=="—")?l.empresa:((l.email||"").split("@")[1]&&!GENERICOS.test(l.email.split("@")[1])?l.email.split("@")[1]:(l.nombre!=="—"?l.nombre:l.email)), tipo:l.tipo&&l.tipo!=="—"?l.tipo:"", leads:[], contactos:{}, score:0, canal:canalCorto(l.canal), owner:""}; }
+      c.leads.push(l);
+      var ck=(l.email||l.telefono||l.nombre); if(!c.contactos[ck]) c.contactos[ck]={nombre:l.nombre!=="—"?l.nombre:"", email:l.email, tel:l.telefono&&l.telefono!=="sin teléfono"?l.telefono:""};
+      if (l.score>c.score){ c.score=l.score; c.top=l; }
+      if (l.propietario && l.propietario!=="—" && l.propietario!=="sin asignar") c.owner=l.propietario;
+      if (!c.tipo && l.tipo && l.tipo!=="—") c.tipo=l.tipo;
+    });
+    return Object.keys(map).map(function(k){ var c=map[k]; c.icp=icpDe(c.tipo, c.leads.map(function(l){return l.pide;}).join(" ")); c.notas=[]; c.leads.forEach(function(l){ (DATA.notas[l.email]||[]).forEach(function(n){ c.notas.push(n); }); }); c.notas.sort(function(a,b){ return String(b.fecha).localeCompare(String(a.fecha)); }); return c; }).sort(function(a,b){ return b.score-a.score; });
+  }
+
+  // ---------- Mi día ----------
+  function itemLead(l, por){
+    return '<button type="button" class="item" data-e="'+esc(l.email)+'"><span class="pill '+prioDe(l)+'">'+l.score+'</span><span class="it"><b>'+esc(l.nombre!=="—"?l.nombre:(l.empresa!=="—"?l.empresa:l.email))+'</b>'+(l.empresa!=="—"&&l.nombre!=="—"?' · '+esc(l.empresa):'')+'<br><small>'+esc(por||l.porque)+'</small></span><span class="pill canal">'+esc(canalCorto(l.canal))+'</span></button>';
+  }
+  function bloque(titulo, sub, items, vacio){
+    return '<div class="panel"><h2>'+esc(titulo)+' <span class="n">'+items.length+'</span></h2><p class="hint">'+esc(sub)+'</p><div class="items">'+(items.length?items.join(""):'<div class="empty">'+esc(vacio)+'</div>')+'</div></div>';
+  }
+  function renderMiDia(L){
+    var vivos=L.filter(function(l){return prioDe(l)!=="icp";});
+    var hot=vivos.filter(function(l){return prioDe(l)==="hot";}).slice(0,12);
+    var sinC=vivos.filter(function(l){return etapaDe(l)!=="Fuera del CRM" && /sin contactar/i.test(l.contacto);});
+    var senales=vivos.filter(function(l){var d=diasDesdeSenal(l); return d!==null && d<=2;});
+    var nuevas=vivos.filter(function(l){return statusDemanda(l)==="NEW" && (diasDesdeSenal(l)||99)<=7;});
+    var sourcing=vivos.filter(function(l){return /sin stock/i.test(l.encaja||"");});
+    var riesgo=vivos.filter(function(l){return etapaDe(l)==="Oferta enviada" && (l.diasEtapa||0)>5;}).sort(function(a,b){return (b.diasEtapa||0)-(a.diasEtapa||0);});
+    var reco=vivos.slice().sort(function(a,b){return b.score-a.score;}).slice(0,5);
+    var seguimiento=vivos.filter(function(l){ var ns=DATA.notas[l.email]||[]; var u=ns[ns.length-1]; return u && /volver|llamar|mañana|semana|lunes|martes|mi[ée]rcoles|jueves|viernes/i.test(u.nota||""); });
+    $("midia").innerHTML='<div class="miday">'+
+      bloque("HOT · llamar hoy","Mayor probabilidad de venta ahora. El porqué está en cada fila.", hot.map(function(l){return itemLead(l);}), "Nada HOT con estos filtros")+
+      bloque("Sin contactar","Tratos en Pipedrive sin ninguna llamada, nota ni email.", sinC.map(function(l){return itemLead(l, l.etapa+" · entró hace "+(l.diasEntrada!=null?l.diasEntrada:"?")+" d");}), "Todos los tratos tienen algún contacto")+
+      bloque("Seguimientos","Anotaciones del equipo que citan una fecha o un «volver a llamar».", seguimiento.map(function(l){ var ns=DATA.notas[l.email]; return itemLead(l, ns[ns.length-1].estado+": "+ns[ns.length-1].nota); }), "Sin seguimientos anotados")+
+      bloque("Nuevas señales (48 h)","Clic, respuesta o formulario en los últimos dos días.", senales.map(function(l){return itemLead(l, "señal "+l.senal+" · "+l.pide.slice(0,70));}), "Sin señales nuevas")+
+      bloque("Nuevas necesidades","Piden una máquina concreta y aún no están en Pipedrive.", nuevas.map(function(l){return itemLead(l, l.categoria+" · "+(l.valor!=="—"?l.valor:"sin presupuesto")+" · "+l.pide.slice(0,60));}), "Sin necesidades nuevas fuera del CRM")+
+      bloque("Sourcing","Demanda activa sin ninguna máquina en stock que encaje: hay que buscarla.", sourcing.map(function(l){return itemLead(l, l.categoria+" · "+l.pide.slice(0,70));}), "Todo lo que piden tiene stock")+
+      bloque("En riesgo","Oferta enviada hace más de 5 días sin cambio de etapa.", riesgo.map(function(l){return itemLead(l, l.diasEtapa+" días en «Oferta enviada» · "+(l.actualizacion||"").slice(0,60));}), "Ninguna oferta enfriándose")+
+      bloque("Recomendaciones","Siguiente acción por oportunidad, justificada.", reco.map(function(l){return itemLead(l, "→ "+l.accion+" · "+l.porque);}), "—")+
+      '</div>';
+    $("midia").querySelectorAll(".item").forEach(function(b){ b.addEventListener("click",function(){ var l=DATA.leads.filter(function(x){return x.email===b.dataset.e;})[0]; if(l) abrir(l); }); });
+  }
+
+  // ---------- Cuentas (Account 360) ----------
+  var CUENTAS=[];
+  function renderCuentas(L){
+    CUENTAS=cuentas(L.filter(function(l){return prioDe(l)!=="icp";}));
+    var h='<table><thead><tr><th>Score</th><th>Cuenta</th><th>ICP / tipo</th><th>Contactos</th><th>Necesidades</th><th>Oportunidades</th><th>Canal</th><th>Propietario</th><th>Última señal</th><th>Notas</th></tr></thead><tbody>';
+    CUENTAS.forEach(function(c,i){
+      var opps=c.leads.filter(function(l){return etapaDe(l)!=="Fuera del CRM";}), dem=c.leads.filter(function(l){return l.categoria&&l.categoria!=="—";});
+      var ult=c.leads.map(function(l){return l.senal;}).filter(Boolean).sort().reverse()[0]||"";
+      h+='<tr class="row" data-i="'+i+'"><td><span class="pill '+prioDe(c.top)+'">'+c.score+'</span></td><td><b>'+esc(c.nombre)+'</b></td><td>'+esc(c.icp||c.tipo||"—")+'</td><td>'+Object.keys(c.contactos).length+'</td><td class="wrap">'+esc(dem.map(function(l){return l.categoria;}).filter(function(v,j,a){return a.indexOf(v)===j;}).join(", ")||"—")+'</td><td class="wrap">'+esc(opps.map(function(l){return l.etapa+(l.valor!=="—"?" · "+l.valor:"");}).join(" / ")||"—")+'</td><td>'+esc(c.canal)+'</td><td>'+esc(c.owner||"—")+'</td><td>'+esc(ult)+'</td><td>'+c.notas.length+'</td></tr>';
+    });
+    $("cuentas").innerHTML=h+'</tbody></table>';
+    $("cuentas").querySelectorAll("tr.row").forEach(function(tr){ tr.addEventListener("click",function(){ abrirCuenta(CUENTAS[+tr.dataset.i]); }); });
+  }
+  function abrirCuenta(c){
+    var root=$("drawerRoot"); root.innerHTML="";
+    var scrim=el("div","scrim"); scrim.addEventListener("click",cerrar);
+    var d=el("aside","drawer"); d.setAttribute("role","dialog"); d.setAttribute("aria-label","Cuenta");
+    var timeline=[];
+    c.leads.forEach(function(l){ var f=fechaSenal(l); if(f) timeline.push({t:f.getTime(), txt:"Señal · "+canalCorto(l.canal)+" · "+(l.pide||"").slice(0,80)}); if(l.actualizacion && !/no está/.test(l.actualizacion)) timeline.push({t:0, txt:"Pipedrive · "+l.actualizacion}); });
+    c.notas.forEach(function(n){ var t=Date.parse(n.fecha)||0; timeline.push({t:t, txt:(n.estado||"Nota")+" · "+n.quien+(n.nota?": "+n.nota:"")}); });
+    timeline.sort(function(a,b){return b.t-a.t;});
+    var opps=c.leads.filter(function(l){return etapaDe(l)!=="Fuera del CRM";}), dem=c.leads.filter(function(l){return l.categoria&&l.categoria!=="—"||l.pide&&l.pide!=="—";});
+    d.innerHTML='<div class="head"><button class="close" type="button" aria-label="Cerrar">×</button><div><span class="pill '+prioDe(c.top)+'">'+esc(PRIO_LABEL[prioDe(c.top)])+' · '+c.score+'</span> '+(c.icp?'<span class="pill canal">'+esc(c.icp)+'</span>':'')+'</div><h2>'+esc(c.nombre)+'</h2><div class="co">'+esc([c.tipo, "entró por "+c.canal, c.owner?"lleva "+c.owner:"sin propietario"].filter(Boolean).join(" · "))+'</div></div>'+
+      '<div class="body">'+
+      '<div><h3>Por qué este score</h3><div class="accion">'+esc(c.top.porque||"—")+'<br><b>Siguiente acción</b>'+esc(c.top.accion||"")+'</div></div>'+
+      '<div><h3>Contactos ('+Object.keys(c.contactos).length+')</h3><div class="notas">'+Object.keys(c.contactos).map(function(k){ var p=c.contactos[k]; return '<div class="nota"><div><b>'+esc(p.nombre||"(sin nombre)")+'</b></div><div class="m">'+(p.tel?'<a href="tel:'+esc(tel(p.tel))+'">'+esc(p.tel)+'</a> · ':'')+esc(p.email||"")+'</div></div>'; }).join("")+'</div></div>'+
+      '<div><h3>Necesidades ('+dem.length+')</h3><div class="notas">'+(dem.map(function(l){ return '<button type="button" class="card p-'+prioDe(l)+'" data-e="'+esc(l.email)+'"><div class="top"><span class="pill canal">'+esc(statusDemanda(l))+'</span><span class="pill canal">'+esc(l.categoria)+'</span></div><div class="pide">'+esc(l.pide)+'</div><div class="foot"><span>'+esc(l.valor!=="—"?l.valor:"sin presupuesto")+'</span><span>'+esc(l.encaja&&l.encaja!=="—"?"encaja: "+l.encaja.slice(0,70):"")+'</span></div></button>'; }).join("")||'<div class="empty">Sin necesidad identificada</div>')+'</div></div>'+
+      '<div><h3>Oportunidades en Pipedrive ('+opps.length+')</h3><div class="notas">'+(opps.map(function(l){ return '<div class="nota"><div><b>'+esc(l.etapa)+'</b> · '+esc(l.valor!=="—"?l.valor:"sin importe")+' · '+esc(l.propietario)+'</div><div class="m">'+esc(l.contacto)+' · '+esc(l.actualizacion||"")+'</div></div>'; }).join("")||'<div class="empty">Ninguna: está fuera del CRM</div>')+'</div></div>'+
+      '<div><h3>Timeline</h3><div class="notas">'+(timeline.map(function(x){ return '<div class="nota"><div>'+esc(x.txt)+'</div><div class="m">'+(x.t?new Date(x.t).toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit"}):"")+'</div></div>'; }).join("")||'<div class="empty">Sin actividad registrada</div>')+'</div></div>'+
+      '</div>';
+    root.appendChild(scrim); root.appendChild(d);
+    d.querySelector(".close").addEventListener("click",cerrar); document.addEventListener("keydown",escCerrar);
+    d.querySelectorAll(".card").forEach(function(b){ b.addEventListener("click",function(){ var l=DATA.leads.filter(function(x){return x.email===b.dataset.e;})[0]; if(l) abrir(l); }); });
+  }
+
+  // ---------- Demandas (tablero por estado) ----------
+  var DEM_COLS=[["NEW","Nueva · fuera del CRM"],["ACTIVE","Activa"],["MATCHED","Con máquina que encaja"],["SOURCING","Sourcing · sin stock"],["NEGOTIATING","En oferta / negociación"],["WON","Ganada"]];
+  function renderDemandas(L){
+    var cols={}; DEM_COLS.forEach(function(c){cols[c[0]]=[];});
+    L.forEach(function(l){ var st=statusDemanda(l); if(cols[st] && (l.categoria&&l.categoria!=="—" || st!=="NEW")) cols[st].push(l); });
+    var b=$("demandas"); b.innerHTML="";
+    DEM_COLS.forEach(function(cdef){
+      var items=cols[cdef[0]].sort(function(a,c){return c.score-a.score;});
+      var col=el("div","col"); col.innerHTML='<header><h3>'+esc(cdef[1])+'</h3><span class="n">'+items.length+'</span></header>';
+      var cards=el("div","cards"); if(!items.length) cards.appendChild(el("div","empty","Nada aquí"));
+      items.forEach(function(l){ var c=el("button","card p-"+prioDe(l),'<div class="top"><span class="pill '+prioDe(l)+'">'+l.score+'</span><span class="pill canal">'+esc(l.categoria&&l.categoria!=="—"?l.categoria:"sin categoría")+'</span></div><div class="who">'+esc(l.empresa!=="—"?l.empresa:(l.nombre!=="—"?l.nombre:l.email))+'</div><div class="pide">'+esc(l.pide)+'</div><div class="foot"><span>'+esc(l.valor!=="—"?l.valor:"sin presupuesto")+'</span>'+(l.encaja&&l.encaja!=="—"?'<span>'+esc(l.encaja.slice(0,60))+'</span>':'')+'</div>'); c.type="button"; c.addEventListener("click",function(){abrir(l);}); cards.appendChild(c); });
       col.appendChild(cards); b.appendChild(col);
     });
   }
@@ -584,8 +730,8 @@
   function cerrar(){ $("drawerRoot").innerHTML=""; document.removeEventListener("keydown",escCerrar); }
 
   // ---------- arranque ----------
-  VISTA = load(KEY_VISTA)==="lista" ? "lista" : "tablero";
-  $("vTablero").classList.toggle("on",VISTA==="tablero"); $("vLista").classList.toggle("on",VISTA==="lista");
+  VISTA = VISTAS[load(KEY_VISTA)] ? load(KEY_VISTA) : "miDia";
+  Object.keys(VISTAS).forEach(function(x){ $(VISTAS[x]).classList.toggle("on",VISTA===x); });
   if (token()) entrar();
 })();
 </script>
