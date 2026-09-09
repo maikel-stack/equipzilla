@@ -18,7 +18,7 @@ SALIDA = os.path.join(RAIZ, "campanas")
 TEAL, OSCURO, TINTA, TINTA2, LINEA = "#387E7F", "#17323A", "#14181C", "#3A424E", "#D9DEE4"
 # Fotos limpias de proveedor, servidas por commit fijo para que no caduquen
 CDN_FOTOS = ("https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla"
-             "@f7639c21030bdcec9df4e28143616554079e3168/email_assets/machines/")
+             "@2d3b721ad07812b1a97a61ab22ec9dedbe5e52a7/email_assets/machines/")
 WA = "34606836581"
 NOTA_PRECIO = "Unidad revisada · IVA y transporte no incluidos"
 
@@ -85,32 +85,35 @@ GRUPOS = {
     ]),
   "novedades": dict(
     # Fichas del Sheet «Stock Outreach PANEL» de David, fecha de salida 09/09.
-    # Sin fotos: los enlaces del Sheet son de los proveedores y no pueden
-    # llegar al cliente. Horas "-" en el Sheet → no se publican.
-    asunto="Sale mañana: manipulador telescópico JLG 14 m · y cuatro unidades más",
-    titular="Sale mañana un telescópico de 14 m — y cuatro unidades más",
-    entrada="Un manipulador telescópico JLG de 14 metros, tres plataformas de 14 a "
-            "20 metros y una carretilla eléctrica. <strong>Entran mañana</strong> con "
+    # Fotos: ángulos sin referencias de proveedor (09/09). La JLG 600AJ va sin
+    # foto porque todas las de origen llevan marca. Horas "-" → no se publican.
+    asunto="Ya disponible: manipulador telescópico JLG 14 m · y cinco unidades más",
+    titular="Ya está disponible un telescópico de 14 m — y cinco unidades más",
+    entrada="Un manipulador telescópico JLG de 14 metros, cuatro plataformas de 14 a "
+            "20 metros y una carretilla eléctrica. <strong>Ya están disponibles</strong> con "
             "el precio puesto delante — el que llega primero, elige primero.",
     eyebrow="Novedades · salida 9 de septiembre",
     cierre=" <strong>Pregunta por nuestra opci&oacute;n de mantenimiento y garant&iacute;a.</strong>",
     asunto_f2="El telescópico de ayer sigue disponible — ¿te cuento más?",
     maquinas=[
-      dict(etq="Manipulador telescópico 14 m", titulo="JLG 4014PS", precio="30.950 €",
+      dict(etq="Manipulador telescópico 14 m", titulo="JLG 4014PS", foto="jlg-4014ps-2014.jpg", precio="30.950 €",
            datos=[("Año", "2014"), ("Horas", "5.324"), ("Altura", "14 m")],
            texto="Telescópico de 14 metros: la navaja suiza de la obra. Carga paletizada, horquillas y cesta en una sola máquina."),
-      dict(etq="Carretilla eléctrica 2,5 t", titulo="Clark EPX25", precio="7.000 €",
+      dict(etq="Carretilla eléctrica 2,5 t", titulo="Clark EPX25", foto="clark-epx25-2011.jpg", precio="7.000 €",
            datos=[("Año", "2011"), ("Horas", "801"), ("Capacidad", "2.500 kg"), ("Energía", "Eléctrica")],
            texto="Contrapesada eléctrica de 2,5 t con 801 horas. Para nave y muelle: sin humos, sin ruido y con el mantenimiento más barato de las tres energías."),
-      dict(etq="Tijera eléctrica 14 m", titulo="Haulotte Compact-14", precio="10.500 €",
+      dict(etq="Tijera eléctrica 14 m", titulo="Haulotte Compact-14", foto="haulotte-compact-14-2018.jpg", foto_w=340, precio="10.500 €",
            datos=[("Año", "2018"), ("Horas", "89"), ("Altura de trabajo", "14 m"), ("Energía", "Eléctrica")],
            texto="Tijera eléctrica del 2018 con 89 horas: prácticamente sin uso. Catorce metros de altura de trabajo para interior y suelo firme."),
-      dict(etq="Articulada eléctrica 17 m", titulo="Manitou 170 AETJL-BI", precio="17.100 €",
+      dict(etq="Articulada eléctrica 17 m", titulo="Manitou 170 AETJL-BI", foto="manitou-170aetjl-2016.jpg", precio="17.100 €",
            datos=[("Año", "2016"), ("Altura de trabajo", "17 m"), ("Energía", "Bi-energía")],
            texto="Articulada bi-energía: eléctrica dentro, diésel fuera. Diecisiete metros con cesta de plumín para salvar obstáculos."),
       dict(etq="Articulada diésel 20 m", titulo="JLG 600AJ", precio="30.300 €",
            datos=[("Año", "2007"), ("Altura de trabajo", "20 m"), ("Energía", "Diésel")],
            texto="Brazo articulado diésel de 20 metros. La referencia del sector para fachada y estructura en exterior, con alcance horizontal para trabajar por encima de obstáculos."),
+      dict(etq="Articulada diésel 20 m", titulo="Haulotte HA20PX", foto="haulotte-ha20px-2012.jpg", precio="18.500 €",
+           datos=[("Año", "2012"), ("Horas", "2.841"), ("Altura de trabajo", "20 m"), ("Energía", "Diésel")],
+           texto="Articulada diésel de 20 metros con 2.841 horas. Tracción 4x4 para terreno de obra y la alternativa más ajustada en precio dentro de las 20 m."),
     ]),
 }
 
