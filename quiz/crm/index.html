@@ -161,6 +161,16 @@
   .nota-form .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .nota-form textarea{min-height:64px;resize:vertical}
   .drawer h3{font-family:'Archivo',system-ui,sans-serif;font-stretch:112%;font-weight:700;font-size:14px;letter-spacing:-.01em}
+  .card.dragging{opacity:.45}
+  .col.over{outline:2px dashed var(--teal);outline-offset:-2px;background:var(--surface)}
+  .mover{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:end;background:var(--surface2);border-radius:6px;padding:10px 12px}
+  .mover label{grid-column:1/-1;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .mover select{min-width:0}
+  .btn.danger{color:var(--hot);border-color:var(--hot-bg)}
+  .btn.danger:hover{background:var(--hot-bg);border-color:var(--hot)}
+  .hint{font-size:12.5px;color:var(--muted)}
+  .stock-head{display:grid;grid-template-columns:1fr minmax(280px,380px);gap:14px;margin-bottom:14px}
+  @media (max-width:900px){ .stock-head{grid-template-columns:1fr} }
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--dark);color:#fff;padding:10px 16px;border-radius:8px;font-size:13.5px;z-index:30;box-shadow:var(--shadow)}
   @media (max-width:720px){ .bar{grid-template-columns:110px 1fr auto} dl{grid-template-columns:1fr} .nota-form .row{grid-template-columns:1fr} }
   @media (prefers-reduced-motion:no-preference){ .card{transition:box-shadow .15s,border-color .15s} }
@@ -192,6 +202,7 @@
     <div class="seg" role="group" aria-label="Vista">
       <button id="vTablero" class="on" type="button">Tablero</button>
       <button id="vLista" type="button">Lista</button>
+      <button id="vStock" type="button">Stock</button>
     </div>
     <button class="btn ghost" id="refresh" type="button">Actualizar</button>
     <button class="btn ghost" id="logout" type="button">Salir</button>
@@ -203,7 +214,7 @@
     <select id="fOwner" aria-label="Propietario"><option value="">Todos los propietarios</option></select>
     <select id="fContacto" aria-label="Contacto"><option value="">Contactados y sin contactar</option><option value="sin">Solo sin contactar</option><option value="con">Solo contactados</option></select>
     <div class="chips" id="fPrio" role="group" aria-label="Prioridad"></div>
-    <span class="count" id="count"></span>
+    <span class="hint">Arrastra una tarjeta a otra columna para cambiar la etapa en Pipedrive</span><span class="count" id="count"></span>
   </div>
 
   <main>
@@ -215,6 +226,13 @@
     </section>
     <section id="board" class="board"></section>
     <section id="lista" class="tablewrap" hidden></section>
+    <section id="stock" hidden>
+      <div class="stock-head">
+        <div class="kpis" id="stockKpis"></div>
+        <div class="panel"><h2>Demanda sin stock</h2><p class="hint" style="margin-bottom:8px">Categorías que piden los leads y de las que no tenemos ninguna máquina: aquí va el sourcing.</p><div class="bars" id="cSinStock"></div></div>
+      </div>
+      <div class="tablewrap" id="stockTabla"></div>
+    </section>
   </main>
 </div>
 
@@ -226,18 +244,20 @@
   "use strict";
   var API = "/api/crm";
   var KEY_TOKEN = "crm_token", KEY_QUIEN = "crm_quien", KEY_VISTA = "crm_vista";
-  var DATA = null, VISTA = "tablero", SORT = {k:"score", dir:-1};
+  var DATA = null, VISTA = "tablero", SORT = {k:"score", dir:-1}, DRAG = null;
   var FIL = {q:"", canal:"", owner:"", contacto:"", prio:{}};
 
   var ETAPAS = [
-    ["Fuera del CRM", /fuera del crm/i],
-    ["Lead recibido", /lead.*recib/i],
-    ["Enviar oferta", /enviar oferta/i],
-    ["Oferta enviada", /oferta enviada|^cold$|^medium$|^hot$/i],
-    ["Oferta aceptada", /aceptad|documentaci/i],
-    ["Alquilador asignado", /alquilador/i],
-    ["Entrega", /entrega|finalizad/i],
+    ["Fuera del CRM", /fuera del crm/i, 0],
+    ["Lead recibido", /lead.*recib/i, 45],
+    ["Enviar oferta", /enviar oferta/i, 33],
+    ["Oferta enviada", /oferta enviada|^cold$|^medium$|^hot$/i, 37],
+    ["Oferta aceptada", /aceptad|documentaci/i, 38],
+    ["Alquilador asignado", /alquilador/i, 28],
+    ["Entrega", /entrega|finalizad/i, 46],
   ];
+  var NOMBRE_PD = {45:"Lead - Recibido",33:"Enviar Oferta - Validado",37:"Oferta enviada",38:"Oferta Aceptada",28:"Alquilador Asignado",46:"Entrega de equipo"};
+  function stageIdDe(nombreCol){ for (var i=0;i<ETAPAS.length;i++) if (ETAPAS[i][0]===nombreCol) return ETAPAS[i][2]; return 0; }
   function etapaDe(l){
     for (var i=0;i<ETAPAS.length;i++) if (ETAPAS[i][1].test(l.etapa||"")) return ETAPAS[i][0];
     return "Otros";
@@ -260,6 +280,29 @@
   function el(tag, cls, html){ var e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; }
   function store(k,v){ try{ v==null ? localStorage.removeItem(k) : localStorage.setItem(k,v);}catch(e){} }
   function load(k){ try{ return localStorage.getItem(k);}catch(e){ return null;} }
+  function quien(){
+    var q = load(KEY_QUIEN) || "";
+    if (!q) { q = (window.prompt("¿Quién eres? (para el registro de cambios)") || "").trim(); if (q) store(KEY_QUIEN, q); }
+    return q;
+  }
+  function post(body){
+    body.token = token();
+    return fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)})
+      .then(function(r){ return r.json(); }).then(function(j){ if(j.error) throw new Error(j.error); return j; });
+  }
+  function mover(l, stageId, done){
+    var q = quien(); if (!q) return done && done(false);
+    var col = ETAPAS.filter(function(e){return e[2]===stageId;})[0];
+    toast("Moviendo a "+(col?col[0]:stageId)+"…");
+    post({op:"mover", dealId:l.dealId||"", email:l.email, stageId:stageId, quien:q, nombre:l.nombre, empresa:l.empresa, telefono:l.telefono, canal:l.canal, pide:l.pide})
+      .then(function(j){
+        l.etapa = j.etapa; l.dealId = j.dealId; l.diasEtapa = 0;
+        l.actualizacion = "ahora · " + (j.creado ? "trato creado desde el CRM" : "cambio de etapa desde el CRM");
+        (DATA.notas[l.email]=DATA.notas[l.email]||[]).push({fecha:new Date().toISOString(), quien:q, estado:j.creado?"Trato creado":"Etapa cambiada", nota:(j.creado?"Creado en Pipedrive":"Movido")+" → "+j.etapa});
+        toast((j.creado?"Trato creado en Pipedrive · ":"Movido a ")+j.etapa); render(); done && done(true);
+      })
+      .catch(function(e){ toast("No se pudo mover: "+e.message); render(); done && done(false); });
+  }
   function toast(msg){ var t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(t._h); t._h=setTimeout(function(){t.hidden=true;},2600); }
 
   // ---------- sesión ----------
@@ -308,7 +351,8 @@
   $("fContacto").addEventListener("change", function(){ FIL.contacto=this.value; render(); });
   $("vTablero").addEventListener("click", function(){ setVista("tablero"); });
   $("vLista").addEventListener("click", function(){ setVista("lista"); });
-  function setVista(v){ VISTA=v; store(KEY_VISTA,v); $("vTablero").classList.toggle("on",v==="tablero"); $("vLista").classList.toggle("on",v==="lista"); render(); }
+  $("vStock").addEventListener("click", function(){ setVista("stock"); });
+  function setVista(v){ VISTA=v; store(KEY_VISTA,v); ["tablero","lista","stock"].forEach(function(x){ $("v"+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle("on",v===x); }); render(); }
 
   function filtrados(){
     var anyPrio = Object.keys(FIL.prio).some(function(k){ return FIL.prio[k]; });
@@ -332,8 +376,9 @@
     $("meta").textContent = "Cola generada "+(DATA.generado||"—")+" · leída del Sheet "+new Date(DATA.leido).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})+" · "+DATA.leads.length+" leads";
     $("count").textContent = L.length+" de "+DATA.leads.length;
     renderKpis(L); renderCharts(L);
-    $("board").hidden = VISTA!=="tablero"; $("lista").hidden = VISTA!=="lista";
-    if (VISTA==="tablero") renderBoard(L); else renderLista(L);
+    $("board").hidden = VISTA!=="tablero"; $("lista").hidden = VISTA!=="lista"; $("stock").hidden = VISTA!=="stock";
+    document.querySelector(".charts").hidden = VISTA==="stock"; $("kpis").hidden = VISTA==="stock";
+    if (VISTA==="tablero") renderBoard(L); else if (VISTA==="lista") renderLista(L); else renderStock(L);
   }
 
   function renderKpis(L){
@@ -390,9 +435,65 @@
       var col=el("div","col"); col.innerHTML='<header><h3>'+esc(k)+'</h3>'+(val?'<span class="eur">'+eur(val)+'</span>':'')+'<span class="n">'+items.length+'</span></header>';
       var cards=el("div","cards");
       if (!items.length) cards.appendChild(el("div","empty","Nada aquí"));
-      items.forEach(function(l){ var c=el("button","card p-"+prioDe(l),cardHtml(l)); c.type="button"; c.addEventListener("click",function(){abrir(l);}); cards.appendChild(c); });
+      items.forEach(function(l){ var c=el("button","card p-"+prioDe(l),cardHtml(l)); c.type="button"; c.draggable=true;
+        c.addEventListener("click",function(){abrir(l);});
+        c.addEventListener("dragstart",function(ev){ DRAG=l; c.classList.add("dragging"); ev.dataTransfer.effectAllowed="move"; try{ev.dataTransfer.setData("text/plain",l.email);}catch(e){} });
+        c.addEventListener("dragend",function(){ DRAG=null; c.classList.remove("dragging"); document.querySelectorAll(".col.over").forEach(function(x){x.classList.remove("over");}); });
+        cards.appendChild(c); });
+      var sid = stageIdDe(k);
+      if (sid) {
+        col.addEventListener("dragover",function(ev){ if(!DRAG) return; ev.preventDefault(); ev.dataTransfer.dropEffect="move"; col.classList.add("over"); });
+        col.addEventListener("dragleave",function(){ col.classList.remove("over"); });
+        col.addEventListener("drop",function(ev){ ev.preventDefault(); col.classList.remove("over"); var l=DRAG; DRAG=null; if(!l || etapaDe(l)===k) return; mover(l, sid); });
+      }
       col.appendChild(cards); b.appendChild(col);
     });
+  }
+
+  // ---------- stock: cruce oferta ↔ demanda ----------
+  var FAMILIA = {"Telescópicas":/telesc|manipulador/i,"Plataformas de elevación":/tijera|plataforma|articulad|brazo articulado|pemp/i,"Miniexcavadoras":/mini ?exc|miniexc|mini retro/i,"Excavadoras":/excavadora|giratoria|retroexc|retro /i,"Carretillas":/carretilla|toro|transpaleta/i,"Palas y minicargadoras":/pala|minicargadora|bobcat/i,"Dumpers":/dumper/i,"Generadores":/generador|grupo electr/i,"Casetas y contenedores":/caseta|contenedor|aseo/i};
+  function presupuesto(l){ var m=String(l.valor||"").replace(/\./g,"").match(/(\d{3,})/); return m?+m[1]:null; }
+  function encaje(m, l){
+    var texto=[l.pide,l.categoria].join(" ").toLowerCase();   // solo lo que pidió, no nuestras sugerencias
+    var partes=String(m.titulo||"").trim().toLowerCase().split(/\s+/);
+    var marca=partes[0]||"", mod=partes.slice(1).join(" ");
+    if (mod && mod.length>=4 && /\d/.test(mod) && texto.indexOf(mod)>=0) return "pidió este modelo";
+    var fam=FAMILIA[m.categoria]; var famOk = fam && fam.test(texto);
+    if (marca && marca.length>=3 && new RegExp("\\b"+marca.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b").test(texto) && famOk) return "pidió "+partes[0]+" de esta familia";
+    var misma = (l.categoria===m.categoria) || famOk;
+    if (!misma || m.categoria==="Otros") return "";
+    var p=presupuesto(l), pr=m.precio;
+    if (p && pr && !(0.6*pr<=p && p<=1.5*pr)) return "";
+    return "misma categoría"+(p?" · presupuesto "+eur(p):"");
+  }
+  function renderStock(L){
+    var S = DATA.stock||[]; var vivos = L.filter(function(l){ return prioDe(l)!=="icp"; });
+    var cruce = S.map(function(m){ var hits=[]; vivos.forEach(function(l){ var por=encaje(m,l); if(por) hits.push({l:l,por:por}); }); hits.sort(function(a,b){ return (b.por.indexOf("pidió")===0)-(a.por.indexOf("pidió")===0) || b.l.score-a.l.score; }); return {m:m,hits:hits}; });
+    var valor=S.reduce(function(s,m){return s+(m.precio||0);},0), conDemanda=cruce.filter(function(c){return c.hits.length;}).length;
+    var cats={}; S.forEach(function(m){ cats[m.categoria]=(cats[m.categoria]||0)+1; });
+    $("stockKpis").innerHTML=[["Máquinas en stock",S.length,Object.keys(cats).length+" categorías"],["Valor del stock",eur(valor)||"0 €","suma de precios"],["Con demanda",conDemanda,"tienen algún lead que encaja"],["Sin demanda aún",S.length-conDemanda,"ningún lead pide esto"]].map(function(x){ return '<div class="kpi"><div class="l">'+esc(x[0])+'</div><div class="v num">'+esc(x[1])+'</div><div class="s">'+esc(x[2])+'</div></div>'; }).join("")+(DATA.stockError?'<div class="kpi alert"><div class="l">Stock</div><div class="s">'+esc(DATA.stockError)+'</div></div>':'');
+    var dem={}; vivos.forEach(function(l){ var c=l.categoria&&l.categoria!=="—"?l.categoria:null; if(!c){ for (var k in FAMILIA) if (FAMILIA[k].test(String(l.pide||""))) { c=k; break; } } if(c && !cats[c]) dem[c]=(dem[c]||0)+1; });
+    barras($("cSinStock"), Object.keys(dem).sort(function(a,b){return dem[b]-dem[a];}).map(function(k){return [k,dem[k]];}), function(p){ return p[1]+" leads"; }, true);
+    var h='<table><thead><tr><th>Máquina</th><th>Categoría</th><th>Año</th><th>Horas</th><th>Capacidad / altura</th><th>Precio</th><th>Salida</th><th>Ref</th><th>Leads que encajan</th></tr></thead><tbody>';
+    cruce.sort(function(a,b){ return b.hits.length-a.hits.length; }).forEach(function(c,i){
+      var m=c.m;
+      h+='<tr class="row" data-i="'+i+'"><td><b>'+esc(m.titulo)+'</b><br><span class="hint">'+esc(m.sub||m.familia)+'</span></td><td>'+esc(m.categoria)+'</td><td>'+esc(m.anio)+'</td><td>'+esc(m.horas)+'</td><td>'+esc(m.capacidad)+'</td><td class="num">'+esc(m.precioTxt)+'</td><td>'+esc(m.salida)+'</td><td class="mono">'+esc(m.ref)+'</td>'+
+        '<td class="wrap">'+(c.hits.length?'<span class="pill '+(c.hits.some(function(x){return x.por.indexOf("pidió")===0;})?'hot':'ok')+'">'+c.hits.length+'</span> '+esc(c.hits.slice(0,4).map(function(x){ return (x.l.nombre!=="—"?x.l.nombre:x.l.empresa); }).join(", "))+(c.hits.length>4?" …":""):'<span class="hint">ninguno</span>')+'</td></tr>';
+    });
+    h+='</tbody></table>';
+    var w=$("stockTabla"); w.innerHTML=h;
+    w.querySelectorAll("tr.row").forEach(function(tr){ tr.addEventListener("click",function(){ abrirStock(cruce[+tr.dataset.i]); }); });
+  }
+  function abrirStock(c){
+    var m=c.m, root=$("drawerRoot"); root.innerHTML="";
+    var scrim=el("div","scrim"); scrim.addEventListener("click",cerrar);
+    var d=el("aside","drawer"); d.setAttribute("role","dialog");
+    d.innerHTML='<div class="head"><button class="close" type="button" aria-label="Cerrar">×</button><div><span class="pill canal">'+esc(m.categoria)+'</span></div><h2>'+esc(m.titulo)+'</h2><div class="co">'+esc([m.sub||m.familia, m.anio?"Año "+m.anio:"", m.horas&&m.horas!=="-"?m.horas+" h":"", m.capacidad, m.precioTxt].filter(Boolean).join(" · "))+'</div></div>'+
+      '<div class="body"><dl>'+fila("Referencia",m.ref)+fila("Fecha de salida",m.salida)+fila("Descripción",m.descripcion)+fila("Notas",m.notas)+'</dl>'+
+      '<div><h3>Leads que encajan ('+c.hits.length+')</h3><div class="notas">'+(c.hits.length?c.hits.map(function(x){ var l=x.l; return '<button type="button" class="card p-'+prioDe(l)+'" data-e="'+esc(l.email)+'">'+cardHtml(l)+'<div class="hint">'+esc(x.por)+'</div></button>'; }).join(""):'<div class="empty">Ningún lead de la cola pide esto todavía</div>')+'</div></div></div>';
+    root.appendChild(scrim); root.appendChild(d);
+    d.querySelector(".close").addEventListener("click",cerrar); document.addEventListener("keydown",escCerrar);
+    d.querySelectorAll(".card").forEach(function(b){ b.addEventListener("click",function(){ var l=DATA.leads.filter(function(x){return x.email===b.dataset.e;})[0]; if(l) abrir(l); }); });
   }
 
   var COLS=[["score","Score"],["prioridad","Prioridad"],["canal","Canal"],["etapa","Etapa"],["contacto","Contacto"],["propietario","Propietario"],["nombre","Nombre"],["empresa","Empresa"],["tipo","Tipo"],["telefono","Teléfono"],["pide","Qué pide"],["valor","Valor"],["encaja","Qué encaja"],["actualizacion","Última actualización"],["diasEntrada","Días"],["diasEtapa","En etapa"],["accion","Siguiente acción"]];
@@ -423,6 +524,9 @@
       '<div class="body">'+
         '<div class="actions">'+(t?'<a class="primary" href="tel:'+esc(t)+'">Llamar '+esc(l.telefono)+'</a>':'<a>Sin teléfono</a>')+(w?'<a href="'+esc(w)+'" target="_blank" rel="noopener">WhatsApp</a>':'')+(l.email&&l.email!=="—"?'<a href="mailto:'+esc(l.email)+'">Email</a>':'')+'</div>'+
         '<div class="accion"><b>Siguiente acción</b>'+esc(l.accion)+'</div>'+
+        '<div class="mover"><label for="mEtapa">Etapa en Pipedrive</label><select id="mEtapa">'+Object.keys(NOMBRE_PD).map(function(id){ return '<option value="'+id+'"'+(stageIdDe(etapaDe(l))===+id?' selected':'')+'>'+esc(NOMBRE_PD[id])+'</option>'; }).join("")+(etapaDe(l)==="Fuera del CRM"?'<option value="0" selected>Fuera del CRM (sin trato)</option>':'')+'</select>'+
+        '<button class="btn" type="button" id="mBtn">'+(etapaDe(l)==="Fuera del CRM"?"Crear trato en esta etapa":"Mover")+'</button>'+
+        (etapaDe(l)!=="Fuera del CRM"?'<button class="btn ghost danger" type="button" id="mPerder">Marcar perdido</button>':'')+'</div>'+
         '<dl>'+
           fila("Etapa CRM", l.etapa)+fila("Contacto", l.contacto)+fila("Propietario", l.propietario)+
           fila("Qué pide / qué miró", l.pide)+fila("Categoría", l.categoria)+fila("Presupuesto / valor", l.valor)+
@@ -442,6 +546,20 @@
     root.appendChild(scrim); root.appendChild(d);
     d.querySelector(".close").addEventListener("click",cerrar);
     document.addEventListener("keydown",escCerrar);
+    d.querySelector("#mBtn").addEventListener("click",function(){
+      var sid = +d.querySelector("#mEtapa").value; if (!sid) { toast("Elige una etapa"); return; }
+      var btn=this; btn.disabled=true;
+      mover(l, sid, function(ok){ btn.disabled=false; if(ok){ cerrar(); abrir(l); } });
+    });
+    var mp = d.querySelector("#mPerder");
+    if (mp) mp.addEventListener("click",function(){
+      var q = quien(); if(!q) return;
+      var razon = window.prompt("Motivo de pérdida (precio, sin máquina, no responde, compró otra…)"); if (razon===null) return;
+      mp.disabled=true; toast("Marcando perdido…");
+      post({op:"perder", dealId:l.dealId||"", email:l.email, razon:razon, quien:q})
+        .then(function(){ DATA.leads = DATA.leads.filter(function(x){return x!==l;}); toast("Marcado como perdido en Pipedrive"); cerrar(); render(); })
+        .catch(function(e){ toast("No se pudo: "+e.message); mp.disabled=false; });
+    });
     d.querySelector("#notaForm").addEventListener("submit",function(ev){
       ev.preventDefault(); var err=d.querySelector("#nErr"); err.textContent="";
       var quien=d.querySelector("#nQuien").value.trim(), estado=d.querySelector("#nEstado").value, nota=d.querySelector("#nTexto").value.trim();

@@ -443,7 +443,7 @@ CABECERA = ["Score", "Prioridad", "Canal de entrada", "Etapa CRM", "Contacto", "
             "Tipo de empresa", "Teléfono", "Email", "Qué pide / qué miró", "Categoría",
             "Presupuesto / valor", "Qué tenemos que encaja [ref]", "Lista / campaña", "Última señal",
             "Última actualización en Pipedrive", "Días desde entrada", "Días en etapa",
-            "Días hasta oferta", "Por qué", "Siguiente acción"]
+            "Días hasta oferta", "Por qué", "Siguiente acción", "ID trato"]
 
 
 def fila_crm(x, inv, nombres_etapa):
@@ -518,7 +518,7 @@ def fila_crm(x, inv, nombres_etapa):
             encaja[:110], "Pipedrive · %s" % titulo.split(" - ")[0][:30], fmt(x.get("update_time")),
             "%s · %s" % (fmt(cuando), que) if cuando else que,
             d_in if d_in is not None else "—", d_et if d_et is not None else "—",
-            d_of if d_of is not None else "—", " · ".join(porque), accion]
+            d_of if d_of is not None else "—", " · ".join(porque), accion, x["id"]]
 
 
 def fila_fuera_crm(email, canal, maquinas, listas, campanas_, ultima, senal, inv, ir=None):
@@ -558,7 +558,7 @@ def fila_fuera_crm(email, canal, maquinas, listas, campanas_, ultima, senal, inv
             (actividad or tipo_empresa(empresa, email)) or "—", tel or "sin teléfono", email, miro,
             ETIQUETA.get(cat, "—"), ("hasta %s €" % eur(pref)) if pref else "—", encaja[:110],
             " / ".join(sorted(listas or campanas_))[:70] or "—", fmt(ultima), "— (no está en Pipedrive)",
-            "—", "—", "—", " · ".join(porque), accion]
+            "—", "—", "—", " · ".join(porque), accion, ""]
 
 
 def construir(dias=60):
@@ -627,7 +627,7 @@ def formatear(pestana="Cola comercial", fila_cab=9, ncol=len(CABECERA)):
                 if sh["properties"]["title"] == pestana), None)
     if sid is None:
         return
-    anchos = [55, 95, 190, 170, 140, 110, 150, 200, 170, 120, 210, 260, 150, 120, 300, 180, 90, 300, 80, 80, 80, 240, 300]
+    anchos = [55, 95, 190, 170, 140, 110, 150, 200, 170, 120, 210, 260, 150, 120, 300, 180, 90, 300, 80, 80, 80, 240, 300, 70]
     req = [
         {"repeatCell": {"range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": 1},
                         "cell": {"userEnteredFormat": {"textFormat": {"bold": True, "fontSize": 13}}},
