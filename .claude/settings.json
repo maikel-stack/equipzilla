@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "python3 scripts/bootstrap_credenciales.py 2>/dev/null || true" }
+        ]
+      }
+    ]
+  }
+}
