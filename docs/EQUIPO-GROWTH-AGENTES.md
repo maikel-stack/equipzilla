@@ -152,3 +152,24 @@ Cada agente es una rutina programada con su script en el repositorio `equipzilla
 | 6 | Cargar 3.112 históricos + 178 perdidos → reactivación | Maikel (fichero) → Agente BBDD | Oportunidades a coste cero |
 | 7 | Campaña semanal jueves con precio visible | Agente BBDD (OK Maikel) | Clics x2 respecto a sin precio |
 | 8 | Motivo de pérdida obligatorio y leads tocados < 24 h | Andrés | Aprender y no perder leads |
+
+---
+
+## Parte 4 · Sesiones y rutinas (creadas el 10/09/2026)
+
+Cada agente vive en su propia sesión de Claude Code (claude.ai/code, etiqueta `equipzilla-growth`). Maikel, Andrés, David, Héctor o Lorenzo pueden entrar en la sesión del agente y darle indicaciones directamente; el agente las prioriza en su siguiente ciclo. Cada ciclo termina con un reporte en `reportes/<agente>/<fecha>.md` (commit + push), que el Director de Growth lee a las 8:30 para el parte diario y para dar indicaciones en `reportes/director/<fecha>.md`.
+
+| Agente | Sesión | Rutina (hora Madrid) |
+|---|---|---|
+| Director de Growth (Cerebro Operativo) | session_01VocQvfv1wntGENrdtGDomp (+ parte diario en sesión nueva) | Panel + vigilante cada hora 8-21 · 8:00 y 15:00 respuestas/cola/stock · 8:30 parte diario |
+| SEO | session_01QdpUiRMYz5mntZUTEBrqyT | L-V 9:00 · viernes semanal |
+| Google Ads | session_01GpcDmNgBmfSBpDx2B3aRAg | Diario 8:15 |
+| Outbound | session_017LVQu4eM6UkHjzXfrnU3Mg | L-V 9:30 · tanda nueva días 1 y 15 |
+| Base de datos | session_01XL9k92NFmd5rzJww8W6v76 | Lunes 9:00 higiene · jueves 9:00 campaña (borrador + test, envío solo con OK) |
+| CRM / Datos | session_01YYJA8hp14yRam4M1GsyCFV | L-V 14:00 integridad · viernes informe del piloto |
+| Seguimiento | session_01XzcAqdJt4KbxwTF7Coz38k | L-V 8:00 «Mi día» · viernes autopsia |
+| Analítica | session_01VrBKELDYSNUK4nvSLTKhKU | L-V 18:00 cierre · viernes semanal · día 1 mensual |
+
+Fichas: `.claude/agents/<agente>.md` · reglas comunes: `.claude/agents/_reglas.md`.
+
+**Credenciales**: las sesiones nuevas arrancan sin `~/.outbound/`. `scripts/bootstrap_credenciales.py` (hook SessionStart) las reconstruye desde las variables de entorno del entorno «Equipzilla» en claude.ai/code: `BREVO_KEY`, `SMARTLEAD_KEY`, `PIPEDRIVE_KEY`, `GOOGLE_SA_JSON`, `DINORANK_KEY`, `GOOGLEADS_DEV_TOKEN`, `VERCEL_TOKEN`, `CRM_PASSWORD`, `APIFY_KEY`. Hasta que estén, los agentes leen el repo pero no pueden llamar a las APIs y lo dicen en su reporte.
