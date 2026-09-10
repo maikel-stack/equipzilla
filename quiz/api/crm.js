@@ -44,9 +44,21 @@ function emitirToken(usuario) {
   return `${exp}.${Buffer.from(usuario).toString("base64url")}.${firmar(exp, usuario)}`;
 }
 
+// Claves de API permanentes (integraciones, Lorenzo): CRM_API_KEYS_JSON
+// {"ezk_…": {"usuario": "lorenzo", "nombre": "Lorenzo (API)", "rol": "tech"}}
+function clavesApi() {
+  try { return JSON.parse(process.env.CRM_API_KEYS_JSON || "{}"); } catch (e) { return {}; }
+}
+
 // Devuelve {usuario, nombre, rol} o null
 function sesion(token) {
   if (!token || !secreto()) return null;
+  if (String(token).startsWith("ezk_")) {                          // clave de API: no caduca
+    for (const [k, v] of Object.entries(clavesApi())) {
+      if (iguales(k, token)) return { usuario: v.usuario || "api", nombre: v.nombre || "API", rol: v.rol || "tech", api: true };
+    }
+    return null;
+  }
   const partes = String(token).split(".");
   if (partes.length !== 3) return null;
   const [exp, u64, sig] = partes;
@@ -292,7 +304,7 @@ async function stock(tk) {
       anio: String(anio || "").trim(), capacidad: String(capacidad || "").trim(),
       horas: String(horas || "").trim(), precio: precioNum(precio), precioTxt: String(precio || "").trim(),
       descripcion: String(descripcion || "").trim().slice(0, 160), notas: String(notas || "").trim().slice(0, 160),
-      conFoto: /^https?:/.test(String(imagen || "")), categoria: categoriaStock(familia, sub, maquina, marca),
+      imagen: /^https?:/.test(String(imagen || "")) ? String(imagen).trim() : "", conFoto: /^https?:/.test(String(imagen || "")), categoria: categoriaStock(familia, sub, maquina, marca),
     });
   });
   return out;
@@ -364,7 +376,7 @@ module.exports = async (req, res) => {
         if (!s) return res.status(401).json({ error: "Usuario o contraseña incorrectos" });
         return res.status(200).json({ token: emitirToken(s.usuario), caduca: Date.now() + TTL_SESION, usuario: s.usuario, nombre: s.nombre, rol: s.rol });
       }
-      const ses = sesion(b.token || (req.headers.authorization || "").replace(/^Bearer /, ""));
+      const ses = sesion(b.token || req.headers["x-api-key"] || (req.headers.authorization || "").replace(/^Bearer /, ""));
       if (!ses) return res.status(401).json({ error: "Sesión caducada. Vuelve a entrar." });
       if (ses.usuario !== "equipo") b.quien = ses.nombre;   // firma siempre con el usuario que ha entrado
       if (b.op === "nota") {
@@ -376,10 +388,13 @@ module.exports = async (req, res) => {
       if (b.op === "perder") return res.status(200).json({ ok: true, ...(await perderTrato(b)) });
       return res.status(400).json({ error: "Operación desconocida" });
     }
-    const token = (req.headers.authorization || "").replace(/^Bearer /, "");
+    const token = req.headers["x-api-key"] || (req.headers.authorization || "").replace(/^Bearer /, "");
     const s = sesion(token);
     if (!s) return res.status(401).json({ error: "Sin sesión" });
-    return res.status(200).json({ ...(await datos()), sesion: s });
+    const d = await datos();
+    const solo = (req.query && req.query.solo) || "";                // ?solo=stock|leads|notas para integraciones
+    if (solo && d[solo] !== undefined) return res.status(200).json({ generado: d.generado, [solo]: d[solo], sesion: s });
+    return res.status(200).json({ ...d, sesion: s });
   } catch (e) {
     return res.status(500).json({ error: String(e.message || e).slice(0, 300) });
   }
