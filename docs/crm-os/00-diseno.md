@@ -1,5 +1,7 @@
 # EQUIPZILLA CRM OS · Diseño V1
 
+> **Nota 10/09/2026**: este documento es la *especificación del modelo de datos* que negocio entrega a tecnología, no una base de datos a desplegar en el piloto. El piloto corre sobre Pipedrive + vistas derivadas, sin base de datos propia. Ver `01-arquitectura-piloto.md`.
+
 Documento de diseño previo a la implementación (instrucción maestra, punto 60).
 Cubre: arquitectura, modelo de datos, entidades, relaciones, estados, permisos,
 eventos, APIs, scoring, workflows, UX y MVP. El esquema físico está en
