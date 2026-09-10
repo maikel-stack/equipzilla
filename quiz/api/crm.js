@@ -16,7 +16,7 @@ const SHEET_ID = "1wyWmrmg_NlxhN0ZW4iIxE8ZG-y-zMBXfY4_agAl54vM";
 const TAB_COLA = "Cola comercial";
 const TAB_NOTAS = "CRM · notas";
 const SHEET_STOCK = "1mCZtAe95o2va0ofw8Ts_e8ei3gv-QK5_CBr7moZ_hDE";   // «Stock Outreach PANEL» de David
-const TTL_SESION = 12 * 60 * 60 * 1000;
+const TTL_SESION = 180 * 24 * 60 * 60 * 1000;   // 180 días; se renueva en cada login
 const TTL_CACHE = 90 * 1000;
 
 let cache = { at: 0, data: null };
@@ -26,29 +26,55 @@ function secreto() {
   return process.env.CRM_PASSWORD || "";
 }
 
-function firmar(exp) {
-  return crypto.createHmac("sha256", secreto()).update(String(exp)).digest("base64url");
+// Usuarios personales en CRM_USERS_JSON: {"maikel": {"hash": sha256(usuario:contraseña), "nombre": "Maikel", "rol": "admin"}, …}
+function usuarios() {
+  try { return JSON.parse(process.env.CRM_USERS_JSON || "{}"); } catch (e) { return {}; }
 }
 
-function emitirToken() {
+function hashPass(usuario, pass) {
+  return crypto.createHash("sha256").update(`${usuario}:${pass}`).digest("hex");
+}
+
+function firmar(exp, usuario) {
+  return crypto.createHmac("sha256", secreto()).update(`${exp}|${usuario}`).digest("base64url");
+}
+
+function emitirToken(usuario) {
   const exp = Date.now() + TTL_SESION;
-  return `${exp}.${firmar(exp)}`;
+  return `${exp}.${Buffer.from(usuario).toString("base64url")}.${firmar(exp, usuario)}`;
 }
 
-function tokenValido(token) {
-  if (!token || !secreto()) return false;
-  const [exp, sig] = String(token).split(".");
-  if (!exp || !sig || Number(exp) < Date.now()) return false;
-  const esperado = firmar(exp);
-  return sig.length === esperado.length &&
-    crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(esperado));
+// Devuelve {usuario, nombre, rol} o null
+function sesion(token) {
+  if (!token || !secreto()) return null;
+  const partes = String(token).split(".");
+  if (partes.length !== 3) return null;
+  const [exp, u64, sig] = partes;
+  const usuario = Buffer.from(u64, "base64url").toString();
+  if (!exp || !sig || Number(exp) < Date.now()) return null;
+  const esperado = firmar(exp, usuario);
+  if (sig.length !== esperado.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(esperado))) return null;
+  const u = usuarios()[usuario];
+  if (!u && usuario !== "equipo") return null;                   // usuario dado de baja
+  return { usuario, nombre: u ? u.nombre : "Equipo", rol: u ? u.rol : "sales" };
 }
 
-function passwordCorrecta(p) {
-  const s = secreto();
-  if (!s || !p) return false;
-  const a = Buffer.from(String(p)), b = Buffer.from(s);
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
+function tokenValido(token) { return !!sesion(token); }
+
+function iguales(a, b) {
+  const x = Buffer.from(String(a)), y = Buffer.from(String(b));
+  return x.length === y.length && crypto.timingSafeEqual(x, y);
+}
+
+// Login personal (usuario + contraseña). La contraseña compartida CRM_PASSWORD
+// sigue valiendo como usuario "equipo" mientras se reparten las personales.
+function autenticar(usuario, pass) {
+  if (!pass) return null;
+  const u = String(usuario || "").trim().toLowerCase();
+  const reg = usuarios()[u];
+  if (reg && iguales(hashPass(u, pass), reg.hash)) return { usuario: u, nombre: reg.nombre, rol: reg.rol || "sales" };
+  if (!u || u === "equipo") { if (secreto() && iguales(pass, secreto())) return { usuario: "equipo", nombre: "Equipo", rol: "sales" }; }
+  return null;
 }
 
 // ---------------------------------------------------------------- Google
@@ -334,12 +360,13 @@ module.exports = async (req, res) => {
     if (req.method === "POST") {
       const b = leerBody(req);
       if (b.op === "login") {
-        if (!passwordCorrecta(b.password)) return res.status(401).json({ error: "Contraseña incorrecta" });
-        return res.status(200).json({ token: emitirToken(), caduca: Date.now() + TTL_SESION });
+        const s = autenticar(b.usuario, b.password);
+        if (!s) return res.status(401).json({ error: "Usuario o contraseña incorrectos" });
+        return res.status(200).json({ token: emitirToken(s.usuario), caduca: Date.now() + TTL_SESION, usuario: s.usuario, nombre: s.nombre, rol: s.rol });
       }
-      if (!tokenValido(b.token || (req.headers.authorization || "").replace(/^Bearer /, ""))) {
-        return res.status(401).json({ error: "Sesión caducada. Vuelve a entrar." });
-      }
+      const ses = sesion(b.token || (req.headers.authorization || "").replace(/^Bearer /, ""));
+      if (!ses) return res.status(401).json({ error: "Sesión caducada. Vuelve a entrar." });
+      if (ses.usuario !== "equipo") b.quien = ses.nombre;   // firma siempre con el usuario que ha entrado
       if (b.op === "nota") {
         if (!b.email) return res.status(400).json({ error: "Falta el email del lead" });
         const fila = await guardarNota(b);
@@ -350,8 +377,9 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "Operación desconocida" });
     }
     const token = (req.headers.authorization || "").replace(/^Bearer /, "");
-    if (!tokenValido(token)) return res.status(401).json({ error: "Sin sesión" });
-    return res.status(200).json(await datos());
+    const s = sesion(token);
+    if (!s) return res.status(401).json({ error: "Sin sesión" });
+    return res.status(200).json({ ...(await datos()), sesion: s });
   } catch (e) {
     return res.status(500).json({ error: String(e.message || e).slice(0, 300) });
   }

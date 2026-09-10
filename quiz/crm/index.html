@@ -192,7 +192,8 @@
     <h1>CRM Compraventa</h1>
     <p>Leads de todos los canales, etapas en Pipedrive y siguiente acción. Solo para el equipo.</p>
     <form id="loginForm">
-      <input type="password" id="pass" placeholder="Contraseña del equipo" autocomplete="current-password" required>
+      <input type="text" id="usuario" placeholder="Usuario (maikel, david, andres, hector)" autocomplete="username" autocapitalize="none" required>
+      <input type="password" id="pass" placeholder="Contraseña" autocomplete="current-password" required>
       <button class="btn" type="submit">Entrar</button>
       <div class="err" id="loginErr"></div>
     </form>
@@ -215,6 +216,7 @@
       <button id="vStock" type="button">Stock</button>
     </div>
     <button class="btn ghost" id="refresh" type="button">Actualizar</button>
+    <span class="meta" id="quienSoy"></span>
     <button class="btn ghost" id="logout" type="button">Salir</button>
   </header>
 
@@ -322,9 +324,9 @@
   function token(){ return load(KEY_TOKEN) || ""; }
   $("loginForm").addEventListener("submit", function(ev){
     ev.preventDefault(); $("loginErr").textContent="";
-    fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({op:"login",password:$("pass").value})})
+    fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({op:"login",usuario:$("usuario").value.trim().toLowerCase(),password:$("pass").value})})
       .then(function(r){ return r.json().then(function(j){ return [r.ok,j]; }); })
-      .then(function(x){ if(!x[0]) throw new Error(x[1].error||"No se pudo entrar"); store(KEY_TOKEN,x[1].token); $("pass").value=""; entrar(); })
+      .then(function(x){ if(!x[0]) throw new Error(x[1].error||"No se pudo entrar"); store(KEY_TOKEN,x[1].token); if(x[1].nombre) store(KEY_QUIEN,x[1].nombre); $("pass").value=""; entrar(); })
       .catch(function(e){ $("loginErr").textContent = e.message; });
   });
   $("logout").addEventListener("click", function(){ store(KEY_TOKEN,null); location.reload(); });
@@ -336,7 +338,7 @@
     $("meta").textContent = "cargando datos del Sheet…";
     fetch(API,{headers:{authorization:"Bearer "+token()}})
       .then(function(r){ if(r.status===401){ store(KEY_TOKEN,null); location.reload(); } return r.json(); })
-      .then(function(d){ if(d.error) throw new Error(d.error); DATA=d; construirFiltros(); render(); if(manual) toast("Datos actualizados"); })
+      .then(function(d){ if(d.error) throw new Error(d.error); DATA=d; if(d.sesion&&d.sesion.nombre&&d.sesion.usuario!=="equipo") store(KEY_QUIEN,d.sesion.nombre); construirFiltros(); render(); if(manual) toast("Datos actualizados"); })
       .catch(function(e){ $("meta").textContent = "Error: "+e.message; });
   }
 
@@ -390,6 +392,7 @@
   // ---------- render ----------
   function render(){
     var L = filtrados();
+    $("quienSoy").textContent = (DATA.sesion&&DATA.sesion.usuario!=="equipo") ? DATA.sesion.nombre+" · "+DATA.sesion.rol : "";
     $("meta").textContent = "Cola generada "+(DATA.generado||"—")+" · leída del Sheet "+new Date(DATA.leido).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})+" · "+DATA.leads.length+" leads";
     $("count").textContent = L.length+" de "+DATA.leads.length;
     renderKpis(L); renderCharts(L);
