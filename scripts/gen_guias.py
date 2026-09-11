@@ -44,7 +44,7 @@ GUIAS = {
  "precio-miniexcavadora-segunda-mano": {
   "cat": "mini", "label": "miniexcavadora",
   "kw": "miniexcavadora segunda mano precio",
-  "title": "Precio de una miniexcavadora de segunda mano ({hoy}): tabla con unidades reales",
+  "title": "Precio miniexcavadora segunda mano (2026): tabla",
   "h1": "¿Cuánto cuesta una miniexcavadora de segunda mano?",
   "stand": "Tabla de precios con unidades reales en venta, el método para elegir tonelaje sin equivocarte y los errores que más dinero cuestan al comprar una mini de ocasión.",
   "rapida": "Una miniexcavadora de segunda mano cuesta entre <b>{pmin}</b> y <b>{pmax}</b> + IVA según tonelaje, año y horas. El rango más demandado — 2,5 a 4 t con pocas horas — se mueve en torno a <b>{pmed}</b>. Por debajo de 1.500 h de uso, una mini reciente conserva la mayor parte de su vida útil: es donde está la mejor relación precio/vida restante.",
@@ -74,7 +74,7 @@ GUIAS = {
  "precio-carretilla-elevadora-segunda-mano": {
   "cat": "carr", "label": "carretilla elevadora",
   "kw": "carretilla elevadora segunda mano precio",
-  "title": "Precio de una carretilla elevadora de segunda mano ({hoy}): tabla real",
+  "title": "Precio carretilla elevadora segunda mano (2026)",
   "h1": "¿Cuánto cuesta una carretilla elevadora de segunda mano?",
   "stand": "Precios reales de eléctricas, diésel y GLP, cómo decidir la energía correcta para tu nave y el error de la placa de cargas que casi todo el mundo comete.",
   "rapida": "Una carretilla elevadora de segunda mano cuesta entre <b>{pmin}</b> y <b>{pmax}</b> + IVA según capacidad, energía (eléctrica, diésel o GLP) y horas. Las eléctricas de 1,5-2,5 t — el estándar de almacén — rondan en nuestro stock los <b>{pmed}</b>. En eléctricas, el estado de la batería importa tanto como el horómetro.",
@@ -103,7 +103,7 @@ GUIAS = {
  "precio-plataforma-elevadora-usada": {
   "cat": "plat", "label": "plataforma elevadora",
   "kw": "plataforma elevadora usada precio",
-  "title": "Precio de una plataforma elevadora usada ({hoy}): tijera y articulada",
+  "title": "Precio plataforma elevadora usada (2026): tabla",
   "h1": "¿Cuánto cuesta una plataforma elevadora usada?",
   "stand": "Tijera o articulada, eléctrica o diésel: precios reales por altura de trabajo y el método para no pagar (ni transportar) metros que no necesitas.",
   "rapida": "Una plataforma elevadora usada cuesta entre <b>{pmin}</b> y <b>{pmax}</b> + IVA. El precio lo marcan la altura de trabajo y el tipo: una tijera eléctrica de 10 m está en la banda baja; las articuladas de 17-20 m, en la alta. Si alquilas plataforma varios meses al año, la compra de ocasión suele amortizarse antes de lo que parece.",
@@ -133,7 +133,7 @@ GUIAS = {
  "precio-manipulador-telescopico-usado": {
   "cat": "tele", "label": "manipulador telescópico",
   "kw": "manipulador telescópico usado precio",
-  "title": "Precio de un manipulador telescópico usado ({hoy}): tabla real",
+  "title": "Precio manipulador telescópico usado (2026)",
   "h1": "¿Cuánto cuesta un manipulador telescópico usado?",
   "stand": "La navaja suiza de la obra: precios reales por alcance y capacidad, qué inspeccionar en una pluma usada y cuándo compensa frente al alquiler.",
   "rapida": "Un manipulador telescópico usado cuesta entre <b>{pmin}</b> y <b>{pmax}</b> + IVA según alcance, capacidad y horas. El binomio altura × carga define el precio: unidades recientes de 6-15 m con pocas horas ocupan la banda media-alta. Es de las máquinas más versátiles de obra — y de las que más se amortizan si hoy la alquilas cada mes.",
@@ -163,7 +163,7 @@ GUIAS = {
  "precio-excavadora-usada": {
   "cat": "exca", "label": "excavadora",
   "kw": "excavadora usada precio",
-  "title": "Precio de una excavadora usada de 14-23 t ({hoy}): tabla real",
+  "title": "Precio de una excavadora usada 14-23 t (2026)",
   "h1": "¿Cuánto cuesta una excavadora usada?",
   "stand": "Precios reales de 14 a 23 toneladas, el coste oculto que puede convertir un chollo en una ruina (el tren de rodaje) y cómo comprar horas certificadas.",
   "rapida": "Una excavadora usada de 14-23 t cuesta entre <b>{pmin}</b> y <b>{pmax}</b> + IVA según tonelaje, horas y equipamiento (GPS 3D, cazos, engrase centralizado). Las unidades recientes con menos de 1.000 h certificadas ocupan la banda alta — y son las que antes se venden. En esta gama, el estado del tren de rodaje puede mover el valor real de la operación tanto como el año.",
@@ -481,7 +481,7 @@ ARTICULOS = {
  "comprar-maquinaria-segunda-mano": {
   "kw": "comprar maquinaria segunda mano",
   "eyebrow": "Guía esencial · pilar",
-  "title": "Comprar maquinaria de segunda mano sin pillarse los dedos: la checklist de 21 puntos",
+  "title": "Comprar maquinaria de segunda mano: checklist",
   "h1": "Cómo comprar maquinaria de segunda mano sin pillarse los dedos",
   "stand": "Los 4 riesgos reales de la compra de ocasión, la checklist de 21 puntos que usamos antes de poner una máquina a la venta y el proceso para comprar con la misma seguridad que una máquina nueva.",
   "rapida": "Comprar maquinaria de ocasión es la forma más rápida de capitalizar tu operación — si controlas cuatro riesgos: <b>horas reales</b>, <b>estado estructural</b>, <b>documentación</b> y <b>vendedor</b>. Una máquina reciente con pocas horas, historial documentado e inspección presencial ofrece casi la misma vida útil que una nueva por bastante menos dinero, y con entrega inmediata.",
@@ -544,7 +544,7 @@ ARTICULOS = {
  "horas-maquinaria-usada": {
   "kw": "cuántas horas son muchas maquinaria usada",
   "eyebrow": "Guía técnica",
-  "title": "¿Cuántas horas son muchas en una máquina usada? Tabla de referencia por tipo",
+  "title": "Cuántas horas son muchas en una máquina usada",
   "h1": "¿Cuántas horas son muchas en una máquina usada?",
   "stand": "No existe un número mágico: existe una tabla de referencia por tipo de máquina y una regla que manda sobre todas — el historial vale más que el horómetro.",
   "rapida": "Depende del tipo de máquina: en una <b>miniexcavadora</b>, menos de 1.500 h es poco uso; una <b>carretilla térmica</b> industrial bien mantenida supera las 15.000 h; una <b>excavadora de 20 t</b> puede pasar de 10.000 h de vida. La regla universal: unas horas altas con historial documentado son mejor compra que unas horas bajas sin papeles.",
@@ -582,7 +582,7 @@ ARTICULOS = {
  "carretilla-electrica-o-diesel": {
   "kw": "carretilla eléctrica o diésel",
   "eyebrow": "Comparativa",
-  "title": "¿Carretilla eléctrica o diésel? Cuál comprar según tu nave (comparativa honesta)",
+  "title": "Carretilla eléctrica o diésel: cuál comprar",
   "h1": "¿Carretilla eléctrica o diésel? Elige según tu nave, no según la moda",
   "stand": "La comparativa sin humo (literal): dónde gana cada una, el coste oculto de las eléctricas y los dos casos de nuestro stock que explican la diferencia de precio.",
   "rapida": "Para trabajo en <b>interior</b> — almacén, alimentación, farma, retail — la carretilla <b>eléctrica</b> gana sin discusión: sin humos, menos ruido y menos mantenimiento. Para <b>exterior intensivo</b>, rampas largas o triple turno sin pausas de carga, la <b>térmica</b> (diésel o GLP) sigue mandando. El error caro es comprar contra tu caso de uso.",
@@ -620,7 +620,7 @@ ARTICULOS = {
  "plataforma-tijera-o-articulada": {
   "kw": "plataforma tijera o articulada",
   "eyebrow": "Comparativa",
-  "title": "¿Plataforma de tijera o articulada? Cuál comprar según tu trabajo en altura",
+  "title": "Plataforma de tijera o articulada: cuál comprar",
   "h1": "¿Plataforma de tijera o articulada? La diferencia se paga — que sea por algo",
   "stand": "A la misma altura, una articulada puede costar el doble que una tijera. Cuándo ese sobreprecio está justificado y cuándo estás pagando movimientos que nunca usarás.",
   "rapida": "La <b>tijera</b> sube en vertical: más cesta, más carga y menos precio — perfecta para mantenimiento e instalaciones sobre suelo firme. La <b>articulada</b> añade brazo y plumín para salvar obstáculos y acceder lateralmente — y eso se paga. Regla práctica: si no tienes que \"asomarte\" por encima o por dentro de nada, la tijera gana en casi todo.",
@@ -658,7 +658,7 @@ ARTICULOS = {
  "garantia-maquinaria-ocasion": {
   "kw": "garantía maquinaria segunda mano",
   "eyebrow": "Compra segura",
-  "title": "Garantía en maquinaria de segunda mano: qué debe incluir una compra segura",
+  "title": "Garantía en maquinaria usada: qué debe incluir",
   "h1": "Garantía en maquinaria de ocasión: qué exigir para comprar tranquilo",
   "stand": "Qué cubre (y qué no) una garantía de verdad, las 5 preguntas que hacer antes de pagar y las señales de alarma que delatan al vendedor equivocado.",
   "rapida": "Una compra segura de maquinaria usada se apoya en cinco piezas: <b>inspección presencial con prueba</b>, <b>horas certificadas</b>, <b>documentación completa</b> (factura, CE, historial), <b>opción de garantía</b> — idealmente con contrato de mantenimiento — y un <b>vendedor que responde</b> después de cobrar. Si faltan varias, el precio barato es solo el primer pago.",
@@ -694,7 +694,7 @@ ARTICULOS = {
  "financiacion-maquinaria-ocasion": {
   "kw": "financiar maquinaria segunda mano",
   "eyebrow": "Compra inteligente",
-  "title": "Financiar maquinaria de segunda mano: cómo convertir la compra en una cuota",
+  "title": "Financiar maquinaria de segunda mano: guía",
   "h1": "Financiar maquinaria de ocasión: paga como un alquiler, quédate la máquina",
   "stand": "Cómo funciona la financiación de maquinaria usada, qué documentación te van a pedir y los errores de plazo que convierten una buena compra en una mala deuda.",
   "rapida": "Sí, la maquinaria de segunda mano se puede financiar: en Equipzilla, <b>casi todas las unidades tienen opción de financiación</b>, además de garantía y contrato de mantenimiento. La idea clave: la cuota mensual de una máquina de ocasión suele quedar en el orden de lo que ya pagas de alquiler — con una diferencia enorme: al acabar, la máquina es tuya y conserva valor de reventa.",
@@ -727,7 +727,7 @@ ARTICULOS = {
  "vender-maquinaria-usada": {
   "kw": "vender maquinaria usada",
   "eyebrow": "Vende tu máquina",
-  "title": "Vender tu maquinaria usada: cómo conseguir el mejor precio (sin perder meses)",
+  "title": "Vender maquinaria usada al mejor precio: guía",
   "h1": "¿Vendes tu máquina? Así consigues el mejor precio sin perder meses",
   "stand": "Qué hace que una máquina usada valga más (o menos), la documentación que multiplica ofertas y cómo conseguir una tasación seria en 24 horas.",
   "rapida": "El precio de venta de una máquina usada lo deciden cuatro cosas: <b>horas con respaldo documental</b>, <b>estado real</b>, <b>documentación completa</b> y <b>el canal de venta</b>. Una máquina con historial y papeles se vende antes y mejor; una máquina sin documentar se malvende siempre. Si quieres número ya: tasación express en 24 h más abajo.",
@@ -764,7 +764,7 @@ ARTICULOS = {
 ARTICULOS["que-revisar-miniexcavadora-usada"] = {
   "kw": "qué revisar antes de comprar una miniexcavadora usada",
   "eyebrow": "Guía de inspección · miniexcavadoras",
-  "title": "Qué revisar antes de comprar una miniexcavadora usada: 25 puntos",
+  "title": "Qué revisar en una miniexcavadora usada: 25 puntos",
   "h1": "Qué revisar antes de comprar una miniexcavadora usada",
   "stand": "La inspección completa de una miniexcavadora de ocasión en el orden en que la hacemos nosotros: tren de rodaje, hidráulica, estructura, motor, cabina y papeles. Con la prueba con carga que separa una buena compra de un disgusto.",
   "rapida": "En una miniexcavadora usada casi todo el dinero está en cuatro sitios: <b>tren de rodaje</b> (orugas, rodillos, ruedas guía), <b>hidráulica</b> (cilindros, latiguillos, distribuidor), <b>pluma y articulaciones</b> (holguras en bulones y casquillos) y <b>motor</b> (arranque en frío, humos, fugas). Si esos cuatro están bien y la documentación cuadra con las horas, el resto son detalles negociables. Si uno falla, o negocias el coste real de la reparación o pasas a la siguiente máquina.",
@@ -856,6 +856,65 @@ ARTICULOS["que-revisar-miniexcavadora-usada"] = {
    ("¿Qué es lo más caro de reparar en una miniexcavadora?", "Motor y bomba hidráulica primero; tren de rodaje completo (orugas, rodillos, ruedas guía y sprockets) después. Por eso son los puntos donde más tiempo dedicamos en la inspección."),
    ("¿Es mala señal que la máquina esté recién pintada?", "No necesariamente, pero obliga a mirar mejor: la pintura nueva tapa fisuras, soldaduras y fugas antiguas. Mira debajo, en la base de la pluma y en el bastidor, donde menos se pinta."),
    ("¿Qué documentación debo exigir al comprar una miniexcavadora de segunda mano?", "Factura o título de propiedad, marcado CE con declaración de conformidad, manual de operador y placa de identificación legible que coincida con el número de serie. El historial de mantenimiento no es obligatorio, pero sin él las horas declaradas valen poco."),
+  ],
+}
+
+
+# ── Guía añadida 2026-09-11: consulta de compra con más impresiones sin guía en GSC
+# («transpaleta segunda mano» + «transpaleta manual segunda mano», pos. 5-6). Sin stock
+# de transpaletas en data/machines.json: precios «consultar», sin cifras inventadas.
+ARTICULOS["transpaleta-segunda-mano"] = {
+  "kw": "transpaleta segunda mano",
+  "eyebrow": "Guía de compra · manipulación de cargas",
+  "title": "Transpaleta de segunda mano: qué comprar y revisar",
+  "h1": "Transpaleta de segunda mano: manual o eléctrica, qué comprar y qué revisar",
+  "stand": "Cómo elegir una transpaleta usada sin equivocarse: manual, eléctrica o apilador según lo que muevas y cuántas veces al día, y la revisión de 12 puntos que separa una máquina que dura años de una que se queda sin bomba a los dos meses.",
+  "rapida": "Para mover palés a nivel de suelo unas pocas veces al día, una <b>transpaleta manual</b> de segunda mano de 2.000 a 2.500 kg es la compra más barata y la que menos puede fallar: solo tiene bomba hidráulica, ruedas y horquillas. Si mueves carga toda la jornada, en rampas o a más de 30 o 40 metros por viaje, compensa una <b>transpaleta eléctrica</b>: la diferencia de precio se recupera en tiempo y en espalda del operario. Si además necesitas apilar en estantería, lo que buscas es un <b>apilador</b>, no una transpaleta. En una usada, lo que decide la compra es el estado de la bomba, las ruedas y, en las eléctricas, la batería.",
+  "sections": [
+   ("Manual, eléctrica o apilador: cuál te corresponde", """
+<ol class="steps">
+<li><b>Transpaleta manual</b><p>Bomba hidráulica accionada con el timón. Capacidad habitual de 2.000 a 2.500 kg. Para almacenes pequeños, tiendas, recepción de mercancía y cargas ocasionales. Sin mantenimiento más allá de aceite y ruedas. Es la opción que más se vende de segunda mano y la más segura de comprar usada.</p></li>
+<li><b>Transpaleta eléctrica</b><p>Tracción y elevación eléctricas, con conductor a pie o sobre plataforma. Para uso intensivo, rampas de muelle, recorridos largos y cargas pesadas todo el día. En una usada la batería es la mitad de la compra: pregunta su antigüedad y ciclos.</p></li>
+<li><b>Apilador</b><p>Si necesitas dejar el palé en una estantería o a más de un metro de altura, la transpaleta no sirve. Un apilador manual o eléctrico hace el trabajo de una carretilla pequeña en pasillos estrechos.</p></li>
+<li><b>Transpaleta pesadora o de tijera</b><p>Versiones especiales: con báscula integrada para pesar en recepción, o de tijera para elevar el palé a altura de mesa. Merecen la pena solo si ese uso concreto es diario.</p></li>
+</ol>"""),
+   ("Los 12 puntos que revisamos en una transpaleta usada", """
+<div class="checkgroup">Transpaleta manual · 7 puntos</div>
+<ul class="check">
+<li><b>Bomba hidráulica</b>: bombea hasta arriba con carga y espera cinco minutos. Si las horquillas bajan solas, la bomba pierde (retenes o válvula). Es la avería típica y la que decide si merece la pena.</li>
+<li><b>Bajada controlada</b>: con la palanca de descenso, las horquillas deben bajar de forma progresiva, no de golpe.</li>
+<li><b>Horquillas</b>: rectas, sin dobleces ni fisuras en la soldadura con el bastidor. Mide la separación exterior (las medidas habituales son 520 o 685 mm) para que encaje con tus palés.</li>
+<li><b>Ruedas de dirección y rodillos de carga</b>: sin planos, grietas ni desgaste desigual. Poliuretano para suelos lisos, nylon para exterior o suelo rugoso.</li>
+<li><b>Timón y muelle de retorno</b>: el timón debe volver solo a la vertical y girar sin holgura excesiva en el eje.</li>
+<li><b>Fugas</b>: mira la base de la bomba y el cilindro. Aceite reseco en el bastidor es fuga antigua.</li>
+<li><b>Placa de capacidad</b>: legible y coherente con el modelo. Sin placa no sabes qué puede cargar.</li>
+</ul>
+<div class="checkgroup">Transpaleta eléctrica · 5 puntos más</div>
+<ul class="check">
+<li><b>Batería</b>: tipo (plomo-ácido o litio), fecha de fabricación y horas o ciclos. Una batería de plomo agotada puede costar una parte importante del valor de la máquina.</li>
+<li><b>Cargador incluido</b>: que venga con su cargador y que cargue. Comprar el cargador aparte es un gasto que se olvida.</li>
+<li><b>Horómetro y desgaste</b>: horas de trabajo frente a estado del timón, de la plataforma y de las ruedas motrices.</li>
+<li><b>Freno y seta de emergencia</b>: el freno electromagnético debe bloquear al soltar el timón; la seta debe cortar todo.</li>
+<li><b>Prueba con carga en rampa</b>: sube y baja una rampa con palé cargado. Que no pierda potencia ni deslice.</li>
+</ul>"""),
+   ("Precios de segunda mano: cómo se forman", """
+<p>El precio de una transpaleta usada depende de tres cosas, en este orden: <b>tipo</b> (manual, eléctrica o apilador), <b>estado de bomba y ruedas</b> (o de la batería en las eléctricas) y <b>marca</b>. Una manual revisada de una marca reconocida vale más que una sin marca nueva, porque los repuestos existen y la bomba se puede reparar.</p>
+<p>No publicamos aquí una tabla de precios porque ahora mismo no tenemos transpaletas en stock revisadas y no damos cifras que no salgan de unidades reales. Si buscas una, mira lo que hay disponible en <a href="https://equipzilla.com/compra/maquinaria/ocasion/manipulacion-elevacion-cargas-segunda-mano/transpaleta-segunda-mano">transpaletas de segunda mano</a> o pregunta al asesor: te decimos qué hay y a qué precio.</p>"""),
+   ("Los 4 errores más habituales", """
+<ol class="steps">
+<li><b>Comprar sin probar la bomba con carga</b><p>En vacío casi todas suben. Con 1.000 kg encima se ve si aguanta.</p></li>
+<li><b>No medir las horquillas</b><p>Palé europeo, palé americano o palé de plástico cerrado: cada uno necesita una anchura y longitud de horquilla. Mide antes de comprar.</p></li>
+<li><b>Ignorar el suelo de tu nave</b><p>Ruedas de nylon en un suelo pulido resbalan y lo marcan; ruedas de poliuretano en gravilla duran semanas.</p></li>
+<li><b>Comprar una eléctrica usada sin saber nada de la batería</b><p>Es el error caro. Pide fecha, ciclos y una prueba de una jornada si puedes.</p></li>
+</ol>"""),
+  ],
+  "lm": {"type": "asesor", "text": "Ahora ya sabes qué transpaleta necesitas y qué revisar. Si quieres saltarte la búsqueda, cuéntale al asesor qué mueves, cuántas veces al día y en qué suelo: te dice qué unidades tenemos o cuándo entra una que encaje, sin compromiso."},
+  "faq": [
+   ("¿Cuánto cuesta una transpaleta de segunda mano?", "Depende del tipo (manual, eléctrica o apilador), del estado de la bomba, las ruedas y la batería, y de la marca. No damos cifras sin unidades reales en stock: consulta la disponibilidad actual o pregunta al asesor y te decimos precio de lo que hay."),
+   ("¿Qué capacidad necesito en una transpaleta manual?", "La mayoría de los palés cargados pesan menos de 1.000 kg, por lo que una transpaleta de 2.000 o 2.500 kg cubre casi cualquier uso. Elige por medidas de horquilla y tipo de rueda antes que por capacidad."),
+   ("¿Merece la pena una transpaleta eléctrica de segunda mano?", "Sí, si la vas a usar varias horas al día, en rampas o en recorridos largos, y si la batería está en buen estado o su cambio está descontado del precio. Para uso ocasional, una manual revisada es mejor compra."),
+   ("¿Qué diferencia hay entre transpaleta y apilador?", "La transpaleta solo eleva el palé unos centímetros para moverlo. El apilador lo eleva hasta uno o varios metros para dejarlo en estantería. Si necesitas apilar, busca un apilador."),
+   ("¿Qué ruedas son mejores, nylon o poliuretano?", "Poliuretano para suelos lisos de interior: silenciosas y no marcan. Nylon para exterior o suelos rugosos: más duras y resistentes, pero ruidosas y resbalan en suelo pulido."),
   ],
 }
 
