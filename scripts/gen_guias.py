@@ -23,7 +23,7 @@ MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
          "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 _h = datetime.date.today()
 HOY = f"{MESES[_h.month - 1]} {_h.year}"
-BASE = "https://equipzilla-quiz.vercel.app"
+BASE = "https://ocasion.equipzilla.com"
 
 CAT_QUIZ_LABEL = {
     "mini": "Miniexcavadora (hasta 8 t)", "exca": "Excavadora grande (14-23 t)",
@@ -758,6 +758,106 @@ ARTICULOS = {
  },
 }
 
+
+
+# ── Guía MOFU añadida 2026-09-11 (keyword map, Pilar 1). Sin precios: es checklist.
+ARTICULOS["que-revisar-miniexcavadora-usada"] = {
+  "kw": "qué revisar antes de comprar una miniexcavadora usada",
+  "eyebrow": "Guía de inspección · miniexcavadoras",
+  "title": "Qué revisar antes de comprar una miniexcavadora usada: 25 puntos",
+  "h1": "Qué revisar antes de comprar una miniexcavadora usada",
+  "stand": "La inspección completa de una miniexcavadora de ocasión en el orden en que la hacemos nosotros: tren de rodaje, hidráulica, estructura, motor, cabina y papeles. Con la prueba con carga que separa una buena compra de un disgusto.",
+  "rapida": "En una miniexcavadora usada casi todo el dinero está en cuatro sitios: <b>tren de rodaje</b> (orugas, rodillos, ruedas guía), <b>hidráulica</b> (cilindros, latiguillos, distribuidor), <b>pluma y articulaciones</b> (holguras en bulones y casquillos) y <b>motor</b> (arranque en frío, humos, fugas). Si esos cuatro están bien y la documentación cuadra con las horas, el resto son detalles negociables. Si uno falla, o negocias el coste real de la reparación o pasas a la siguiente máquina.",
+  "sections": [
+   ("Antes de ir a verla: lo que se comprueba desde casa", """
+<p>Una parte de la inspección se hace por teléfono y por correo, antes de gastar un viaje:</p>
+<ul class="check">
+<li>Pide el <b>número de serie</b> y comprueba que la placa de la foto coincide con el modelo anunciado (año y versión).</li>
+<li>Pide <b>fotos del horómetro, de la placa CE y del tren de rodaje</b> tomadas ese mismo día. Si el vendedor se resiste a fotos concretas, ya tienes una señal.</li>
+<li>Pregunta el <b>motivo de la venta</b> y quién la ha usado (obra propia, alquiler, particular). Una máquina de flota de alquiler tiene muchas manos encima; no es malo si el mantenimiento está documentado.</li>
+<li>Pide el <b>historial de mantenimiento</b>: facturas de filtros, aceites, latiguillos, orugas. Un vendedor serio lo tiene; un particular suele tener al menos las facturas grandes.</li>
+</ul>"""),
+   ("Tren de rodaje: donde más se esconde el gasto", """
+<p>Es la partida de reparación más cara después del motor, y la que peor se ve en fotos. Mide, no estimes.</p>
+<ul class="check">
+<li><b>Orugas de goma</b>: grietas transversales, tacos arrancados, cable interior visible. Mira también la tensión: una oruga que cuelga demasiado o que va tensa como una cuerda habla del tensor.</li>
+<li><b>Rodillos inferiores y superiores</b>: que giren todos, sin fugas de aceite en los sellos y sin desgaste desigual (uno más pequeño que el resto).</li>
+<li><b>Ruedas guía y ruedas motrices (sprockets)</b>: dientes afilados como una sierra significan sprocket para cambiar.</li>
+<li><b>Motores de traslación</b>: fugas en la zona de los reductores y ruido al girar sobre sí misma. Prueba a girar en ambos sentidos.</li>
+<li><b>Bastidor y hoja niveladora</b>: soldaduras no originales, deformaciones, cilindro de la hoja con fugas.</li>
+</ul>"""),
+   ("Hidráulica: fugas, cilindros y velocidad de respuesta", """
+<ul class="check">
+<li><b>Vástagos de los cilindros</b> (pluma, balancín, cazo, hoja): sin rayas, picaduras ni óxido. Una raya en el vástago acaba destrozando el retén.</li>
+<li><b>Retenes</b>: pasa el dedo por la base del vástago con la máquina en marcha; húmedo con película fina es normal, gota que cae no lo es.</li>
+<li><b>Latiguillos</b>: agrietados, sudados o con abrazaderas improvisadas. Cuenta cuántos habría que cambiar.</li>
+<li><b>Distribuidor y bloques</b>: mira debajo con una linterna. Aceite reseco acumulado indica fuga antigua.</li>
+<li><b>Prueba de mantenimiento de carga</b>: levanta la pluma con el cazo cargado, apaga la máquina y espera cinco minutos. Si baja sola de forma visible, hay fuga interna en cilindro o distribuidor.</li>
+<li><b>Línea auxiliar (martillo)</b>: si la tiene, comprueba que las tomas no estén tapadas con cinta y que el circuito responda desde el mando.</li>
+</ul>"""),
+   ("Pluma, balancín y articulaciones: las holguras", """
+<p>Con la máquina parada y el cazo apoyado en el suelo, pide al vendedor que mueva cada mando un poco en cada sentido mientras tú miras cada bulón:</p>
+<ul class="check">
+<li><b>Bulones y casquillos</b> de pluma, balancín, cazo y enganche: si ves juego antes de que se mueva la pieza, hay holgura. Un poco es normal en máquinas con horas; un golpe seco en cada cambio de sentido no.</li>
+<li><b>Giro de la torreta</b>: corona y motor de giro. Con la pluma extendida, gira y para: la torreta debe parar sin bandazo. Escucha ruidos secos en la corona.</li>
+<li><b>Pluma desplazable (offset)</b>: que llegue a ambos extremos sin roces y sin fuga en su cilindro.</li>
+<li><b>Fisuras y soldaduras</b>: mira la base de la pluma, la unión con la torreta y el enganche del cazo. Pintura nueva solo en una zona suele tapar algo.</li>
+<li><b>Enganche rápido</b>: si lo lleva, que cierre y bloquee bien; un enganche flojo es un cazo que se cae.</li>
+</ul>"""),
+   ("Motor y eléctrica: la prueba de arranque en frío", """
+<p>Pide expresamente que la máquina esté <b>fría</b> cuando llegues (sin arrancar esa mañana). Un motor que arranca bien caliente y mal frío es la trampa más habitual.</p>
+<ul class="check">
+<li><b>Arranque</b>: tiempo de arranque, humo azul (aceite), blanco persistente (refrigerante o inyección), negro (combustible). Un poco de humo blanco los primeros segundos en frío es normal.</li>
+<li><b>Ruidos</b>: golpeteos metálicos, ruido de turbo si lo tiene, ruido de correa.</li>
+<li><b>Fugas</b>: junta de tapa de balancines, retén de cigüeñal, radiador y manguitos. Mira el suelo donde ha estado aparcada.</li>
+<li><b>Aceite y refrigerante</b>: nivel y aspecto. Aceite lechoso significa agua dentro. Refrigerante oxidado significa mantenimiento pobre.</li>
+<li><b>Filtros</b>: fecha o estado del filtro de aire y del de gasoil. Nuevos justo antes de la venta no es mala señal, pero pregunta cuándo se hizo el resto.</li>
+<li><b>Panel y avisos</b>: que no haya testigos encendidos ni bombillas quitadas del cuadro. Prueba luces, claxon, baliza y avisador de traslación.</li>
+<li><b>Batería y cableado</b>: bornes limpios, cables sin empalmes con cinta.</li>
+</ul>"""),
+   ("Cabina, seguridad y horas reales", """
+<ul class="check">
+<li><b>Coherencia de desgaste con horas</b>: pedales, mandos, asiento, alfombrilla, escalón. Una máquina con pocas horas declaradas y el asiento hundido no cuadra.</li>
+<li><b>Estructura ROPS/FOPS o techo</b>: sin golpes ni soldaduras. Cinturón de seguridad presente y funcionando.</li>
+<li><b>Palanca de bloqueo de mandos</b>: al subirla, ningún mando debe responder.</li>
+<li><b>Cristales, puerta y cierres</b> (si es cabina cerrada): un cristal roto es barato; un marco de puerta doblado no tanto.</li>
+<li><b>Horómetro</b>: que funcione con la máquina en marcha. Si está cambiado o el cuadro es nuevo, las horas declaradas valen lo que valga el historial.</li>
+</ul>"""),
+   ("La prueba con carga: 15 minutos que lo deciden todo", """
+<ol class="steps">
+<li><b>Excava de verdad</b><p>Un hoyo en terreno compacto, no arena suelta. Fíjate en la fuerza de arranque del cazo y en si el motor se ahoga.</p></li>
+<li><b>Movimientos combinados</b><p>Levanta pluma mientras recoges balancín y giras. Si un movimiento se frena cuando entra otro, la bomba o el distribuidor están cansados.</p></li>
+<li><b>Traslación</b><p>Recto en ambos sentidos: que no se vaya a un lado. Sube una pequeña pendiente y para a mitad: no debe deslizar.</p></li>
+<li><b>Hoja niveladora</b><p>Empuja tierra con la hoja y levanta la máquina apoyada en ella y en el cazo: si aguanta el peso sin bajar, los cilindros están bien.</p></li>
+<li><b>Vuelve a mirar fugas</b><p>Con todo caliente y a presión aparecen las fugas que en frío no se ven.</p></li>
+</ol>"""),
+   ("Documentación: lo que tiene que estar sí o sí", """
+<ul class="check">
+<li>Factura de compra o título de propiedad a nombre de quien vende.</li>
+<li>Marcado CE y declaración de conformidad (obligatorio en la UE).</li>
+<li>Manual de operador y manual de mantenimiento.</li>
+<li>Placa de identificación legible y coincidente con el número de serie de los papeles.</li>
+<li>Historial de mantenimiento o, como mínimo, facturas de las reparaciones grandes.</li>
+</ul>
+<p>Sin factura y sin CE, la máquina puede tener un problema de origen que no se arregla con un buen precio.</p>"""),
+   ("Los 5 errores que vemos más a menudo", """
+<ol class="steps">
+<li><b>Comprar por fotos y vídeo</b><p>Una miniexcavadora se compra con la mano en el vástago y la oreja en el motor. Si no puedes ir, manda a alguien que sepa o pídenos que la inspeccionemos.</p></li>
+<li><b>Fiarse del horómetro</b><p>Es un número en una pantalla. Sin historial que lo respalde, contrasta con el desgaste.</p></li>
+<li><b>No probarla en frío</b><p>La mitad de los problemas de motor solo se ven en el primer arranque del día.</p></li>
+<li><b>Ignorar el tren de rodaje</b><p>Orugas, rodillos y sprockets suman una reparación seria. Se mide, se cuenta y se descuenta del precio.</p></li>
+<li><b>Pagar sin papeles</b><p>Sin factura ni CE no hay reventa limpia ni garantía que valga.</p></li>
+</ol>"""),
+  ],
+  "lm": {"type": "alertas", "cat": "mini", "text": "Ahora ya sabes qué revisar. Las unidades de nuestro stock pasan esta misma inspección antes de publicarse; si prefieres que el mercado venga a ti, activa las alertas y te avisamos solo cuando entre una miniexcavadora revisada o baje un precio."},
+  "faq": [
+   ("¿Cuántas horas son muchas para una miniexcavadora usada?", "Depende más del mantenimiento que del número. Una máquina con historial documentado y tren de rodaje cuidado puede tener bastantes horas y estar mejor que otra con la mitad y sin papeles. Contrasta siempre horas con desgaste real de pedales, asiento, mandos y bulones."),
+   ("¿Puedo pedir que un tercero la inspeccione?", "Sí, y es lo razonable si no puedes desplazarte o no tienes experiencia. Un mecánico de maquinaria o el propio vendedor profesional con informe de inspección. En Equipzilla las unidades en stock se publican ya inspeccionadas y con horas certificadas."),
+   ("¿Qué es lo más caro de reparar en una miniexcavadora?", "Motor y bomba hidráulica primero; tren de rodaje completo (orugas, rodillos, ruedas guía y sprockets) después. Por eso son los puntos donde más tiempo dedicamos en la inspección."),
+   ("¿Es mala señal que la máquina esté recién pintada?", "No necesariamente, pero obliga a mirar mejor: la pintura nueva tapa fisuras, soldaduras y fugas antiguas. Mira debajo, en la base de la pluma y en el bastidor, donde menos se pinta."),
+   ("¿Qué documentación debo exigir al comprar una miniexcavadora de segunda mano?", "Factura o título de propiedad, marcado CE con declaración de conformidad, manual de operador y placa de identificación legible que coincida con el número de serie. El historial de mantenimiento no es obligatorio, pero sin él las horas declaradas valen poco."),
+  ],
+}
 
 def lm_block(lm):
     text = lm["text"]
