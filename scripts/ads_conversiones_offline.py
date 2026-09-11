@@ -108,13 +108,13 @@ def subir(conversiones):
     resultados, errores = [], []
     for accion_id, lista in por_accion.items():
         cuerpo = {
-            "destinations": [{"operatingAccount": {"accountId": str(CUENTA), "product": "GOOGLE_ADS"},
+            "destinations": [{"operatingAccount": {"accountId": str(CUENTA), "accountType": "GOOGLE_ADS"},
                               "productDestinationId": accion_id}],
-            "events": [{"adIdentifiers": {"gclid": c["gclid"]},
+            "events": [{"adIdentifiers": {"gclid": c["gclid"]}, "eventSource": "WEB",
                         "eventTimestamp": c["conversionDateTime"].replace(" ", "T"),
                         "conversionValue": c["conversionValue"], "currency": c["currencyCode"],
                         "transactionId": clave} for clave, c in lista],
-            "encoding": "HEX", "consent": {"adUserData": "CONSENT_GRANTED", "adPersonalization": "CONSENT_GRANTED"},
+            "consent": {"adUserData": "CONSENT_GRANTED", "adPersonalization": "CONSENT_GRANTED"},
         }
         req = urllib.request.Request("https://datamanager.googleapis.com/v1/events:ingest",
                                      data=json.dumps(cuerpo).encode(),
