@@ -13,7 +13,7 @@ SEARCH, SHOPPING = 24065940601, 24066002797
 URL_OK = "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano"
 URL_MAL = "https://equipzilla.com/compra/maquinaria/ocasion/maquinaria-construccion-segunda-mano"
 URL_EXC = "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano/excavadoras-segunda-mano"
-URL_PLAT = "https://equipzilla.com/compra/maquinaria/ocasion/plataforma-elevadora-segunda-mano"
+URL_PLAT = "https://equipzilla.com/compra/maquinaria/usada/plataforma-elevadora-segunda-mano"
 
 def mutate(servicio, ops):
     if PRUEBA:
@@ -36,24 +36,24 @@ def rsa(ad_group_id, url, titulos, descripciones, rutas):
 
 # 1) Anuncios para los dos grupos sin anuncio
 retro = rsa(208483399828, URL_EXC,
-    ["Retroexcavadoras de Segunda Mano", "Retro Mixta Usada con Garantía", "Retroexcavadora Ocasión Revisada", "Stock Real en España",
-     "Precio Cerrado, Sin Sorpresas", "Horas y Estado Verificados", "Te Buscamos la Retro que Necesitas", "Financiación Disponible",
+    ["Retroexcavadoras 2ª Mano", "Retro Mixta Usada con Garantía", "Retroexcavadora Ocasión", "Stock Real en España",
+     "Precio Cerrado, Sin Sorpresas", "Horas y Estado Verificados", "Te Buscamos tu Retro", "Financiación Disponible",
      "Entrega en Toda España", "Fotos Reales de Cada Unidad", "Asesor Técnico en 24 h", "Equipzilla Maquinaria Usada",
      "Mini Retro y Retro Mixta", "Pide Precio por WhatsApp", "Compra con Inspección Previa"],
-    ["Retroexcavadoras y mixtas usadas revisadas por técnicos. Fotos reales, horas verificadas y precio cerrado.",
-     "¿Buscas una retro mixta o mini retro? Te localizamos la unidad y te la entregamos con garantía.",
+    ["Retroexcavadoras y mixtas usadas revisadas por técnicos. Fotos reales y precio cerrado.",
+     "¿Retro mixta o mini retro? Te localizamos la unidad y te la entregamos con garantía.",
      "Stock de maquinaria de obra usada con inspección previa y financiación. Pide precio hoy.",
-     "Compra maquinaria usada sin intermediarios raros: asesor técnico, inspección y entrega en toda España."],
-    ["retroexcavadoras", "segunda-mano"])
+     "Compra con asesor técnico, inspección previa y entrega en toda España. Pide precio hoy."],
+    ["retros", "segunda-mano"])
 plat = rsa(208483994348, URL_PLAT,
-    ["Plataformas Elevadoras Usadas", "Tijera y Brazo Articulado Ocasión", "Plataforma Elevadora Segunda Mano", "Stock Real con Fotos",
-     "Precio Cerrado y Garantía", "Horas Verificadas por Técnicos", "Diésel y Eléctricas Disponibles", "Entrega en Toda España",
+    ["Plataformas Elevadoras Usadas", "Tijera y Articulada Ocasión", "Plataforma Elevadora 2ª Mano", "Stock Real con Fotos",
+     "Precio Cerrado y Garantía", "Horas Verificadas por Técnicos", "Diésel y Eléctricas en Stock", "Entrega en Toda España",
      "Financiación a tu Medida", "Asesor Técnico en 24 h", "Equipzilla Maquinaria Usada", "Desde 6.000 € Revisadas",
      "Haulotte, JLG, Genie, Manitou", "Pide Precio por WhatsApp", "Inspección Antes de Comprar"],
-    ["Plataformas elevadoras de tijera y articuladas usadas, revisadas y con garantía. Fotos y horas reales.",
-     "Haulotte, JLG, Genie y Manitou de ocasión con inspección previa, precio cerrado y entrega en toda España.",
-     "Compra tu plataforma elevadora usada con asesor técnico y financiación. Stock real, sin sorpresas.",
-     "Eléctricas y diésel de 8 a 20 m. Te ayudamos a elegir la unidad correcta para tu obra o nave."],
+    ["Plataformas de tijera y articuladas usadas, revisadas y con garantía. Fotos reales.",
+     "Haulotte, JLG, Genie y Manitou de ocasión con inspección previa y entrega en toda España.",
+     "Compra tu plataforma usada con asesor técnico y financiación. Stock real, sin sorpresas.",
+     "Eléctricas y diésel de 8 a 20 m. Te ayudamos a elegir la unidad correcta para tu obra."],
     ["plataformas", "segunda-mano"])
 mutate("adGroupAds", [retro, plat])
 
@@ -70,9 +70,10 @@ if ops: mutate("ads", ops)
 mutate("campaigns", [{"update": {"resourceName": f"customers/{CUENTA}/campaigns/{c}", "geoTargetTypeSetting": {"positiveGeoTargetType": "PRESENCE"}},
                       "updateMask": "geo_target_type_setting.positive_geo_target_type"} for c in (SEARCH, SHOPPING)])
 
-# 4) Negativas de frase en ambas campañas
+# 4) Negativas de frase en ambas campañas (20 del 11/09 + 11 del 12/09)
 NEG = ["vendo", "agricola", "accesorios", "embargadas", "desguaces", "casquero", "hormigon", "hormigonera", "hormigoneras", "bloquera",
-       "machacadora", "pozos", "pft", "barredora", "excavator", "diggers", "pelle", "buldoexcavator", "cuanto vale", "grande del mundo"]
+       "machacadora", "pozos", "pft", "barredora", "excavator", "diggers", "pelle", "buldoexcavator", "cuanto vale", "grande del mundo",
+       "tractopelle", "vanzare", "olx", "maroc", "prix", "bolivia", "escavadeira", "cuanto cuesta", "tipos de", "tractores", "desbrozadora"]
 mutate("campaignCriteria", [{"create": {"campaign": f"customers/{CUENTA}/campaigns/{c}", "negative": True,
                                         "keyword": {"text": n, "matchType": "PHRASE"}}} for c in (SEARCH, SHOPPING) for n in NEG])
 print("hecho")
