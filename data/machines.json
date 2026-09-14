@@ -150,7 +150,7 @@
   "s": "23 t · cuchara 4,5 m³"
  },
  {
-  "img": "GAM-MANITOU170",
+  "img": "PL-MANITOU170",
   "n": "Manitou 170 AETJL",
   "c": "plat",
   "y": 2015,
@@ -160,7 +160,7 @@
   "s": "17 m · articulada bi-energía"
  },
  {
-  "img": "GAM-HA20PX06",
+  "img": "PL-HA20PX06",
   "n": "Haulotte HA20PX",
   "c": "plat",
   "y": 2006,
@@ -170,7 +170,7 @@
   "s": "20 m · articulada diésel"
  },
  {
-  "img": "GAM-GENIEZ3422",
+  "img": "PL-GENIEZ3422",
   "n": "Genie Z-34/22 IC",
   "c": "plat",
   "y": 2007,
@@ -180,7 +180,7 @@
   "s": "12 m · articulada diésel"
  },
  {
-  "img": "GAM-COMPACT10",
+  "img": "PL-COMPACT10",
   "n": "Haulotte Compact 10",
   "c": "plat",
   "y": 2011,
@@ -240,7 +240,7 @@
   "s": "2,5 t · eléctrica"
  },
  {
-  "img": "GAM-ERP16VT",
+  "img": "CR-ERP16VT",
   "n": "Yale ERP16VT",
   "c": "carr",
   "y": 2018,
@@ -250,7 +250,7 @@
   "s": "1,6 t · eléctrica"
  },
  {
-  "img": "GAM-R14",
+  "img": "CR-R14",
   "n": "Hyster R1.4",
   "c": "carr",
   "y": 2019,
@@ -260,7 +260,7 @@
   "s": "1,4 t · retráctil 8,5 m"
  },
  {
-  "img": "GAM-DFG320s",
+  "img": "CR-DFG320s",
   "n": "Jungheinrich DFG320s",
   "c": "carr",
   "y": 2017,
@@ -270,7 +270,7 @@
   "s": "2 t · diésel"
  },
  {
-  "img": "GAM-H25FT",
+  "img": "CR-H25FT",
   "n": "Hyster H2.5FT",
   "c": "carr",
   "y": 2019,
@@ -280,7 +280,7 @@
   "s": "2,5 t · GLP"
  },
  {
-  "img": "GAM-H30FT",
+  "img": "CR-H30FT",
   "n": "Hyster H3.0FT",
   "c": "carr",
   "y": 2021,

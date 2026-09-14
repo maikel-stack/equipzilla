@@ -44,7 +44,7 @@ GRUPOS = {
            datos=[("Altura de trabajo", "20 m"), ("Año", "2010"), ("Horas", "3.968"), ("Tracción", "4x4 diésel")],
            texto="La todoterreno de 20 metros más pedida de nuestra base. "
                  "Obra, fachada e industria."),
-      dict(etq="Articulada eléctrica", titulo="Manitou 170 AETJL", foto="GAM-MANITOU170-2025.jpg", precio="20.500 €",
+      dict(etq="Articulada eléctrica", titulo="Manitou 170 AETJL", foto="PL-MANITOU170-2025.jpg", precio="20.500 €",
            datos=[("Altura de trabajo", "17 m"), ("Año", "2015"), ("Energía", "eléctrica")],
            texto="La máquina más consultada de nuestras últimas campañas. "
                  "17 metros eléctricos, lista para trabajar."),
