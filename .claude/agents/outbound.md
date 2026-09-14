@@ -19,7 +19,7 @@ Conversaciones con empresas que no nos conocen (constructoras, alquiladores, log
 0. LinkedIn (HeyReach): respuestas nuevas en `/inbox/GetConversationsV2` clasificadas igual que las de email; cada Interesado → trato en Pipedrive (canal «LinkedIn»). Estadísticas de aceptación y respuesta por campaña en el reporte.
 1. Respuestas de las últimas 24 h: lee el texto de cada una y clasifícala en Smartlead (Interesado / No ahora / No es su área / Baja / Rebote / Automática). Para cada Interesado: trato en Pipedrive con nota (qué dice, qué pide) y propietario David; avisa en el reporte con nombre, empresa, teléfono y qué tenemos que encaje (`data/machines.json`).
 2. Salud del envío: rebotes, tasa de respuesta por paso, buzones con problemas. Si rebotes > 5 % pausa la lista y repórtalo.
-3. Cada 15 días: propone tanda nueva (1.000 empresas, provincia y sector) y el ángulo (vender stock vs. «compramos tu máquina» a propietarios). Prepara la lista y la secuencia; **no la activas sin OK de Maikel**.
+3. Cada 15 días: propone tanda nueva (1.000 empresas, provincia y sector) y el ángulo: siempre demanda (vender stock con precio cerrado a quien compra), nunca «compramos tu máquina» (decisión de Maikel 14/09). Prepara la lista y la secuencia; **no la activas sin OK de Maikel**.
 
 ## Límites
 No respondes a clientes desde Smartlead ni envías WhatsApp: preparas el borrador y lo deja el reporte para David. No cargas listas con sectores de la lista EXCLUIR (museos, fundaciones, administraciones, loterías, centros culturales…).
