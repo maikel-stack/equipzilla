@@ -918,6 +918,74 @@ ARTICULOS["transpaleta-segunda-mano"] = {
   ],
 }
 
+
+# ── Guía añadida 2026-09-14: «apilador manual segunda mano» + «apilador electrico segunda
+# mano» (96 impr en GSC, pos. 5-13, sin guía). Sin apiladores en stock: precios «consultar».
+ARTICULOS["apilador-segunda-mano"] = {
+  "kw": "apilador segunda mano",
+  "eyebrow": "Guía de compra · manipulación de cargas",
+  "title": "Apilador de segunda mano: manual o eléctrico",
+  "h1": "Apilador de segunda mano: manual o eléctrico, cuál comprar y qué revisar",
+  "stand": "Cuándo un apilador sustituye a una carretilla, cuándo basta el manual y cuándo hace falta el eléctrico, y la revisión de mástil, bomba, batería y ruedas que hacemos antes de comprar uno usado.",
+  "rapida": "Un <b>apilador</b> eleva el palé a altura de estantería (normalmente entre 1,6 y 3,5 metros) en pasillos donde una carretilla no cabe. El <b>manual</b> (bomba hidráulica de pie o de timón) vale para pocas elevaciones al día y cargas ligeras; el <b>eléctrico</b> (elevación y, casi siempre, tracción eléctricas) es el que compensa si apilas de forma continua o pasas de 1.000 kg. En un apilador usado se compra sobre todo el <b>mástil</b> (cadenas, rodillos, holguras) y, en los eléctricos, la <b>batería</b>; el resto es barato de reparar.",
+  "sections": [
+   ("Manual, semieléctrico o eléctrico: cuál te corresponde", """
+<ol class="steps">
+<li><b>Apilador manual</b><p>Elevación con bomba hidráulica accionada a pie o con el timón, desplazamiento a mano. Capacidades habituales de 500 a 1.500 kg y alturas de 1,6 a 3 metros. Para almacenes pequeños, talleres y tiendas con pocas elevaciones al día. Poco que se estropee: bomba, cadena y ruedas.</p></li>
+<li><b>Apilador semieléctrico</b><p>Elevación eléctrica, desplazamiento manual. El escalón intermedio cuando lo que cansa es bombear, no empujar. Batería pequeña, precio contenido de segunda mano.</p></li>
+<li><b>Apilador eléctrico</b><p>Elevación y tracción eléctricas, conductor a pie o sobre plataforma. Para uso continuo, cargas de 1.000 a 2.000 kg y alturas de hasta 5 metros o más. Sustituye a una carretilla contrapesada pequeña en pasillos estrechos y sin emisiones en interior.</p></li>
+<li><b>Cuándo no es un apilador lo que buscas</b><p>Si solo mueves palés a ras de suelo, sobra con una transpaleta. Si cargas camiones desde el suelo o trabajas en exterior con desnivel, necesitas una carretilla contrapesada.</p></li>
+</ol>"""),
+   ("Los 12 puntos que revisamos en un apilador usado", """
+<div class="checkgroup">Mástil y elevación · 5 puntos</div>
+<ul class="check">
+<li><b>Cadenas de elevación</b>: tensión igual en las dos, sin eslabones agarrotados ni oxidados. Una cadena estirada más que la otra deja el porta-horquillas torcido.</li>
+<li><b>Rodillos y guías del mástil</b>: sube y baja en vacío y con carga; debe deslizar sin saltos ni ruidos. Mira el desgaste de las pistas.</li>
+<li><b>Holgura del mástil</b>: con las horquillas a media altura, empuja el porta-horquillas lateralmente. Un poco de juego es normal; un bandazo no.</li>
+<li><b>Cilindro de elevación</b>: vástago sin rayas y sin fuga. Sube el palé cargado a la altura máxima, apaga y espera cinco minutos: si baja de forma visible, la bomba o el cilindro pierden.</li>
+<li><b>Horquillas y porta-horquillas</b>: rectas, sin fisuras en el talón, y con la anchura ajustable si la necesitas.</li>
+</ul>
+<div class="checkgroup">Chasis, ruedas y seguridad · 4 puntos</div>
+<ul class="check">
+<li><b>Ruedas de carga y rueda motriz o de dirección</b>: sin planos ni grietas. Con el desgaste desigual el apilador tira hacia un lado con carga alta, y eso es peligroso.</li>
+<li><b>Brazos de apoyo (patas)</b>: rectos y sin soldaduras improvisadas. Son los que impiden que vuelque con la carga arriba.</li>
+<li><b>Freno y seta de emergencia</b> (eléctricos): el freno debe actuar al soltar el timón; la seta corta todo.</li>
+<li><b>Placa de capacidad y diagrama de cargas</b>: legible. La capacidad baja con la altura; sin diagrama no sabes cuánto puedes subir a 3 metros.</li>
+</ul>
+<div class="checkgroup">Eléctricos · 3 puntos más</div>
+<ul class="check">
+<li><b>Batería</b>: tipo, fecha de fabricación y ciclos. Es la partida de reparación más cara; una batería agotada puede valer tanto como el resto de la máquina.</li>
+<li><b>Cargador incluido y funcionando</b>: comprueba que carga y que el conector es el de la máquina.</li>
+<li><b>Horómetro y desgaste</b>: horas frente a estado del timón, de las ruedas y del mástil.</li>
+</ul>"""),
+   ("La prueba con carga: 10 minutos", """
+<ol class="steps">
+<li><b>Palé real a altura máxima</b><p>Con la carga que vas a mover de verdad, sube hasta arriba, para a medio recorrido y baja. Sin saltos, sin ruidos, sin que la carga se incline.</p></li>
+<li><b>Bajada controlada</b><p>La bajada debe ser progresiva con o sin carga. Una bajada brusca es válvula de descenso.</p></li>
+<li><b>Mantenimiento de carga</b><p>Carga arriba, cinco minutos apagado. Si baja, hay fuga interna.</p></li>
+<li><b>Recorrido y giro</b> (eléctricos)<p>Recto, giro en ambos sentidos y una pequeña rampa con carga: que no pierda potencia ni deslice.</p></li>
+</ol>"""),
+   ("Precios de segunda mano: cómo se forman", """
+<p>El precio de un apilador usado lo marcan, en este orden, el <b>tipo</b> (manual, semieléctrico o eléctrico), la <b>altura y capacidad</b>, el <b>estado del mástil y de la batería</b> y la <b>marca</b> (con repuestos disponibles vale más). Un manual revisado es barato y casi no tiene riesgo; en un eléctrico la batería puede cambiar el precio a la mitad.</p>
+<p>No publicamos aquí una tabla de precios porque ahora mismo no tenemos apiladores revisados en stock, y no damos cifras que no salgan de unidades reales. Mira lo disponible en <a href="https://equipzilla.com/compra/maquinaria/ocasion/manipulacion-elevacion-cargas-segunda-mano">manipulación y elevación de cargas de segunda mano</a> o pregunta al asesor.</p>"""),
+   ("Los 4 errores más habituales", """
+<ol class="steps">
+<li><b>Comprar por capacidad nominal</b><p>La capacidad baja con la altura. Lo que importa es cuánto puede subir a la altura de tu estantería, y eso lo dice el diagrama de cargas.</p></li>
+<li><b>No medir la altura libre de tu nave ni la de la estantería</b><p>Un mástil que no cabe bajo una puerta o que se queda a 20 cm del último nivel es una máquina inútil.</p></li>
+<li><b>Ignorar el estado de la batería en un eléctrico</b><p>Pide fecha, ciclos y una prueba de una jornada si puedes. Si no hay datos, descuenta el cambio del precio.</p></li>
+<li><b>Comprar sin probar con carga a altura máxima</b><p>Las holguras del mástil y las fugas solo aparecen arriba y con peso.</p></li>
+</ol>"""),
+  ],
+  "lm": {"type": "asesor", "text": "Ahora ya sabes qué apilador necesitas y qué revisar. Si quieres saltarte la búsqueda, cuéntale al asesor qué apilas, a qué altura y cuántas veces al día: te dice qué unidades tenemos o cuándo entra una que encaje, sin compromiso."},
+  "faq": [
+   ("¿Cuánto cuesta un apilador de segunda mano?", "Depende del tipo (manual, semieléctrico o eléctrico), de la altura y capacidad, y del estado del mástil y la batería. No damos cifras sin unidades reales en stock: consulta la disponibilidad actual o pregunta al asesor."),
+   ("¿Apilador o carretilla elevadora?", "Apilador si trabajas en interior, en pasillos estrechos y con palés hasta 1.500 o 2.000 kg a altura de estantería. Carretilla contrapesada si cargas camiones desde el suelo, trabajas en exterior o necesitas más capacidad."),
+   ("¿Merece la pena un apilador manual?", "Sí, para pocas elevaciones al día y cargas ligeras: es barato, casi no tiene averías y de segunda mano es la compra más segura. Si apilas de forma continua, el eléctrico se paga solo en tiempo."),
+   ("¿Qué altura de elevación necesito?", "La del último nivel de tu estantería más un margen de 10 a 15 cm para entrar y salir con el palé. Comprueba también que el mástil plegado pasa por tus puertas."),
+   ("¿Qué diferencia hay entre un apilador y una transpaleta?", "La transpaleta solo levanta el palé unos centímetros para moverlo. El apilador lo eleva a uno o varios metros para dejarlo en estantería."),
+  ],
+}
+
 def lm_block(lm):
     text = lm["text"]
     if lm["type"] == "alertas":
