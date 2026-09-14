@@ -3,6 +3,10 @@
 pero con nuestros canales: Frío (Smartlead), Reactivación (Brevo), Google Ads
 y Web. Pedida por Maikel el 08/09.
 
+Con `--semanal` escribe la misma tabla por semanas ISO (últimas 14) en la
+pestaña «Semanal · compraventa»; sin argumento, la mensual de siempre. Las
+definiciones de cada columna son idénticas en ambas: solo cambia el periodo.
+
 Columnas de datos: las escribe este script desde Pipedrive, Smartlead, Brevo
 y Google Ads. Columnas económicas (comisión, inversión total, CPL, CAC, ROAS,
 beneficio): fórmulas de Sheets que apuntan a tres celdas de entrada arriba
@@ -25,6 +29,26 @@ def mes_de(iso):
     return (iso or "")[:7]
 
 
+def semana_de(iso):
+    """Clave de semana ISO: '2026-W37' (lunes a domingo)."""
+    try:
+        y, w, _ = dt.date.fromisoformat((iso or "")[:10]).isocalendar()
+        return "%d-W%02d" % (y, w)
+    except ValueError:
+        return ""
+
+
+PERIODO = mes_de           # main() lo cambia a semana_de con --semanal
+
+
+def etiqueta(k):
+    if "W" in k:
+        lunes = dt.date.fromisocalendar(int(k[:4]), int(k[6:]), 1)
+        dom = lunes + dt.timedelta(days=6)
+        return "'S%s · %02d %s - %02d %s" % (k[6:], lunes.day, MESES[lunes.month - 1], dom.day, MESES[dom.month - 1])
+    return "'%s %s" % (MESES[int(k[5:]) - 1], k[:4])
+
+
 def pipedrive_mensual():
     m = collections.defaultdict(lambda: dict(leads=0, ofertas=0, ventas=0, gmv_op=0.0, gmv_venta=0.0))
     start = 0
@@ -36,7 +60,7 @@ def pipedrive_mensual():
         for x in items:
             if x.get("pipeline_id") != 6 or not re.search(r"compra", x.get("title") or "", re.I):
                 continue
-            k = mes_de(x.get("add_time"))
+            k = PERIODO(x.get("add_time"))
             if not k:
                 continue
             m[k]["leads"] += 1
@@ -44,7 +68,7 @@ def pipedrive_mensual():
             if x.get("stage_id") in ETAPA_OFERTA or x.get("status") == "won":
                 m[k]["ofertas"] += 1
             if x.get("status") == "won":
-                kw = mes_de(x.get("won_time")) or k
+                kw = PERIODO(x.get("won_time")) or k
                 m[kw]["ventas"] += 1
                 m[kw]["gmv_venta"] += float(x.get("value") or 0)
         if not d.get("additional_data", {}).get("pagination", {}).get("more_items_in_collection"):
@@ -65,7 +89,7 @@ def frio_mensual():
             for f in filas:
                 e = (f.get("lead_email") or "").lower()
                 if f.get("reply_time"):
-                    m[mes_de(f["reply_time"])].add(e)
+                    m[PERIODO(f["reply_time"])].add(e)
                 elif f.get("click_time"):
                     ab, cl, env = f.get("open_time"), f.get("click_time"), f.get("sent_time")
                     escaner = False
@@ -77,7 +101,7 @@ def frio_mensual():
                         except ValueError:
                             pass
                     if not escaner:
-                        m[mes_de(cl)].add(e)
+                        m[PERIODO(cl)].add(e)
             if len(filas) < 1000:
                 break
             off += 1000
@@ -87,17 +111,18 @@ def frio_mensual():
 def brevo_mensual():
     m = collections.Counter()
     for c in campanas(50):
-        m[mes_de(c["fecha"])] += c["clics"]       # personas que clican
+        m[PERIODO(c["fecha"])] += c["clics"]       # personas que clican
     return m
 
 
 def ads_mensual():
-    q = ("SELECT segments.month, metrics.cost_micros, metrics.clicks, metrics.conversions "
-         "FROM campaign WHERE segments.date BETWEEN '2026-01-01' AND '%s'" % dt.date.today())
+    seg = "segments.week" if PERIODO is semana_de else "segments.month"
+    q = ("SELECT %s, metrics.cost_micros, metrics.clicks, metrics.conversions "
+         "FROM campaign WHERE segments.date BETWEEN '2026-01-01' AND '%s'" % (seg, dt.date.today()))
     m = collections.defaultdict(lambda: dict(coste=0.0, clics=0, conv=0.0))
     try:
         for r in ADS.consulta(q):
-            k = (r.get("segments", {}).get("month") or "")[:7]
+            k = PERIODO(r.get("segments", {}).get("week") or r.get("segments", {}).get("month") or "")
             me = r.get("metrics", {})
             m[k]["coste"] += int(me.get("costMicros", 0)) / 1e6
             m[k]["clics"] += int(me.get("clicks", 0))
@@ -107,17 +132,28 @@ def ads_mensual():
     return m
 
 
-def main():
+def main(semanal=False):
+    global PERIODO, PESTANA
+    if semanal:
+        PERIODO, PESTANA = semana_de, "Semanal · compraventa"
     pd_, fr, br, ads = pipedrive_mensual(), frio_mensual(), brevo_mensual(), ads_mensual()
     hoy = dt.date.today()
-    meses = ["2026-%02d" % i for i in range(1, hoy.month + 1)]
+    if semanal:
+        lunes = hoy - dt.timedelta(days=hoy.weekday())
+        meses = [semana_de((lunes - dt.timedelta(weeks=13 - i)).isoformat()) for i in range(14)]
+        titulo, col0, total = "SEMANAL · COMPRAVENTA (últimas 14 semanas ISO, lunes a domingo)", "Semana", "TOTAL 14 semanas"
+        fijo = "($E$2+$G$2)*7/30"          # coste mensual prorrateado a la semana
+    else:
+        meses = ["2026-%02d" % i for i in range(1, hoy.month + 1)]
+        titulo, col0, total = "MENSUAL · COMPRAVENTA", "Mes", "TOTAL 2026"
+        fijo = "$E$2+$G$2"
 
-    F = [["MENSUAL · COMPRAVENTA", "", "", "", "", "", "", "",
-          "datos: Pipedrive, Smartlead, Brevo, Google Ads · actualizado " + hoy.strftime("%d/%m")],
+    F = [[titulo, "", "", "", "", "", "", "",
+          "datos: Pipedrive, Smartlead, Brevo, Google Ads · actualizado " + hoy.strftime("%d/%m %H:%M")],
          ["ENTRADAS (edita aquí)", "% comisión", 0.10, "Coste Brevo €/mes", 0, "Coste Smartlead €/mes", 0,
           "", "Cambia estas tres celdas y toda la tabla se recalcula"],
          [],
-         ["Mes", "Señales frío (Smartlead)", "Señales reactivación (Brevo)", "Leads Google Ads",
+         [col0, "Señales frío (Smartlead)", "Señales reactivación (Brevo)", "Leads Google Ads",
           "Tratos en Pipedrive", "Ofertas enviadas", "% oferta", "Ventas", "% venta a trato",
           "GMV oportunidad", "GMV venta", "Ticket medio", "Comisión", "Inversión Ads",
           "Inversión total", "CPL (señales)", "CAC", "ROAS", "Beneficio",
@@ -128,7 +164,7 @@ def main():
         p = pd_.get(k, dict(leads=0, ofertas=0, ventas=0, gmv_op=0.0, gmv_venta=0.0))
         a = ads.get(k, dict(coste=0.0, clics=0, conv=0.0))
         F.append([
-            "'%s %s" % (MESES[int(k[5:]) - 1], k[:4]),
+            etiqueta(k) + (" (en curso)" if k == PERIODO(hoy.isoformat()) else ""),
             fr.get(k, 0), br.get(k, 0), int(a["conv"]),
             p["leads"], p["ofertas"], "=IF(E%d=0;\"\";F%d/E%d)" % (r, r, r),
             p["ventas"], "=IF(E%d=0;\"\";H%d/E%d)" % (r, r, r),
@@ -136,14 +172,14 @@ def main():
             "=IF(H%d=0;\"\";K%d/H%d)" % (r, r, r),
             "=K%d*$C$2" % r,
             round(a["coste"], 2),
-            "=N%d+$E$2+$G$2" % r,
+            "=N%d+%s" % (r, fijo),
             "=IF((B%d+C%d+D%d)=0;\"\";O%d/(B%d+C%d+D%d))" % (r, r, r, r, r, r, r),
             "=IF(H%d=0;\"\";O%d/H%d)" % (r, r, r),
             "=IF(O%d=0;\"\";M%d/O%d)" % (r, r, r),
             "=M%d-O%d" % (r, r),
             "NO DETERMINADO (GA4 sin conectar)", "NO DETERMINADO (sin campo en Pipedrive)"])
     r1 = r0 + len(meses) - 1
-    F.append(["TOTAL 2026",
+    F.append([total,
               "=SUM(B%d:B%d)" % (r0, r1), "=SUM(C%d:C%d)" % (r0, r1), "=SUM(D%d:D%d)" % (r0, r1),
               "=SUM(E%d:E%d)" % (r0, r1), "=SUM(F%d:F%d)" % (r0, r1),
               "=IF(E%d=0;\"\";F%d/E%d)" % (r1 + 1, r1 + 1, r1 + 1),
@@ -157,7 +193,7 @@ def main():
               "=M%d-O%d" % (r1 + 1, r1 + 1), "", ""])
     F += [[], ["CÓMO LEERLA"],
           ["Señales de canal (B-D) no son tratos: son personas que respondieron o clicaron. Los tratos (E) son lo que entra en Pipedrive."],
-          ["GMV oportunidad = suma de importes de los tratos creados ese mes (muchos están a 0 €: ver auditoría). GMV venta = importe de los ganados ese mes."],
+          ["GMV oportunidad = suma de importes de los tratos creados en el periodo (muchos están a 0 €: ver auditoría). GMV venta = importe de los ganados ese mes."],
           ["Frío empieza en agosto 2026 y reactivación en julio 2026: antes no había campañas. Google Ads, desde que hay cuenta."],
           ["Sesiones web y tipo de cliente no se pueden medir hoy: falta conectar GA4 y falta el campo en Pipedrive."]]
 
@@ -218,4 +254,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(semanal="--semanal" in sys.argv)
