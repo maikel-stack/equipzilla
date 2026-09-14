@@ -49,7 +49,11 @@ TERMINOS = ["movimiento de tierras", "excavaciones", "demoliciones",
             "constructora obra civil"]
 TERMINOS_NUEVOS = ["obra pública", "cimentaciones", "urbanizaciones",
                    "canalizaciones", "derribos", "empresa de obras",
-                   "pavimentos y asfaltos", "transporte de maquinaria"]
+                   "pavimentos y asfaltos", "transporte de maquinaria",
+                   # 14/09: sectores que compran carretillas, plataformas y
+                   # telescópicos, y alquiladores que rotan flota
+                   "alquiler de maquinaria", "almacén logístico",
+                   "empresa de transportes", "grúas y transportes"]
 
 PROVINCIAS = [
     "Madrid", "Barcelona", "Valencia", "Sevilla", "Zaragoza", "Málaga",
