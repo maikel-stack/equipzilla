@@ -14,6 +14,7 @@ beneficio): fórmulas de Sheets que apuntan a tres celdas de entrada arriba
 ajuste sin tocar el script. Lo que no se puede medir va como NO DETERMINADO.
 """
 import collections, datetime as dt, os, re, sys, urllib.parse
+from zoneinfo import ZoneInfo
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from panel_horario import (SHEET_ID, campanas, pipedrive, sheets, smartlead, token_google)
 import ads_metricas as ADS
@@ -149,7 +150,8 @@ def main(semanal=False):
         fijo = "$E$2+$G$2"
 
     F = [[titulo, "", "", "", "", "", "", "",
-          "datos: Pipedrive, Smartlead, Brevo, Google Ads · actualizado " + hoy.strftime("%d/%m %H:%M")],
+          "datos: Pipedrive, Smartlead, Brevo, Google Ads · actualizado "
+          + dt.datetime.now(ZoneInfo("Europe/Madrid")).strftime("%d/%m %H:%M")],
          ["ENTRADAS (edita aquí)", "% comisión", 0.10, "Coste Brevo €/mes", 0, "Coste Smartlead €/mes", 0,
           "", "Cambia estas tres celdas y toda la tabla se recalcula"],
          [],
