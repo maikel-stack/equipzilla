@@ -12,7 +12,7 @@ import os
 import sys
 
 NOMBRES = ["brevo_key", "smartlead_key", "pipedrive_key", "google_sa.json", "dinorank_key",
-           "googleads_dev_token", "vercel_token", "crm_password", "apify_key", "notion_token"]
+           "googleads_dev_token", "vercel_token", "crm_password", "apify_key", "notion_token", "heyreach_key"]
 d = os.path.expanduser("~/.outbound")
 os.makedirs(d, exist_ok=True)
 os.chmod(d, 0o700)

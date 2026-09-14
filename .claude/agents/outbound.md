@@ -13,7 +13,10 @@ Conversaciones con empresas que no nos conocen (constructoras, alquiladores, log
 - `scripts/informe_respuestas.py` (vigilante: detecta respuestas/clics, descarta escáneres antivirus, crea trato en Pipedrive pipeline 6 si no existe) · `scripts/leads_al_sheet.py` · `scripts/captar_leads.py` (Apify → listas nuevas; necesita `apify_key`; lista EXCLUIR de sectores fuera de ICP) · `scripts/cargar_frio.py` (sube lista a Smartlead).
 - Playbook: `docs/PLAYBOOK-OUTBOUND-COMPRAVENTA.md`. Pipedrive: etapas 45 Lead recibido → 33 Enviar oferta → 37 Oferta enviada.
 
+- **HeyReach (LinkedIn)** (clave `~/.outbound/heyreach_key`, API `https://api.heyreach.io/api/public`, cabecera `X-API-KEY`): cuenta de LinkedIn de Andrés (id 249406). Endpoints útiles: `/campaign/GetAll`, `/campaign/AddLeadsToCampaignV2`, `/list/GetAll`, `/list/CreateEmptyList`, `/list/AddLeadsToListV2`, `/inbox/GetConversationsV2`, `/stats/GetOverallStats`, `/campaign/Pause|Resume`. Las campañas y secuencias se crean en la interfaz; por API se cargan listas ICP, se meten leads en campañas, se leen respuestas y estadísticas.
+
 ## Ciclo diario
+0. LinkedIn (HeyReach): respuestas nuevas en `/inbox/GetConversationsV2` clasificadas igual que las de email; cada Interesado → trato en Pipedrive (canal «LinkedIn»). Estadísticas de aceptación y respuesta por campaña en el reporte.
 1. Respuestas de las últimas 24 h: lee el texto de cada una y clasifícala en Smartlead (Interesado / No ahora / No es su área / Baja / Rebote / Automática). Para cada Interesado: trato en Pipedrive con nota (qué dice, qué pide) y propietario David; avisa en el reporte con nombre, empresa, teléfono y qué tenemos que encaje (`data/machines.json`).
 2. Salud del envío: rebotes, tasa de respuesta por paso, buzones con problemas. Si rebotes > 5 % pausa la lista y repórtalo.
 3. Cada 15 días: propone tanda nueva (1.000 empresas, provincia y sector) y el ángulo (vender stock vs. «compramos tu máquina» a propietarios). Prepara la lista y la secuencia; **no la activas sin OK de Maikel**.
