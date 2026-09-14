@@ -28,7 +28,7 @@ LIST_ID = int(os.environ.get("ALERT_LIST_ID", "33"))
 WA_TEMPLATE = os.environ.get("BREVO_WA_TEMPLATE_ID", "")
 MACHINES = "data/machines.json"
 STATE = "scripts/state_stock.json"
-IMG = "https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@7f1a7307d80db1639f05024cc720552c363df284/email_assets/machines/"
+IMG = "https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@7d861c310a62eda7a197e04082feca74671c8cf9/email_assets/machines/"
 LANDING = "https://equipzilla-quiz.vercel.app"
 
 # categoría interna -> texto que eligió el suscriptor en el quiz
