@@ -156,6 +156,10 @@ RECHAZO = re.compile(r"\bno usamos\b|no (?:nos|me) interesa|no estamos interesad
                      r"no (?:precisamos|necesitamos|requerimos)|"
                      r"no (?:lo )?(?:vamos a|tenemos previsto) (?:necesitar|comprar)|"
                      r"de momento no|por ahora no|"
+                     # «no ahora» con puerta abierta (14/09): no son leads, van a nurture
+                     r"solo (?:estamos )?mirando|nos quedamos con (?:tu|su|vuestro) contacto|"
+                     r"no tenemos intenci[oó]n|estamos servidos|"
+                     r"traslado (?:vuestro|su|tu) contacto|si (?:existiese|hubiera|hubiese) (?:alguna )?necesidad|"
                      r"no (?:tenemos|hay) necesidad|"
                      # "no es lo mío": no encaja el perfil, no el momento.
                      # Estos hay que sacarlos de la lista, no reintentarlos.
