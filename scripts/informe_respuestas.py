@@ -112,7 +112,14 @@ def texto_respuesta(email):
         respuestas = [m for m in (h.get("history") or []) if m.get("type") == "REPLY"]
         if not respuestas:
             return ""
-        crudo = re.sub(r"<[^>]+>", " ", respuestas[-1].get("email_body") or "")
+        cuerpo = respuestas[-1].get("email_body") or ""
+        # Outlook mete <style>, <xml> y comentarios VML antes del texto: si no
+        # se quitan, el "texto" es CSS y la clasificación falla (15/09: una
+        # autorespuesta de cambio de dirección salió como lead WARM).
+        cuerpo = re.sub(r"<(style|xml|script)[^>]*>.*?</\1>", " ", cuerpo,
+                        flags=re.S | re.I)
+        cuerpo = re.sub(r"<!--.*?-->", " ", cuerpo, flags=re.S)
+        crudo = re.sub(r"<[^>]+>", " ", cuerpo)
         crudo = re.sub(r"\s+", " ", crudo).strip()
         # cortar el mensaje original citado
         crudo = re.split(r"(El\s+El\s|El\s+\w{3},?\s+\d|On\s.{3,40}wrote:|"
@@ -210,7 +217,10 @@ def clasificar(texto):
         t = texto.lower()
         if any(x in t for x in ("ya no est", "nueva direcci", "deshabilitado",
                                 "siguientes correos", "utilicen el correo",
-                                "puedes contactar", "pueden contactar")):
+                                "puedes contactar", "pueden contactar",
+                                "ha cambiado a", "dejará de estar operativo",
+                                "dejara de estar operativo",
+                                "actualiza tu agenda")):
             return "cambio_email"
         return "autoreply"
     if re.search(r"\d{2}[\.,]?\d{3}|mil\s?€|€|euros|\b[6789]\d{8}\b|presupuesto|"
