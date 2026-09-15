@@ -18,6 +18,16 @@ from zoneinfo import ZoneInfo
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from panel_horario import (SHEET_ID, campanas, pipedrive, sheets, smartlead, token_google)
 import ads_metricas as ADS
+import cola_comercial as cc
+
+
+def es_compraventa(titulo):
+    """Mismo criterio que la cola comercial (título): 'compra', 'prospecto' (frío)
+    y 'clic campaña' son compraventa; 'renting', 'alquiler' y 'solicitud por rent' no.
+    Criterio provisional hasta que la etiqueta VENTA/RENTING de Pipedrive se rellene
+    en el alta (ver reportes/crm-datos/2026-09-15.md)."""
+    t = re.sub(r"^[0-9a-f-]{36} ?-\s*", "", titulo or "")
+    return bool(cc.COMPRAVENTA.search(t)) and not cc.NO_COMPRAVENTA.search(t)
 
 PESTANA = "Mensual · compraventa"
 TINTA = {"red": 0.09, "green": 0.20, "blue": 0.23}; SUAVE = {"red": 0.93, "green": 0.95, "blue": 0.96}
@@ -59,7 +69,7 @@ def pipedrive_mensual():
         if not items:
             break
         for x in items:
-            if x.get("pipeline_id") != 6 or not re.search(r"compra", x.get("title") or "", re.I):
+            if x.get("pipeline_id") not in cc.PIPELINES or not es_compraventa(x.get("title")):
                 continue
             k = PERIODO(x.get("add_time"))
             if not k:
@@ -195,6 +205,7 @@ def main(semanal=False):
               "=M%d-O%d" % (r1 + 1, r1 + 1), "", ""])
     F += [[], ["CÓMO LEERLA"],
           ["Señales de canal (B-D) no son tratos: son personas que respondieron o clicaron. Los tratos (E) son lo que entra en Pipedrive."],
+          ["Trato de compraventa = título con «compra», «prospecto» (frío) o «clic campaña», sin «alquiler» ni «renting». Mismo criterio que la pestaña «Cola comercial» desde el 15/09; antes solo contaba «compra»."],
           ["GMV oportunidad = suma de importes de los tratos creados en el periodo (muchos están a 0 €: ver auditoría). GMV venta = importe de los ganados ese mes."],
           ["Frío empieza en agosto 2026 y reactivación en julio 2026: antes no había campañas. Google Ads, desde que hay cuenta."],
           ["Sesiones web y tipo de cliente no se pueden medir hoy: falta conectar GA4 y falta el campo en Pipedrive."]]
