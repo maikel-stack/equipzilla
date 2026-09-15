@@ -70,12 +70,13 @@ if ops: mutate("ads", ops)
 mutate("campaigns", [{"update": {"resourceName": f"customers/{CUENTA}/campaigns/{c}", "geoTargetTypeSetting": {"positiveGeoTargetType": "PRESENCE"}},
                       "updateMask": "geo_target_type_setting.positive_geo_target_type"} for c in (SEARCH, SHOPPING)])
 
-# 4) Negativas de frase en ambas campañas (20 del 11/09 + 11 del 12/09 + 5 del 13/09 + 5 del 14/09)
+# 4) Negativas de frase en ambas campañas (20 del 11/09 + 11 del 12/09 + 5 del 13/09 + 5 del 14/09 + 4 del 15/09)
 NEG = ["vendo", "agricola", "accesorios", "embargadas", "desguaces", "casquero", "hormigon", "hormigonera", "hormigoneras", "bloquera",
        "machacadora", "pozos", "pft", "barredora", "excavator", "diggers", "pelle", "buldoexcavator", "cuanto vale", "grande del mundo",
        "tractopelle", "vanzare", "olx", "maroc", "prix", "bolivia", "escavadeira", "cuanto cuesta", "tipos de", "tractores", "desbrozadora",
        "tractor", "trabajando", "trituradora", "forestal", "escavador",
-       "fratasadora", "fratasadoras", "bagger", "como es", "precio hora"]
+       "fratasadora", "fratasadoras", "bagger", "como es", "precio hora",
+       "occasion", "miniexcavatoare", "bauhaus", "camion"]
 mutate("campaignCriteria", [{"create": {"campaign": f"customers/{CUENTA}/campaigns/{c}", "negative": True,
                                         "keyword": {"text": n, "matchType": "PHRASE"}}} for c in (SEARCH, SHOPPING) for n in NEG])
 print("hecho")
