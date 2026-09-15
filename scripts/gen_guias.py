@@ -986,6 +986,78 @@ ARTICULOS["apilador-segunda-mano"] = {
   ],
 }
 
+
+# ── Guía añadida 2026-09-15: «plataforma elevadora articulada segunda mano» (+ «plataforma
+# articulada segunda mano»): 93 impr en GSC, pos. 7-8, sin guía dedicada. Tabla con las
+# articuladas reales del stock (data/machines.json); se regenera al cambiar el stock.
+def _tabla_articuladas():
+    filas = sorted([x for x in MACHINES if x.get("c") == "plat" and "articulada" in str(x.get("s", ""))],
+                   key=lambda x: x["p"])
+    if not filas:
+        return "<p>Ahora mismo no tenemos plataformas articuladas revisadas en stock. Consulta disponibilidad al asesor.</p>"
+    tr = "".join(
+        "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><b>%s</b></td></tr>" % (
+            x["n"], x["s"].split("·")[0].strip(), "eléctrica" if x.get("e") else "diésel",
+            x.get("y", "—"), f'{x["h"]:,}'.replace(",", ".") + " h" if x.get("h") else "consultar", eur(x["p"]) + " + IVA")
+        for x in filas)
+    return ("<div class=\"tablewrap\"><table><thead><tr><th>Modelo</th><th>Altura</th><th>Energía</th><th>Año</th><th>Horas</th><th>Precio</th></tr></thead>"
+            "<tbody>%s</tbody></table></div><p class=\"nota\">Unidades reales en stock a fecha de %s. Precios sin IVA; el transporte se presupuesta aparte.</p>" % (tr, HOY))
+
+ARTICULOS["plataforma-elevadora-articulada-segunda-mano"] = {
+  "kw": "plataforma elevadora articulada segunda mano",
+  "eyebrow": "Guía de compra · plataformas elevadoras",
+  "title": "Plataforma articulada de segunda mano: precios",
+  "h1": "Plataforma elevadora articulada de segunda mano: precios reales y qué revisar",
+  "stand": "Las plataformas articuladas que tenemos hoy en stock con su precio, cómo elegir entre eléctrica y diésel y entre 11 y 20 metros, y la revisión de brazo, giro y cesta que hacemos antes de vender una.",
+  "rapida": "Una <b>plataforma articulada</b> de segunda mano cuesta hoy en nuestro stock entre <b>%s</b> y <b>%s</b> + IVA: la banda baja son articuladas eléctricas de 11 metros para interior; la alta, diésel de 16 a 20 metros para obra y exterior. Lo que decide el precio es la altura de trabajo, la energía y las horas; lo que decide la compra es el estado del <b>brazo y sus articulaciones</b>, del <b>giro de torreta</b> y de la <b>batería</b> en las eléctricas." % (
+      eur(min(x["p"] for x in MACHINES if x.get("c") == "plat" and "articulada" in str(x.get("s", "")))),
+      eur(max(x["p"] for x in MACHINES if x.get("c") == "plat" and "articulada" in str(x.get("s", ""))))),
+  "sections": [
+   ("Precios reales de plataformas articuladas en stock", _tabla_articuladas()),
+   ("Eléctrica o diésel, 11 o 20 metros: cómo elegir", """
+<ol class="steps">
+<li><b>Interior, suelo acabado, sin humos → eléctrica</b><p>Articuladas eléctricas de 11 a 12 metros (tipo Genie Z-30/20N o JLG E300AJP): ruedas no marcantes, silenciosas, pasan por puertas estándar. Para mantenimiento de naves, instalaciones y montaje en interior.</p></li>
+<li><b>Obra, exterior, terreno irregular → diésel 4x4</b><p>Articuladas diésel de 16 a 20 metros (tipo Haulotte HA20PX, JLG 450AJ, Genie Z-34/22): tracción total, ejes oscilantes y alcance horizontal para salvar obstáculos. Para fachadas, estructuras y cubiertas.</p></li>
+<li><b>Bi-energía si trabajas dentro y fuera</b><p>Máquinas como la Manitou 170 AETJL combinan eléctrico y diésel. Cuestan más, pero sustituyen a dos máquinas.</p></li>
+<li><b>La altura la marca el trabajo, no el catálogo</b><p>Altura de trabajo = altura de suelo de cesta + 2 metros. Si tu cubierta está a 14 metros, una articulada de 16 te sobra; una de 12 no llega. Y mira el alcance horizontal: es lo que diferencia una articulada de una tijera.</p></li>
+</ol>"""),
+   ("Los 12 puntos que revisamos en una articulada usada", """
+<div class="checkgroup">Brazo, giro y cesta · 6 puntos</div>
+<ul class="check">
+<li><b>Articulaciones y bulones del brazo</b>: con la cesta a media altura, holguras en cada articulación al cambiar de sentido. Un golpe seco en cada inversión es casquillo o bulón para cambiar.</li>
+<li><b>Cilindros</b> (elevación, plegado, extensión, nivelación de cesta): vástagos sin rayas ni óxido, sin fugas en retenes. Sube a máxima altura, apaga y espera cinco minutos: no debe bajar.</li>
+<li><b>Giro de torreta</b>: gira 360° en ambos sentidos con la cesta extendida; debe parar sin bandazo y sin ruidos en la corona.</li>
+<li><b>Nivelación automática de la cesta</b>: la cesta debe mantenerse horizontal en todo el recorrido. Si se inclina, hay problema en el circuito de nivelación (es un sistema de seguridad).</li>
+<li><b>Cesta, barandillas y puerta</b>: sin golpes, sin barandillas dobladas, puerta que cierra sola. Placa de capacidad legible (200 a 230 kg es lo habitual).</li>
+<li><b>Estructura</b>: base de pluma, unión con la torreta y ejes: fisuras y soldaduras no originales. Pintura nueva en un solo sitio suele tapar algo.</li>
+</ul>
+<div class="checkgroup">Chasis, motor y seguridad · 6 puntos</div>
+<ul class="check">
+<li><b>Neumáticos</b>: rellenos de espuma en las de obra; sin cortes ni desgaste desigual (indica ejes o dirección).</li>
+<li><b>Motor diésel</b>: arranque en frío, humos, fugas en bomba y radiador, horas frente a desgaste.</li>
+<li><b>Batería y cargador</b> (eléctricas): fecha, ciclos y una prueba de jornada si puedes. Es la partida cara.</li>
+<li><b>Mandos de cesta y de suelo</b>: todos los movimientos deben responder desde ambos puestos; el mando de suelo debe anular al de cesta (es de seguridad).</li>
+<li><b>Sensores de inclinación y sobrecarga</b>: la máquina debe avisar y bloquear elevación si está desnivelada o sobrecargada. Comprueba que nadie los ha puenteado.</li>
+<li><b>Documentación</b>: marcado CE, manual, y registro de las revisiones periódicas obligatorias (en España, inspección anual de plataformas según UNE 58921). Sin ese registro, la máquina no debería trabajar.</li>
+</ul>"""),
+   ("Los 4 errores que vemos más", """
+<ol class="steps">
+<li><b>Comprar metros de más</b><p>Una articulada de 20 metros pesa el doble y cuesta el doble de transportar que una de 12. Compra para el trabajo que haces cada semana, no para el que haces una vez al año.</p></li>
+<li><b>Ignorar el registro de revisiones</b><p>Una plataforma sin inspecciones al día es una máquina que no puede entrar en obra hasta pasarla, y puede tener defectos de seguridad ocultos.</p></li>
+<li><b>No probar la nivelación de cesta ni los sensores</b><p>Son sistemas de seguridad que no se ven en la foto. Los puenteados son más frecuentes de lo que parece.</p></li>
+<li><b>Olvidar el transporte</b><p>Una articulada diésel de 20 metros va en góndola; una eléctrica de 11 metros cabe en un camión con rampa. Calcula el transporte antes de decidir.</p></li>
+</ol>"""),
+  ],
+  "lm": {"type": "alertas", "cat": "plat", "text": "Ahora ya sabes qué articulada necesitas y qué revisar. Las de la tabla rotan rápido: activa las alertas y te avisamos solo cuando entre una articulada revisada o baje un precio."},
+  "faq": [
+   ("¿Cuánto cuesta una plataforma articulada de segunda mano?", "En nuestro stock actual, desde una articulada eléctrica de 11 metros hasta una diésel de 20 metros la horquilla va de la banda baja a la alta de la tabla de arriba, siempre sin IVA. La altura, la energía y las horas marcan la diferencia."),
+   ("¿Articulada o tijera?", "Tijera para subir en vertical sobre suelo firme, con más cesta y más carga. Articulada cuando hay que salvar obstáculos o acceder lateralmente a fachadas, cerchas o máquinas."),
+   ("¿Articulada eléctrica o diésel?", "Eléctrica para interior con suelo acabado y sin humos (11-12 metros habituales). Diésel 4x4 para obra y exterior (16-20 metros). Bi-energía si haces las dos cosas y quieres una sola máquina."),
+   ("¿Cuántas horas son muchas en una plataforma articulada?", "Menos importante que en una excavadora: la mayoría de horas son de motor en ralentí. Importa más el estado de articulaciones, cilindros, giro y batería, y el registro de revisiones."),
+   ("¿Qué revisiones obligatorias tiene una plataforma elevadora en España?", "Inspección periódica según la norma UNE 58921 (anual en la práctica) además del mantenimiento del fabricante. Pide el registro de la última inspección antes de comprar."),
+  ],
+}
+
 def lm_block(lm):
     text = lm["text"]
     if lm["type"] == "alertas":
