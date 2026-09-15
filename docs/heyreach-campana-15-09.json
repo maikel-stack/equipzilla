@@ -1,0 +1,114 @@
+{
+ "nombre": "Demanda · decisores maquinaria (15/09)",
+ "listId": 939535,
+ "cuenta": 249406,
+ "schedule": {
+  "dailyStartTime": "09:00:00",
+  "dailyEndTime": "18:00:00",
+  "timeZoneId": "Europe/Madrid",
+  "enabledMonday": true,
+  "enabledTuesday": true,
+  "enabledWednesday": true,
+  "enabledThursday": true,
+  "enabledFriday": true,
+  "enabledSaturday": false,
+  "enabledSunday": false
+ },
+ "sequence": {
+  "nodeType": "CHECK_IS_CONNECTION",
+  "actionDelay": 3,
+  "actionDelayUnit": "HOUR",
+  "conditionalNode": {
+   "nodeType": "MESSAGE",
+   "actionDelay": 3,
+   "actionDelayUnit": "HOUR",
+   "payload": {
+    "messages": [
+     "Hola {{firstName}}, gracias por conectar. En Equipzilla vendemos maquinaria de ocasión ya revisada: horas reales certificadas, prueba presencial antes de comprar y opción de garantía. Ahora mismo tenemos, por ejemplo, una Kubota KX016-4 de 2024 con 250 h por 18.900 € + IVA y una Develon DX27Z-7 de 2023 con 650 h por 31.900 € + IVA. ¿Estáis valorando incorporar alguna máquina este año?"
+    ],
+    "fallbackMessage": "Hola, gracias por conectar. En Equipzilla vendemos maquinaria de ocasión ya revisada: horas reales certificadas, prueba presencial antes de comprar y opción de garantía. Ahora mismo tenemos, por ejemplo, una Kubota KX016-4 de 2024 con 250 h por 18.900 € + IVA y una Develon DX27Z-7 de 2023 con 650 h por 31.900 € + IVA. ¿Estáis valorando incorporar alguna máquina este año?"
+   },
+   "conditionalNode": {
+    "nodeType": "END",
+    "actionDelay": 3,
+    "actionDelayUnit": "HOUR"
+   },
+   "unconditionalNode": {
+    "nodeType": "MESSAGE",
+    "actionDelay": 4,
+    "actionDelayUnit": "DAY",
+    "payload": {
+     "messages": [
+      "Hola {{firstName}}, te dejo el stock actualizado por si te viene bien echarle un ojo: equipzilla.com/ocasion. Si me dices tonelaje y presupuesto aproximado, te paso dos o tres opciones concretas con precio cerrado y las horas certificadas de cada una. Un saludo."
+     ],
+     "fallbackMessage": "Hola, te dejo el stock actualizado por si te viene bien echarle un ojo: equipzilla.com/ocasion. Si me dices tonelaje y presupuesto aproximado, te paso dos o tres opciones concretas con precio cerrado y las horas certificadas de cada una. Un saludo."
+    },
+    "conditionalNode": {
+     "nodeType": "END",
+     "actionDelay": 3,
+     "actionDelayUnit": "HOUR"
+    },
+    "unconditionalNode": {
+     "nodeType": "END",
+     "actionDelay": 3,
+     "actionDelayUnit": "HOUR"
+    }
+   }
+  },
+  "unconditionalNode": {
+   "nodeType": "VIEW_PROFILE",
+   "actionDelay": 3,
+   "actionDelayUnit": "HOUR",
+   "unconditionalNode": {
+    "nodeType": "CONNECTION_REQUEST",
+    "actionDelay": 3,
+    "actionDelayUnit": "HOUR",
+    "payload": {
+     "messages": []
+    },
+    "conditionalNode": {
+     "nodeType": "MESSAGE",
+     "actionDelay": 1,
+     "actionDelayUnit": "DAY",
+     "payload": {
+      "messages": [
+       "Hola {{firstName}}, gracias por conectar. En Equipzilla vendemos maquinaria de ocasión ya revisada: horas reales certificadas, prueba presencial antes de comprar y opción de garantía. Ahora mismo tenemos, por ejemplo, una Kubota KX016-4 de 2024 con 250 h por 18.900 € + IVA y una Develon DX27Z-7 de 2023 con 650 h por 31.900 € + IVA. ¿Estáis valorando incorporar alguna máquina este año?"
+      ],
+      "fallbackMessage": "Hola, gracias por conectar. En Equipzilla vendemos maquinaria de ocasión ya revisada: horas reales certificadas, prueba presencial antes de comprar y opción de garantía. Ahora mismo tenemos, por ejemplo, una Kubota KX016-4 de 2024 con 250 h por 18.900 € + IVA y una Develon DX27Z-7 de 2023 con 650 h por 31.900 € + IVA. ¿Estáis valorando incorporar alguna máquina este año?"
+     },
+     "conditionalNode": {
+      "nodeType": "END",
+      "actionDelay": 3,
+      "actionDelayUnit": "HOUR"
+     },
+     "unconditionalNode": {
+      "nodeType": "MESSAGE",
+      "actionDelay": 4,
+      "actionDelayUnit": "DAY",
+      "payload": {
+       "messages": [
+        "Hola {{firstName}}, te dejo el stock actualizado por si te viene bien echarle un ojo: equipzilla.com/ocasion. Si me dices tonelaje y presupuesto aproximado, te paso dos o tres opciones concretas con precio cerrado y las horas certificadas de cada una. Un saludo."
+       ],
+       "fallbackMessage": "Hola, te dejo el stock actualizado por si te viene bien echarle un ojo: equipzilla.com/ocasion. Si me dices tonelaje y presupuesto aproximado, te paso dos o tres opciones concretas con precio cerrado y las horas certificadas de cada una. Un saludo."
+      },
+      "conditionalNode": {
+       "nodeType": "END",
+       "actionDelay": 3,
+       "actionDelayUnit": "HOUR"
+      },
+      "unconditionalNode": {
+       "nodeType": "END",
+       "actionDelay": 3,
+       "actionDelayUnit": "HOUR"
+      }
+     }
+    },
+    "unconditionalNode": {
+     "nodeType": "END",
+     "actionDelay": 3,
+     "actionDelayUnit": "HOUR"
+    }
+   }
+  }
+ }
+}
