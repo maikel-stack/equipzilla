@@ -84,6 +84,12 @@ EXCLUIR = re.compile(
     # Competidores: alquiladores de maquinaria. Les mandábamos nuestros precios.
     r"alquiler de maquinaria|alquiler de plataformas|alquiler de carretillas|"
     r"maquinaria de alquiler|\brent\b|rental|kiloutou|loxam|\bgam\b|mateco|"
+    # 15/09: la tanda 2 los coló por la categoría de Google Maps, no por el
+    # nombre. Un alquilador es oferta, no demanda (Maikel 14/09).
+    r"alquiler de equipos|alquiler de gr[uú]as|agencia de alquiler|"
+    # Vendedores de máquina: concesionarios y distribuidores. Ofrecerles
+    # nuestro stock es venderle a la competencia (tanda 2, 15/09).
+    r"proveedor de maquinaria|concesionario|maquinaria agr[ií]cola|"
     # eléctricas y grandes corporaciones: su buzón genérico contesta con tickets
     r"central t[eé]rmica|endesa|iberdrola|naturgy|repsol|telef[oó]nica", re.I)
 
@@ -91,7 +97,14 @@ EXCLUIR = re.compile(
 EMAIL_MALO = re.compile(
     r"@(example|sentry|wixpress|godaddy|domain|squarespace|gmail\.com\.|"
     r"cloudflare|jimdo|wordpress)|noreply|no-reply|privacy|rgpd|dpo@|"
-    r"\.png$|\.jpg$|\.webp$|\.gif$", re.I)
+    r"\.png$|\.jpg$|\.webp$|\.gif$|"
+    # 15/09: correos de relleno de las plantillas web (tu@email.com,
+    # su@email.com, nombre@tudominio.com). Se colaron 3 en la tanda 2.
+    r"@(email|tudominio|tuempresa|dominio|midominio|miempresa|correo)\.|"
+    r"^(tu|su|usuario|ejemplo|nombre|email)@|"
+    # Buzones que no llegan a una persona de compras: contestan con ticket
+    # (visto con Endesa el 08/09) o son de protección de datos.
+    r"^(atencion|atencional|oficinadeprivacidad|protecciondedatos|lopd)", re.I)
 
 
 def apify(ruta, metodo="GET", cuerpo=None, espera=60):

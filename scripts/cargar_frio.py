@@ -118,11 +118,15 @@ def cargar(ruta_csv):
 def ritmo(leads_dia, por_buzon):
     # El tope de leads nuevos por día vive en el endpoint de /schedule
     # (max_new_leads_per_day); /settings rechaza la clave con un 400.
+    # El intervalo entre envíos se conserva tal cual está en la campaña: antes
+    # se reescribía a 25 min, así que ajustar el ritmo bajaba la capacidad de
+    # cada buzón sin querer (15/09).
+    actual = sl(f"/campaigns/{CAMPANA}")
     r = sl(f"/campaigns/{CAMPANA}/schedule", "POST", {
         "timezone": "Europe/Madrid",
         "days_of_the_week": [1, 2, 3, 4, 5],
         "start_hour": "08:30", "end_hour": "17:30",
-        "min_time_btw_emails": 25,
+        "min_time_btw_emails": actual.get("min_time_btwn_emails") or 25,
         "max_new_leads_per_day": int(leads_dia),
     })
     print(f"leads nuevos/día -> {leads_dia}: {'OK' if '_error' not in r else r}")

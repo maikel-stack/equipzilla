@@ -1,4 +1,19 @@
-# Tanda 2 de frío · secuencias por sector (borrador 15/09/2026, pendiente de revisión del Director)
+# Tanda 2 de frío · campañas por categoría de máquina
+
+**Estado: LANZADA el 15/09/2026 con OK de Maikel.** Dos campañas activas en Smartlead:
+
+| campaña | id | leads | secuencia |
+|---|---|---|---|
+| Compraventa Frio - Obra (minis y excavadoras) - 2026-09 | 3962539 | 85 | la A de abajo |
+| Compraventa Frio - Logistica (carretillas) - 2026-09 | 3962541 | 110 | la B de abajo |
+
+La tercera (transportes y grúas, plataformas y telescópicos) **no se lanzó**: la lista que salió
+de Google Maps para ese sector son servicios de grúa de vehículos y asistencia en carretera, que
+no compran plataforma. El texto C queda redactado para cuando haya una lista buena
+(mantenimiento industrial, facility management, montajes). Mientras tanto las plataformas y los
+telescópicos van en el paso 2 de las otras dos campañas.
+
+Los textos que se enviaron llevan además la firma de David al final de cada paso.
 
 Regla de Maikel (14/09): **solo demanda**. Vendemos máquina concreta con precio cerrado a quien la compra. Nunca «compramos tu máquina».
 
