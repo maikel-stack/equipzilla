@@ -5,6 +5,7 @@ Uso:
     python3 scripts/cargar_frio.py estado           # qué hay ahora
     python3 scripts/cargar_frio.py cargar [csv]     # sube leads nuevos
     python3 scripts/cargar_frio.py ritmo 40 25      # leads/día y tope por buzón
+    python3 scripts/cargar_frio.py reparto 50       # % de la capacidad diaria para seguimientos
     python3 scripts/cargar_frio.py arrancar         # reanuda la campaña
 
 Sobre el ritmo: el playbook fija el techo en 30–40 correos/día por buzón.
@@ -60,7 +61,8 @@ def estado():
           f"· {st.get('completed', 0)} terminados · {st.get('blocked', 0)} bloqueados")
     print(f"enviados: {a.get('sent_count', 0)} · respuestas {a.get('reply_count', 0)} "
           f"· clics {a.get('click_count', 0)} · rebotes {a.get('bounce_count', 0)}")
-    print(f"ritmo   : {c.get('max_leads_per_day')} leads nuevos/día")
+    print(f"ritmo   : {c.get('max_leads_per_day')} leads nuevos/día · "
+          f"{c.get('follow_up_percentage')} % de la capacidad para seguimientos")
     cuentas = sl(f"/campaigns/{CAMPANA}/email-accounts")
     if isinstance(cuentas, list):
         tope = sum(x.get("message_per_day") or 0 for x in cuentas)
@@ -136,6 +138,28 @@ def ritmo(leads_dia, por_buzon):
     print(f"\ncapacidad total: {len(cuentas) * int(por_buzon)} correos/día")
 
 
+def reparto(pct):
+    """% de la capacidad diaria reservado a seguimientos (follow_up_percentage).
+
+    Al 100 % los seguimientos pendientes consumen todo el tope de los buzones y
+    los leads nuevos no arrancan (15/09: 547 leads sin empezar con la campaña
+    activa y 220 seguimientos enviados el día anterior). Al 50 % la mitad del
+    cupo queda para el paso 1. No cambia el volumen total, solo el reparto.
+    """
+    c = sl(f"/campaigns/{CAMPANA}")
+    r = sl(f"/campaigns/{CAMPANA}/settings", "POST", {
+        "track_settings": c.get("track_settings") or ["DONT_EMAIL_OPEN"],
+        "stop_lead_settings": c.get("stop_lead_settings") or "REPLY_TO_AN_EMAIL",
+        "unsubscribe_text": c.get("unsubscribe_text") or "",
+        "send_as_plain_text": bool(c.get("send_as_plain_text")),
+        "follow_up_percentage": int(pct),
+        "enable_ai_esp_matching": bool(c.get("enable_ai_esp_matching")),
+    })
+    print(f"seguimientos {c.get('follow_up_percentage')} % -> {pct} %: "
+          f"{'OK' if '_error' not in r else r}")
+    print("ahora:", sl(f"/campaigns/{CAMPANA}").get("follow_up_percentage"), "%")
+
+
 def arrancar():
     r = sl(f"/campaigns/{CAMPANA}/status", "POST", {"status": "START"})
     print("arrancar:", "OK" if "_error" not in r else r)
@@ -148,6 +172,8 @@ if __name__ == "__main__":
         cargar(sys.argv[2] if len(sys.argv) > 2 else CSV_POR_DEFECTO)
     elif orden == "ritmo":
         ritmo(sys.argv[2], sys.argv[3])
+    elif orden == "reparto":
+        reparto(sys.argv[2] if len(sys.argv) > 2 else 50)
     elif orden == "arrancar":
         arrancar()
     else:
