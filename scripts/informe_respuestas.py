@@ -123,6 +123,7 @@ def texto_respuesta(email):
         crudo = re.sub(r"\s+", " ", crudo).strip()
         # cortar el mensaje original citado
         crudo = re.split(r"(El\s+El\s|El\s+\w{3},?\s+\d|On\s.{3,40}wrote:|"
+                         r"El\s+\d{1,2}\s+de\s+\w+\s+del?\s+\d{4}|ha escrit:|"
                          r"De:\s|From:\s|-{4,}\s*Original)", crudo)[0]
         return crudo.strip()[:300]
     except Exception:
@@ -167,6 +168,8 @@ RECHAZO = re.compile(r"\bno usamos\b|no (?:nos|me) interesa|no estamos interesad
                      r"solo (?:estamos )?mirando|nos quedamos con (?:tu|su|vuestro) contacto|"
                      r"no tenemos intenci[oó]n|estamos servidos|"
                      r"traslado (?:vuestro|su|tu) contacto|si (?:existiese|hubiera|hubiese) (?:alguna )?necesidad|"
+                     # catalán y «lo subcontratamos» (15/09)
+                     r"subcontractem|subcontratamos|gr[àa]cies per[òo]|no ens interessa|"
                      r"no compramos|somos una asociaci[oó]n|memoria hist[oó]rica|"
                      r"no (?:tenemos|hay) necesidad|"
                      # "no es lo mío": no encaja el perfil, no el momento.

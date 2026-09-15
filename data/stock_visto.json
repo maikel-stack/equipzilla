@@ -58,6 +58,7 @@
   "a1n1l18q (la de 8,2k) unicarriers|2015|8200",
   "b418 cesab|2016|7800",
   "bobcat s70|2023|23500",
+  "cesab b318lii|2023|16250",
   "clark epx25|2011|7000",
   "compact 10 haulotte|2011|5500",
   "compact 12 (x6) haulotte|2012|6100",
@@ -83,6 +84,9 @@
   "ha20px haulotte|2006|13500",
   "ha20px haulotte|2012|20700",
   "ha260px haulotte|2008|25500",
+  "haulotte compact 12|2013|6200",
+  "haulotte compact 8|2012|3500",
+  "haulotte compact-10n|2016|4750",
   "haulotte compact-14|2018|10500",
   "haulotte ha20px (2.841 h)|2012|18500",
   "haulotte ha20px|2010|17500",
@@ -90,6 +94,7 @@
   "haulotte||",
   "iveco multitel 160 aluds|2011|27000",
   "jcb 85z-1|2016|38200",
+  "jlg 1930es|2007|2750",
   "jlg 1930es|2008|3000",
   "jlg 4014ps|2014|30950",
   "jlg 450aj|2013|19500",
@@ -100,6 +105,8 @@
   "kubota kx 042-4n kgls2|2024|55500",
   "kubota u 17-3n vhg at|2023|18500",
   "kubota u 36-4 gl|2023|32500",
+  "lgmg a14je|2022|29800",
+  "lgmg sr1623d|2021|43500",
   "manitou 170aetjl-bi|2016|17100",
   "manitou 170aetjl|2015|20500",
   "manitou||",
@@ -110,7 +117,10 @@
   "rre160mc 8,5m toyota|2015|6400",
   "rre160mc 8,5m toyota|2017|6400",
   "s-65 genie|2005|15500",
+  "socage iveco 35s14 forste 20d speed neutra|2024|68000",
   "socage iveco||",
+  "sunward swe80b|2018|27000",
+  "toyota rre140m|2015|6200",
   "wacker neuson 1601|2021|18500",
   "z-34/22 ic genie|2007|10500",
   "z-34/22n genie|2006|7000",
@@ -118,5 +128,5 @@
   "z-80/60 genie|2016|49500",
   "z45/25 j genie|2012|18600"
  ],
- "actualizado": "2026-09-15T06:11:44.711144"
+ "actualizado": "2026-09-15T13:03:19.877648"
 }
