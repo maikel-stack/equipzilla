@@ -44,6 +44,10 @@ DESTINATARIOS = ["david@equipzilla.com", "maikel@equipzilla.com",
 VENTANA_H = int(os.environ.get("VENTANA_H", "24"))
 PRUEBA = os.environ.get("PRUEBA") == "1"
 CAMPANA_FRIO = 3789100
+# Campañas de frío activas que también hay que vigilar. Desde el 16/09 hay
+# varias en paralelo (obra, logística, plataformas): si solo se mira la de
+# Madrid, una respuesta de las nuevas no le llega nunca a David.
+CAMPANAS_FRIO = [3789100, 3962539, 3962541]
 PIPELINE, ETAPA = 6, 45
 
 NAVEGADOR = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -110,10 +114,17 @@ def texto_respuesta(email):
         lid = lead.get("id")
         if not lid:
             return ""
-        h = smartlead(f"/campaigns/{CAMPANA_FRIO}/leads/{lid}/message-history")
-        respuestas = [m for m in (h.get("history") or []) if m.get("type") == "REPLY"]
+        respuestas = []
+        for camp in CAMPANAS_FRIO:
+            try:
+                h = smartlead(f"/campaigns/{camp}/leads/{lid}/message-history")
+            except Exception:
+                continue
+            respuestas += [m for m in (h.get("history") or [])
+                           if m.get("type") == "REPLY"]
         if not respuestas:
             return ""
+        respuestas.sort(key=lambda m: m.get("time") or "")
         cuerpo = respuestas[-1].get("email_body") or ""
         # Outlook mete <style>, <xml> y comentarios VML antes del texto: si no
         # se quitan, el "texto" es CSS y la clasificación falla (15/09: una
@@ -170,6 +181,10 @@ RECHAZO = re.compile(r"\bno usamos\b|no (?:nos|me) interesa|no estamos interesad
                      r"solo (?:estamos )?mirando|nos quedamos con (?:tu|su|vuestro) contacto|"
                      r"no tenemos intenci[oó]n|estamos servidos|"
                      r"traslado (?:vuestro|su|tu) contacto|si (?:existiese|hubiera|hubiese) (?:alguna )?necesidad|"
+                     # buzones de atención al cliente que contestan con su
+                     # guion de soporte (InPost, 16/09): no son leads
+                     r"n[uú]mero de seguimiento|estado de su env[ií]o|"
+                     r"customer (?:care|support)|marca/remitente|"
                      # catalán y «lo subcontratamos» (15/09)
                      r"subcontractem|subcontratamos|gr[àa]cies per[òo]|no ens interessa|"
                      r"no compramos|somos una asociaci[oó]n|memoria hist[oó]rica|"
@@ -261,15 +276,21 @@ def escaner(f):
 
 def senales_frio():
     """Respuestas y clics del frío en la ventana."""
-    filas, offset = [], 0
-    while True:
-        st = smartlead(f"/campaigns/{CAMPANA_FRIO}/statistics"
-                       f"?offset={offset}&limit=1000")
-        lote = st.get("data", []) if isinstance(st, dict) else []
-        filas.extend(lote)
-        if len(lote) < 1000:
-            break
-        offset += 1000
+    filas = []
+    for camp in CAMPANAS_FRIO:
+        offset = 0
+        while True:
+            try:
+                st = smartlead(f"/campaigns/{camp}/statistics"
+                               f"?offset={offset}&limit=1000")
+            except Exception as err:
+                print(f"  aviso: campaña {camp} no responde ({err})")
+                break
+            lote = st.get("data", []) if isinstance(st, dict) else []
+            filas.extend(lote)
+            if len(lote) < 1000:
+                break
+            offset += 1000
     corte = desde()
     salida = {}
     for f in filas:
