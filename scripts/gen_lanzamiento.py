@@ -117,9 +117,10 @@ GRUPOS = {
     ]),
   "salida1609": dict(
     # Fichas del Sheet «Stock Outreach PANEL» de David, fecha de salida 16/09.
-    # Sin fotos: el pack que pasó Maikel el 16/09 corresponde al lote del 23/09
-    # (Toyota RRE140M, LGMG SR1623D, JLG 600AJ, LGMG A14JE, JLG 1930ES y
-    # Clark EPX25), no a estas seis. Horas vacías en el Sheet → no se publican.
+    # Fotos del pack de David (Equipzilla_semana_16), limpias de referencias de
+    # proveedor y fijadas al commit en que se subieron. La del Compact 12 es otra
+    # toma de la misma unidad: la del pack lleva un cartel de proveedor al fondo.
+    # Horas vacías en el Sheet → no se publican.
     asunto="Tijera eléctrica de 8 m por 3.500 € · y cinco unidades más",
     titular="Tres tijeras eléctricas desde 3.500 € — y tres unidades más",
     entrada="Seis unidades recién entradas: <strong>tres tijeras eléctricas</strong> de 8, "
@@ -130,27 +131,27 @@ GRUPOS = {
     cierre=" <strong>Pregunta por nuestra opci&oacute;n de mantenimiento y garant&iacute;a.</strong>",
     asunto_f2="Las tijeras eléctricas siguen disponibles — ¿te cuento más?",
     maquinas=[
-      dict(etq="Tijera eléctrica 8 m", titulo="Haulotte Compact 8", precio="3.500 €",
+      dict(etq="Tijera eléctrica 8 m", titulo="Haulotte Compact 8", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@41861a26545bfee0e6e2e6f85bf86f8b70a95545/email_assets/machines/PL-COMPACT8-2012.jpg", precio="3.500 €",
            datos=[("Año", "2012"), ("Horas", "909"), ("Altura de trabajo", "8 m"), ("Energía", "Eléctrica")],
            texto="La tijera de interior más barata del lote. Mantenimiento, "
                  "instalaciones y almacén, con 909 horas de uso real."),
-      dict(etq="Tijera eléctrica 10 m", titulo="Haulotte Compact-10N", precio="4.750 €",
+      dict(etq="Tijera eléctrica 10 m", titulo="Haulotte Compact-10N", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@41861a26545bfee0e6e2e6f85bf86f8b70a95545/email_assets/machines/PL-COMPACT10N-2016.jpg", precio="4.750 €",
            datos=[("Año", "2016"), ("Horas", "410"), ("Altura de trabajo", "10 m"), ("Energía", "Eléctrica")],
            texto="Diez metros con solo 410 horas: cuatro años más nueva que la de 8 metros "
                  "y prácticamente sin uso, por 1.250 € más."),
-      dict(etq="Tijera eléctrica 12 m", titulo="Haulotte Compact 12", precio="6.200 €",
+      dict(etq="Tijera eléctrica 12 m", titulo="Haulotte Compact 12", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@41861a26545bfee0e6e2e6f85bf86f8b70a95545/email_assets/machines/PL-COMPACT12-2013.jpg", precio="6.200 €",
            datos=[("Año", "2013"), ("Horas", "964"), ("Altura de trabajo", "12 m"), ("Energía", "Eléctrica")],
            texto="Doce metros eléctricos para nave alta y montaje industrial. "
                  "La misma familia Compact, con el alcance que piden las estructuras."),
-      dict(etq="Carretilla eléctrica 1,8 t", titulo="Cesab B318LII", precio="16.250 €",
+      dict(etq="Carretilla eléctrica 1,8 t", titulo="Cesab B318LII", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@41861a26545bfee0e6e2e6f85bf86f8b70a95545/email_assets/machines/CR-B318LII-2023.jpg", precio="16.250 €",
            datos=[("Año", "2023"), ("Horas", "1.962"), ("Capacidad", "1.800 kg"), ("Energía", "Eléctrica · triciclo")],
            texto="Del 2023 y triciclo: gira donde no gira una contrapesada de cuatro "
                  "ruedas. Para pasillo estrecho, muelle y nave sin humos."),
-      dict(etq="Miniexcavadora 8 t", titulo="Sunward SWE80B", precio="27.000 €",
+      dict(etq="Miniexcavadora 8 t", titulo="Sunward SWE80B", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@41861a26545bfee0e6e2e6f85bf86f8b70a95545/email_assets/machines/MT-SWE80B-2018.jpg", precio="27.000 €",
            datos=[("Año", "2018"), ("Horas", "2.012"), ("Peso", "8.000 kg")],
            texto="Ocho toneladas con 2.012 horas: el tamaño que más se pide para "
                  "zanja, urbanización y movimiento de tierras de obra media."),
-      dict(etq="Camión plataforma 20 m", titulo="Socage Iveco 35S14 Forste 20D", precio="68.000 €",
+      dict(etq="Camión plataforma 20 m", titulo="Socage Iveco 35S14 Forste 20D", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@41861a26545bfee0e6e2e6f85bf86f8b70a95545/email_assets/machines/CC-SOCAGE20D-2024.jpg", precio="68.000 €",
            datos=[("Año", "2024"), ("Altura de trabajo", "20 m"), ("Sobre", "camión diésel · carné C")],
            texto="Del 2024, prácticamente nueva. Llegas, estabilizas y trabajas a "
                  "20 metros: sin góndola ni transporte especial entre obras."),
@@ -169,8 +170,11 @@ def ficha(p, primera=False):
     foto = ""
     if p.get("foto"):
         fw = p.get("foto_w", 534)
+        # Una foto puede venir con su propia URL: cada campaña fija el commit
+        # con el que se subieron sus fotos y así las ya enviadas no cambian.
+        src = p["foto"] if p["foto"].startswith("http") else CDN_FOTOS + p["foto"]
         foto = (f'<tr><td align="center" style="padding:0; background:#EDF1F4; line-height:0; font-size:0;">'
-                f'<img class="pimg" src="{CDN_FOTOS}{p["foto"]}" alt="{htmllib.escape(p["titulo"])}" '
+                f'<img class="pimg" src="{src}" alt="{htmllib.escape(p["titulo"])}" '
                 f'width="{fw}" style="width:100%; max-width:{fw}px; height:auto; display:block; margin:0 auto;"></td></tr>')
     return f'''
       <td class="px" style="padding:{'22px' if primera else '14px'} 32px 6px; background:#FBFCFD;">
