@@ -9,8 +9,8 @@ Guardada en `~/.outbound/heyreach_key` con permisos 600, nunca en el repo.
 |---|---|
 | API de HeyReach | conectada y verificada |
 | Cuenta de LinkedIn de Andrés (id 249406) | **INACTIVA**, con sesión válida y Sales Navigator |
-| Lista «Demanda · decisores maquinaria» (939535) | **20 perfiles cargados** |
-| Campaña | solo existe `__probe__` en borrador, apuntando a la lista equivocada |
+| Lista «Demanda · decisores maquinaria» (939535) | **40 perfiles cargados** de 35 empresas |
+| Campaña | ninguna lista para enviar; hay 5 borradores vacíos que limpiar |
 | Invitaciones y mensajes enviados en toda la historia | 0 |
 
 ### El único bloqueo que queda
@@ -20,14 +20,23 @@ LinkedIn es válida y tiene Sales Navigator. Es un interruptor. He probado a act
 API (`Activate`, `SetActive`, `Update`) y esos endpoints no existen en la API pública, así
 que hay que hacerlo desde la interfaz de HeyReach. Sin eso no sale ni una invitación.
 
-### Y lo segundo, que también es de interfaz
+### Y lo segundo: la secuencia hay que escribirla en la interfaz
 
-Las campañas y sus secuencias **no se pueden crear por API**, solo desde la interfaz. Lo que
-hay que hacer allí, con los textos de más abajo:
-1. Activar la cuenta de Andrés.
-2. Crear la campaña apuntando a la lista **939535** (no a la 935047, que es de pruebas y
-   tiene al propio Andrés dentro; la API pública no permite borrar leads de una lista).
-3. Pegar los 3 pasos del sector que toque y poner el límite en 20 invitaciones al día.
+Corrijo lo que decía la ficha: **las campañas SÍ se crean por API** (`/campaign/Create`, con
+`name`, `LinkedInAccountIds` y `linkedInUserListId`). Lo que no se puede por API es
+**escribir los mensajes**: el endpoint `/campaign/UpdateSequence` existe pero su formato no
+está documentado y devuelve error 500 con todas las variantes razonables. No voy a seguir
+adivinando el esquema: una secuencia mal formada saldría hacia personas reales desde la
+cuenta de Andrés.
+
+Lo que hay que hacer en la interfaz, con los textos de más abajo:
+1. Comprobar que la cuenta de Andrés queda activa (la API la sigue dando como inactiva).
+2. Crear la campaña sobre la lista **939535**, que ya tiene los 40 perfiles.
+3. Pegar los 3 pasos del sector y poner el límite en 20 invitaciones al día.
+4. **Limpiar 5 campañas en borrador y vacías**: `__probe__` (602761) y cuatro `__schema__`
+   (605027, 605028, 605029, 605030) que dejé al descubrir el esquema de creación. La API
+   pública no permite borrarlas. Ninguna ha enviado nada.
+5. La lista **935047** es de pruebas y tiene al propio Andrés dentro como lead. No usarla.
 
 ## Lo que ya está hecho y esperando
 
@@ -66,17 +75,22 @@ cargos y sectores de abajo, Apollo devuelve 12.512 personas en España.
 - **Zona**: España.
 
 **Resuelto el 16/09**: la URL del perfil sí se saca de Apollo, con el enriquecimiento por
-lotes de diez. Cuesta **1 crédito por persona**. Gastados 20 de los 3.960 disponibles para
-cargar los 20 primeros perfiles. A ese precio, llenar la lista para un trimestre entero
+lotes de diez. Cuesta **1 crédito por persona**. Gastados 40 de los 3.960 disponibles. A ese precio, llenar la lista para un trimestre entero
 cuesta menos del 10 % del saldo. Alternativa sin coste: montar la búsqueda en Sales
 Navigator con los criterios de arriba e importarla desde HeyReach.
 
-### Los 20 perfiles ya cargados (lista 939535)
+### Los 40 perfiles ya cargados (lista 939535)
 
-Responsables de maquinaria, de compras y jefes de obra de AGUADO, GRUPOPARRA, ASCH
-Infraestructuras, Lezama Demoliciones, Construplan, dMol Demoliciones, Taboada y Ramos,
-Calaf Trenching y Group IGE, más los de solar y eólica: Grupo Solaer, Diverxia, POWEN,
-Vico Export, Heliosolar, Solartia, EFV Solar, Enerland, Iver Spain y Nomad Solar.
+Responsables de maquinaria, de compras, jefes de obra y directores de operaciones de 35
+empresas:
+
+- **Obra y demolición**: AGUADO, GRUPOPARRA, ASCH Infraestructuras, Lezama Demoliciones,
+  Construplan, dMol Demoliciones, Taboada y Ramos, Calaf Trenching, Group IGE, Grupo MR,
+  DYD Industrial, Syneox Rail.
+- **Solar y eólica**: Grupo Solaer, Diverxia, POWEN, Vico Export, Heliosolar, EFV Solar,
+  Enerland, Iver Spain, Solar World Stain, IMENERGY, Plenitude España.
+- **Logística e industria**: Bergé y Compañía, Pantany Logistics, Eurocontainer, Ecrimesa,
+  STRUGAL, Grupo Novelec, COTO, Naeco, Hoyamar, Canalink, Grupo Arrate.
 
 ## Secuencia de 3 pasos · solo demanda
 
