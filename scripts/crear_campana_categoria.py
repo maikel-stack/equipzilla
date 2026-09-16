@@ -48,7 +48,7 @@ CAMPANAS = {
                 "<p>Tengo ahora mismo dos miniexcavadoras revisadas que suelen encajar con empresas como {{company_name}}:</p>"
                 "<p>&bull; Kubota KX 030-4 GL &middot; 3 t &middot; 2023 &middot; 700 h &middot; 35.900 € + IVA<br>"
                 "&bull; Doosan DX 35 Z-7 &middot; 3,5 t &middot; 2023 &middot; 40 h &middot; 45.500 € + IVA</p>"
-                "<p>Las dos con inspección y prueba presencial, horas certificadas y opción de garantía de 12 meses. "
+                "<p>Las dos con inspección y prueba presencial, horas certificadas y opción de garantía. "
                 "Frente a nueva, entre un 30 y un 40 % menos.</p>"
                 "<p>Si buscáis otro tamaño, tenemos de 0,8 a 23 t. Decidme cuál os encaja y os digo qué hay.</p>"
                 "<p>¿Os encaja alguna?</p>")),
@@ -61,7 +61,7 @@ CAMPANAS = {
                 "minicargadora Bobcat S70 (2023 &middot; 350 h &middot; 23.500 € + IVA), telescópico Merlo P 27.6 Plus "
                 "(2023 &middot; 1.000 h &middot; 58.500 € + IVA) y plataforma articulada JLG 450AJ de 16 m "
                 "(2013 &middot; 19.500 € + IVA).</p>"
-                "<p>Fotos e informe de cada una en equipzilla.com/compra. Financiación de 12 a 60 meses y garantía.</p>"
+                "<p>Fotos e informe de cada una en equipzilla.com/compra. Opción de garantía y financiación.</p>"
                 "<p>¿Os preparo una selección con lo que os encaje?</p>")),
             dict(dias=4, asunto="", cuerpo=(
                 "<p>Hola, no quiero saturaros, así que cierro el hilo por ahora.</p>"
@@ -81,7 +81,7 @@ CAMPANAS = {
                 "<p>&bull; Clark EPX25 &middot; 2,5 t &middot; eléctrica &middot; 2011 &middot; 801 h &middot; 7.000 € + IVA<br>"
                 "&bull; Yale ERP16VT &middot; 1,6 t &middot; eléctrica &middot; 2018 &middot; 6.938 h &middot; 7.800 € + IVA</p>"
                 "<p>Con inspección y prueba presencial, horas certificadas y opción de garantía. "
-                "Frente a nueva, más de la mitad de ahorro.</p>"
+                "Frente a nueva, entre un 30 y un 40 % menos.</p>"
                 "<p>Si necesitáis retráctil, GLP o diésel, también tengo. ¿Os encaja alguna?</p>")),
             dict(dias=4, asunto="", cuerpo=(
                 "<p>Hola, os amplío por si buscabais otro tipo:</p>"
