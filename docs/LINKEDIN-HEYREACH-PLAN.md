@@ -1,19 +1,33 @@
 # LinkedIn (HeyReach) · estado y todo lo que está listo para arrancar
 
-**Estado a 16/09/2026, 19:00: NO HAY NADA EN MARCHA.** Cero invitaciones, cero mensajes,
-cero respuestas. No es que vaya lento: no ha empezado.
+**Estado a 16/09/2026, 20:15: clave conectada y lista cargada. Queda un interruptor.**
 
-## Los dos bloqueos, y ninguno lo puedo resolver yo
+Maikel pasó la clave el 16/09 (la segunda de las dos que mandó; la primera daba 401).
+Guardada en `~/.outbound/heyreach_key` con permisos 600, nunca en el repo.
 
-1. **No hay clave de HeyReach en el entorno.** `bootstrap_credenciales.py` la lista como
-   ausente junto a `notion_token`. Sin ella no puedo leer la bandeja, ni cargar listas, ni
-   ver estadísticas, ni meter leads en campañas. Se añade como `HEYREACH_KEY` en el entorno
-   «Equipzilla» de claude.ai/code, igual que las demás.
-2. **La cuenta de LinkedIn de Andrés no está conectada** (id 249406 según la ficha; el
-   Director la daba por inactiva el 14/09). Aunque llegue la clave, sin cuenta conectada
-   HeyReach no envía nada.
+| | |
+|---|---|
+| API de HeyReach | conectada y verificada |
+| Cuenta de LinkedIn de Andrés (id 249406) | **INACTIVA**, con sesión válida y Sales Navigator |
+| Lista «Demanda · decisores maquinaria» (939535) | **20 perfiles cargados** |
+| Campaña | solo existe `__probe__` en borrador, apuntando a la lista equivocada |
+| Invitaciones y mensajes enviados en toda la historia | 0 |
 
-Con esas dos cosas, el mismo día se cargan las listas y se arranca.
+### El único bloqueo que queda
+
+**La cuenta de Andrés está en inactiva dentro de HeyReach.** No es un fallo: su sesión de
+LinkedIn es válida y tiene Sales Navigator. Es un interruptor. He probado a activarla por
+API (`Activate`, `SetActive`, `Update`) y esos endpoints no existen en la API pública, así
+que hay que hacerlo desde la interfaz de HeyReach. Sin eso no sale ni una invitación.
+
+### Y lo segundo, que también es de interfaz
+
+Las campañas y sus secuencias **no se pueden crear por API**, solo desde la interfaz. Lo que
+hay que hacer allí, con los textos de más abajo:
+1. Activar la cuenta de Andrés.
+2. Crear la campaña apuntando a la lista **939535** (no a la 935047, que es de pruebas y
+   tiene al propio Andrés dentro; la API pública no permite borrar leads de una lista).
+3. Pegar los 3 pasos del sector que toque y poner el límite en 20 invitaciones al día.
 
 ## Lo que ya está hecho y esperando
 
@@ -51,10 +65,18 @@ cargos y sectores de abajo, Apollo devuelve 12.512 personas en España.
   está centralizada y tarda.
 - **Zona**: España.
 
-> **Ojo con el atajo**: Apollo devuelve los apellidos ocultos y **no da la URL del perfil**,
-> que es lo que HeyReach necesita para cargar leads. Sacarla por Apollo cuesta créditos y va
-> de diez en diez. Es más rápido y más barato montar la búsqueda en Sales Navigator con los
-> criterios de arriba e importarla desde HeyReach.
+**Resuelto el 16/09**: la URL del perfil sí se saca de Apollo, con el enriquecimiento por
+lotes de diez. Cuesta **1 crédito por persona**. Gastados 20 de los 3.960 disponibles para
+cargar los 20 primeros perfiles. A ese precio, llenar la lista para un trimestre entero
+cuesta menos del 10 % del saldo. Alternativa sin coste: montar la búsqueda en Sales
+Navigator con los criterios de arriba e importarla desde HeyReach.
+
+### Los 20 perfiles ya cargados (lista 939535)
+
+Responsables de maquinaria, de compras y jefes de obra de AGUADO, GRUPOPARRA, ASCH
+Infraestructuras, Lezama Demoliciones, Construplan, dMol Demoliciones, Taboada y Ramos,
+Calaf Trenching y Group IGE, más los de solar y eólica: Grupo Solaer, Diverxia, POWEN,
+Vico Export, Heliosolar, Solartia, EFV Solar, Enerland, Iver Spain y Nomad Solar.
 
 ## Secuencia de 3 pasos · solo demanda
 
