@@ -84,12 +84,37 @@ def norm(s):
     return "".join(c for c in s if unicodedata.category(c) != "Mn").lower()
 
 
-def bajar(url, timeout=10):
+def bajar(url, timeout=12):
+    """Descarga una página. Muchas webs de obra están mal configuradas: solo
+    responden con www, tardan más de diez segundos o devuelven 403 al primer
+    intento aunque la página exista. Todo eso se trata aquí, no fuera."""
     req = urllib.request.Request(url, headers={
-        "user-agent": NAVEGADOR, "accept": "text/html,application/xhtml+xml",
-        "accept-language": "es-ES,es;q=0.9"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read(400_000).decode("utf-8", "replace")
+        "user-agent": NAVEGADOR,
+        "accept": "text/html,application/xhtml+xml,*/*;q=0.8",
+        "accept-language": "es-ES,es;q=0.9",
+        "accept-encoding": "gzip, deflate",
+        "connection": "close"})
+    try:
+        r = urllib.request.urlopen(req, timeout=timeout)
+        crudo, cab = r.read(400_000), r.headers
+        r.close()
+    except urllib.error.HTTPError as e:
+        # Un 403 o un 406 suelen traer la página igual; solo un 404 o un 5xx
+        # significan de verdad que ahí no hay nada que leer.
+        crudo = e.read(400_000) if e.code in (401, 403, 406, 429) else b""
+        cab = e.headers
+        if not crudo:
+            raise
+    if (cab.get("Content-Encoding") or "").lower() in ("gzip", "deflate"):
+        import gzip, zlib
+        try:
+            crudo = gzip.decompress(crudo)
+        except Exception:
+            try:
+                crudo = zlib.decompress(crudo, -zlib.MAX_WBITS)
+            except Exception:
+                pass
+    return crudo.decode("utf-8", "replace")
 
 
 def texto_de(html):
@@ -118,19 +143,33 @@ def sector_de(texto):
 
 def perfilar(c):
     dom = c["dominio"]
-    out = dict(dominio=dom, web_ok=False, sector="", actividad="", titulo="", provincia="", cp="",
+    out = dict(dominio=dom, web_ok=False, url="", sector="", actividad="", titulo="", provincia="", cp="",
                cif="", tel="", empleados="", flota="", desde="", paginas=0, error="")
-    for esquema in ("https://", "http://"):
-        base = esquema + dom
+    bases = ["https://" + dom, "https://www." + dom, "http://" + dom, "http://www." + dom]
+    if dom.startswith("www."):
+        bases = ["https://" + dom, "http://" + dom]
+    for base in bases:
         html_total, vistas = "", 0
         for ruta in RUTAS:
             if vistas >= 3 or (vistas >= 1 and out["sector"] and out["cp"] and out["cif"]):
                 break
             try:
                 html = bajar(base + ruta)
+            except urllib.error.HTTPError as e:
+                if ruta == "":
+                    out["error"] = "HTTP %s" % e.code
+                continue
             except Exception as e:
-                if ruta == "" and esquema == "http://":
-                    out["error"] = type(e).__name__
+                if ruta == "":
+                    m = str(e)
+                    if "Name or service not known" in m or "nodename nor servname" in m:
+                        out["error"] = "el dominio ya no existe"
+                    elif "timed out" in m.lower() or type(e).__name__ == "TimeoutError":
+                        out["error"] = "no responde a tiempo"
+                    elif "certificate" in m.lower() or "SSL" in m:
+                        out["error"] = "certificado no válido"
+                    else:
+                        out["error"] = type(e).__name__
                 continue
             vistas += 1
             out["web_ok"] = True
@@ -163,6 +202,8 @@ def perfilar(c):
                         out[campo] = m.group(1)
         out["paginas"] = vistas
         if out["web_ok"]:
+            out["url"] = base
+            out["error"] = ""
             break
     if out["web_ok"] and not out["sector"]:
         out["sector"] = sector_de(texto_de(html_total)[:12000]) or "Sin sector claro en su web"
@@ -171,7 +212,7 @@ def perfilar(c):
 
 def main():
     entrada = sys.argv[1]
-    hilos = int(sys.argv[2]) if len(sys.argv) > 2 else 14
+    hilos = int(sys.argv[2]) if len(sys.argv) > 2 else 8
     datos = json.load(open(entrada))
     doms = {}
     for c in datos:
