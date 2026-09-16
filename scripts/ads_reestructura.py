@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Fase 1 del plan de Google Ads (docs/ADS-ESTRUCTURA-Y-PLAN-PRESUPUESTO.md):
+"""Fase 1 del plan de Google Ads. Ejecutar SIEMPRE después de scripts/ads_ajustes.py:
+esta fase copia anuncios y URLs tal cual, así que hereda lo que la fase 0 haya corregido.
+ (docs/ADS-ESTRUCTURA-Y-PLAN-PRESUPUESTO.md):
 divide la campaña única de Search en campañas por categoría, cada una con su
 presupuesto, copiando grupos, palabras clave, anuncios, negativas y extensiones.
 

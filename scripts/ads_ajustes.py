@@ -14,6 +14,14 @@ URL_OK = "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion
 URL_MAL = "https://equipzilla.com/compra/maquinaria/ocasion/maquinaria-construccion-segunda-mano"
 URL_EXC = "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano/excavadoras-segunda-mano"
 URL_PLAT = "https://equipzilla.com/compra/maquinaria/usada/plataforma-elevadora-segunda-mano"
+# Páginas de categoría verificadas el 16/09 (200 + <title> y <h1> propios). Rodillos y
+# compactadores NO tienen página: devuelven la genérica (404 blando), así que se quedan
+# en URL_OK. Mandar cada anuncio a su categoría sube la relevancia, que es lo que hoy
+# hace perder el 55 % de las impresiones por ranking.
+POR_GRUPO = {
+    "Dumpers 2a mano": "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano/dumpers-segunda-mano",
+    "Minicargadoras 2a mano": "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano/minicargadoras-segunda-mano",
+}
 
 def mutate(servicio, ops):
     if PRUEBA:
@@ -57,13 +65,15 @@ plat = rsa(208483994348, URL_PLAT,
     ["plataformas", "segunda-mano"])
 mutate("adGroupAds", [retro, plat])
 
-# 2) URLs finales que devuelven 308
+# 2) URLs finales: quitar la que devuelve 308 y, si el grupo tiene página propia, usarla
 ops = []
 for r in consulta("SELECT ad_group_ad.ad.id, ad_group_ad.ad.final_urls, ad_group.name FROM ad_group_ad WHERE ad_group_ad.status != 'REMOVED' AND campaign.id = %d" % SEARCH):
     urls = r["adGroupAd"]["ad"].get("finalUrls") or []
-    if any(u.rstrip("/") == URL_MAL for u in urls):
-        ops.append({"update": {"resourceName": f"customers/{CUENTA}/ads/{r['adGroupAd']['ad']['id']}", "finalUrls": [URL_OK]}, "updateMask": "final_urls"})
-        print("  URL corregida en grupo", r["adGroup"]["name"])
+    grupo = r["adGroup"]["name"]
+    destino = POR_GRUPO.get(grupo, URL_OK)
+    if any(u.rstrip("/") == URL_MAL for u in urls) or (grupo in POR_GRUPO and urls and urls[0].rstrip("/") != destino):
+        ops.append({"update": {"resourceName": f"customers/{CUENTA}/ads/{r['adGroupAd']['ad']['id']}", "finalUrls": [destino]}, "updateMask": "final_urls"})
+        print(f"  URL de {grupo} -> {destino.rsplit('/', 1)[-1]}")
 if ops: mutate("ads", ops)
 
 # 3) Geo: solo presencia en España (no «interés»)
