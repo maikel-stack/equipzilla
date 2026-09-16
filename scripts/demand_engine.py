@@ -21,7 +21,7 @@ import sys
 import urllib.parse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from panel_horario import (brevo, clave, maquina_de_url, pipedrive,  # noqa: E402
+from panel_horario import (brevo, clave, maquina_de_url, deals_todos, pipedrive,  # noqa: E402
                            sheets, smartlead, token_google)
 
 # El Sheet central. Se rellena al crearlo con --crear.
@@ -66,22 +66,13 @@ def deals_compraventa():
     se distinguen por el título. El pipeline 16 «Compraventa», que tiene las
     etapas correctas, está vacío: es el hallazgo nº1 de la auditoría.
     """
-    fuera, start = [], 0
-    while True:
-        d = pipedrive("/deals", start=start, limit=500, status="all_not_deleted")
-        items = d.get("data") or []
-        if not items:
-            break
-        for x in items:
-            if x.get("pipeline_id") == PIPE_COMPRAVENTA:
-                fuera.append(x)
-            elif (x.get("pipeline_id") == PIPE_TRANSACCIONAL
-                  and re.search(r"compra", x.get("title") or "", re.I)):
-                fuera.append(x)
-        if not d.get("additional_data", {}).get("pagination", {}).get(
-                "more_items_in_collection"):
-            break
-        start += 500
+    fuera = []
+    for x in deals_todos():
+        if x.get("pipeline_id") == PIPE_COMPRAVENTA:
+            fuera.append(x)
+        elif (x.get("pipeline_id") == PIPE_TRANSACCIONAL
+              and re.search(r"compra", x.get("title") or "", re.I)):
+            fuera.append(x)
     return fuera
 
 

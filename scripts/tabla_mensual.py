@@ -16,7 +16,7 @@ ajuste sin tocar el script. Lo que no se puede medir va como NO DETERMINADO.
 import collections, datetime as dt, os, re, sys, urllib.parse
 from zoneinfo import ZoneInfo
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from panel_horario import (SHEET_ID, campanas, pipedrive, sheets, smartlead, token_google)
+from panel_horario import (SHEET_ID, campanas, deals_todos, pipedrive, sheets, smartlead, token_google)
 import ads_metricas as ADS
 import cola_comercial as cc
 
@@ -62,29 +62,20 @@ def etiqueta(k):
 
 def pipedrive_mensual():
     m = collections.defaultdict(lambda: dict(leads=0, ofertas=0, ventas=0, gmv_op=0.0, gmv_venta=0.0))
-    start = 0
-    while True:
-        d = pipedrive("/deals", start=start, limit=500, status="all_not_deleted")
-        items = d.get("data") or []
-        if not items:
-            break
-        for x in items:
-            if x.get("pipeline_id") not in cc.PIPELINES or not es_compraventa(x.get("title")):
-                continue
-            k = PERIODO(x.get("add_time"))
-            if not k:
-                continue
-            m[k]["leads"] += 1
-            m[k]["gmv_op"] += float(x.get("value") or 0)
-            if x.get("stage_id") in ETAPA_OFERTA or x.get("status") == "won":
-                m[k]["ofertas"] += 1
-            if x.get("status") == "won":
-                kw = PERIODO(x.get("won_time")) or k
-                m[kw]["ventas"] += 1
-                m[kw]["gmv_venta"] += float(x.get("value") or 0)
-        if not d.get("additional_data", {}).get("pagination", {}).get("more_items_in_collection"):
-            break
-        start += 500
+    for x in deals_todos():
+        if x.get("pipeline_id") not in cc.PIPELINES or not es_compraventa(x.get("title")):
+            continue
+        k = PERIODO(x.get("add_time"))
+        if not k:
+            continue
+        m[k]["leads"] += 1
+        m[k]["gmv_op"] += float(x.get("value") or 0)
+        if x.get("stage_id") in ETAPA_OFERTA or x.get("status") == "won":
+            m[k]["ofertas"] += 1
+        if x.get("status") == "won":
+            kw = PERIODO(x.get("won_time")) or k
+            m[kw]["ventas"] += 1
+            m[kw]["gmv_venta"] += float(x.get("value") or 0)
     return m
 
 

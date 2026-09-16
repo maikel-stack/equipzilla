@@ -77,6 +77,38 @@ def pipedrive(ruta, **params):
                  urllib.parse.urlencode(params), {"accept": "application/json"})
 
 
+def deals_todos(pipeline=None, estados=("open", "lost", "won")):
+    """Todos los tratos, paginados sin duplicados.
+
+    La API v1 de Pipedrive IGNORA el parámetro `start` a partir de unos 6.000
+    registros cuando se pagina con `status=all_not_deleted`: devuelve una y otra
+    vez la misma página con `more_items_in_collection=True`, de modo que el
+    bucle no termina y los tratos antiguos se cuentan decenas de veces
+    (comprobado el 16/09: 20.500 filas para 6.000 tratos, hasta 30 repeticiones
+    del mismo id). Filtrando por un estado concreto la paginación sí es exacta,
+    así que se recorre estado por estado y se deduplica por id.
+
+    Devuelve una lista de tratos en formato v1 (con las claves hash de los
+    campos personalizados), que es lo que esperan el resto de scripts.
+    """
+    por_id = {}
+    for estado in estados:
+        start = 0
+        while True:
+            d = pipedrive("/deals", start=start, limit=500, status=estado)
+            datos = d.get("data") or []
+            if not datos:
+                break
+            for x in datos:
+                if pipeline is None or x.get("pipeline_id") == pipeline:
+                    por_id[x["id"]] = x
+            if not (d.get("additional_data", {}).get("pagination", {})
+                    .get("more_items_in_collection")):
+                break
+            start += 500
+    return list(por_id.values())
+
+
 def campanas(limite=12):
     """Últimas campañas enviadas del motor ABM, con sus números reales.
 
@@ -219,15 +251,7 @@ def crm():
     """
     import re
     compra = re.compile(r"compra", re.I)
-    todos, start = [], 0
-    while True:
-        d = pipedrive("/deals", start=start, limit=500, status="all_not_deleted")
-        datos = d.get("data") or []
-        todos += [x for x in datos if x.get("pipeline_id") == 6]
-        if not (d.get("additional_data", {}).get("pagination", {})
-                .get("more_items_in_collection")):
-            break
-        start += 500
+    todos = deals_todos(pipeline=6)
     et = {s["id"]: s["name"] for s in (pipedrive("/stages", pipeline_id=6).get("data") or [])}
     cv = [x for x in todos if compra.search(x.get("title") or "")]
     ab = [x for x in cv if x["status"] == "open"]

@@ -9,7 +9,7 @@ vivo. No recalcula la cola: tarda minutos y ya está escrita cada mañana.
 """
 import collections, datetime as dt, os, re, sys, urllib.parse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from panel_horario import (SHEET_ID, brevo, pipedrive, sheets, smartlead,
+from panel_horario import (SHEET_ID, brevo, deals_todos, pipedrive, sheets, smartlead,
                            token_google, campanas)
 
 PESTANA = "Resumen para el equipo"
@@ -71,25 +71,17 @@ def main():
                                      for f in man[1:] if len(f) > 9 and f[9].strip().upper() == "TRUE")
 
     # ── 4. Pipedrive: ofertas de compraventa
-    abiertas, ganadas_mes, nuevas_mes, start = [], 0, 0, 0
+    abiertas, ganadas_mes, nuevas_mes = [], 0, 0
     mes = hoy.strftime("%Y-%m")
-    while True:
-        d = pipedrive("/deals", start=start, limit=500, status="all_not_deleted")
-        items = d.get("data") or []
-        if not items:
-            break
-        for x in items:
-            if x.get("pipeline_id") != 6 or not re.search(r"compra", x.get("title") or "", re.I):
-                continue
-            if x.get("status") == "open":
-                abiertas.append(x)
-            if x.get("status") == "won" and (x.get("won_time") or "")[:7] == mes:
-                ganadas_mes += 1
-            if (x.get("add_time") or "")[:7] == mes:
-                nuevas_mes += 1
-        if not d.get("additional_data", {}).get("pagination", {}).get("more_items_in_collection"):
-            break
-        start += 500
+    for x in deals_todos(pipeline=6):
+        if not re.search(r"compra", x.get("title") or "", re.I):
+            continue
+        if x.get("status") == "open":
+            abiertas.append(x)
+        if x.get("status") == "won" and (x.get("won_time") or "")[:7] == mes:
+            ganadas_mes += 1
+        if (x.get("add_time") or "")[:7] == mes:
+            nuevas_mes += 1
     por_etapa = collections.Counter(ETAPAS.get(x.get("stage_id"), "otra") for x in abiertas)
     en_juego = sum(float(x.get("value") or 0) for x in abiertas)
     sin_importe = sum(1 for x in abiertas if not x.get("value"))

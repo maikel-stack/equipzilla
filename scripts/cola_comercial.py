@@ -392,9 +392,28 @@ def senales_smartlead(dias):
 _CACHE = {}
 
 
+# Dominios nuestros: si un lead llega con uno de estos como email de contacto,
+# el dato es basura del formulario, no del cliente (caso Tirri, 15/09: la cola
+# mostró clientes@equipzilla.com como email del lead y «Equipzilla» como su
+# empresa, y así llegó a «Mi día» del equipo comercial).
+DOMINIOS_PROPIOS = ("equipzilla.com", "ocasion.equipzilla.com")
+
+
+def email_valido(email):
+    e = (email or "").strip().lower()
+    return bool(e) and "@" in e and e.split("@")[-1] not in DOMINIOS_PROPIOS
+
+
 def datos_contacto(email, persona_pd=None):
-    """Nombre, teléfono, empresa, actividad. Pipedrive → Smartlead → Brevo → dominio."""
-    if email in _CACHE:
+    """Nombre, teléfono, empresa, actividad. Pipedrive → Smartlead → Brevo → dominio.
+
+    Sin un email válido del cliente no se consulta Smartlead ni Brevo (una
+    búsqueda con la cadena vacía devuelve un registro cualquiera) y no se
+    cachea: con la clave "" todos los leads sin email compartían la ficha del
+    primero.
+    """
+    valido = email_valido(email)
+    if valido and email in _CACHE:
         return _CACHE[email]
     nombre = tel = empresa = actividad = ""
     p = persona_pd or {}
@@ -412,7 +431,7 @@ def datos_contacto(email, persona_pd=None):
         tels = [t.get("value") for t in (p.get("phone") or []) if t.get("value")]
         tel = tels[0] if tels else ""
         empresa = (p.get("org_name") or (p.get("org_id") or {}).get("name") if isinstance(p.get("org_id"), dict) else p.get("org_name")) or ""
-    if not tel or not empresa:
+    if valido and (not tel or not empresa):
         try:
             l = smartlead("/leads/?email=" + urllib.parse.quote(email))
             if isinstance(l, dict) and l.get("id"):
@@ -421,7 +440,7 @@ def datos_contacto(email, persona_pd=None):
                 empresa = empresa or l.get("company_name") or ""
         except Exception:
             pass
-    if not tel or not empresa or not actividad:
+    if valido and (not tel or not empresa or not actividad):
         try:
             b = brevo("/contacts/" + urllib.parse.quote(email))
             at = b.get("attributes") or {}
@@ -433,9 +452,12 @@ def datos_contacto(email, persona_pd=None):
             pass
     if nombre and "@" in nombre:
         nombre = ""
-    empresa = empresa or empresa_de_dominio(email)
-    _CACHE[email] = (nombre.strip(), str(tel or "").strip(), str(empresa).strip(), str(actividad).strip())
-    return _CACHE[email]
+    if valido:
+        empresa = empresa or empresa_de_dominio(email)
+    fila = (nombre.strip(), str(tel or "").strip(), str(empresa).strip(), str(actividad).strip())
+    if valido:
+        _CACHE[email] = fila
+    return fila
 
 
 # ---------------------------------------------------------------- construir
@@ -513,7 +535,7 @@ def fila_crm(x, inv, nombres_etapa):
         accion = "Descartar en Pipedrive: no compra maquinaria (museo, eléctrica, competidor…)"
         porque = ["entró por el frío y no es perfil comprador"]
     return [score, nivel, canal_de(x, p), etapa, est, x.get("owner_name") or "—", nombre or "—", empresa or "—", tipo or "—",
-            tel or "sin teléfono", email or "—", pide, ETIQUETA.get(cat, "—"),
+            tel or "sin teléfono", email if email_valido(email) else "— (pedir email)", pide, ETIQUETA.get(cat, "—"),
             ("%s €" % eur(valor)) if valor else (("hasta %s €" % eur(pmax)) if pmax else "—"),
             encaja[:110], "Pipedrive · %s" % titulo.split(" - ")[0][:30], fmt(x.get("update_time")),
             "%s · %s" % (fmt(cuando), que) if cuando else que,
