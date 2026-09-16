@@ -603,6 +603,8 @@ def construir(dias=60):
         clics = {}
     n_brevo = 0
     for g in clics.values():
+        if not email_valido(g["email"]):
+            continue          # el propio equipo clicando en sus campañas no es un lead
         if g["email"] in en_crm:
             continue
         filas.append(fila_fuera_crm(g["email"], "Brevo · clic campaña ABM", g["maquinas"], g["listas"],
@@ -622,6 +624,8 @@ def construir(dias=60):
                 texto = ""
             if ir.clasificar(texto) in ("rechazo", "autoreply", "cambio_email"):
                 continue
+        if not email_valido(em):
+            continue
         if EXCLUIR.search(" ".join((s.get("empresa") or "", em))):
             continue
         canal = "Smartlead · respuesta frío" if resp else "Smartlead · clic frío"
