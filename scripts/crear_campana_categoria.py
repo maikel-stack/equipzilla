@@ -70,6 +70,37 @@ CAMPANAS = {
                 "<p>Y si hoy hay algo concreto, la Kubota KX 030-4 de 3 t (35.900 € + IVA) es la que más sale. "
                 "Me tenéis en el 606 836 581.</p>")),
         ]),
+    "renovables": dict(
+        nombre="Compraventa Frio - Plataformas y telescopicos (eolica y solar) - 2026-09",
+        csv="leads/tanda2_renovables.csv",
+        pasos=[
+            dict(dias=0, asunto="plataformas de 20 m revisadas para {{company_name}}?", cuerpo=(
+                "<p>{{saludo}}:</p>"
+                "<p>Trabajáis en parques solares y eólicos, así que voy al grano: el equipo de altura es lo que os frena "
+                "cuando hay que montar o mantener.</p>"
+                "<p>Tengo revisadas y disponibles:</p>"
+                "<p>&bull; Haulotte HA20PX &middot; articulada diésel 20 m &middot; 2012 &middot; 18.500 € + IVA<br>"
+                "&bull; JLG 450AJ &middot; articulada diésel 16 m &middot; 2013 &middot; 19.500 € + IVA<br>"
+                "&bull; Genie Z-45/25 J &middot; articulada diésel &middot; 2012 &middot; 18.600 € + IVA</p>"
+                "<p>Todas con inspección y prueba presencial, horas certificadas y opción de garantía.</p>"
+                "<p>Y si lo vuestro es gran altura, tengo una Genie Z-80/60 de 2016 por 49.500 € + IVA.</p>"
+                "<p>¿Os encaja alguna?</p>")),
+            dict(dias=4, asunto="", cuerpo=(
+                "<p>Hola, os cuento lo que casi nadie tiene en ocasión: unidades iguales en cantidad.</p>"
+                "<p>&bull; <b>Seis Haulotte Compact 12</b> &middot; tijera eléctrica &middot; 2012 &middot; 6.100 € + IVA cada una<br>"
+                "&bull; <b>Tres Genie GS-3246</b> &middot; tijera eléctrica &middot; 2016 &middot; 7.500 € + IVA cada una</p>"
+                "<p>Con eso equipáis a un equipo de montaje entero de golpe, sin ir juntando máquinas de aquí y de allá.</p>"
+                "<p>Para mover palés de módulos por el campo, un manipulador telescópico Merlo P 27.6 Plus Stage V "
+                "de 2023 con 1.000 h, 58.500 € + IVA.</p>"
+                "<p>Fotos e informe de cada una en equipzilla.com/compra. Opción de garantía y financiación.</p>"
+                "<p>¿Os preparo una selección con lo que os encaje?</p>")),
+            dict(dias=4, asunto="", cuerpo=(
+                "<p>Hola, no quiero saturaros, así que cierro el hilo por ahora.</p>"
+                "<p>Si os viene bien, os aviso solo cuando entre una plataforma o un telescópico que encaje con lo vuestro "
+                "(altura, tipo y presupuesto), sin más correos de por medio. ¿Os apunto? Con un «sí» me vale.</p>"
+                "<p>Y si hoy hay algo concreto, la Haulotte HA20PX de 20 m (18.500 € + IVA) es la que más sale para campo. "
+                "Me tenéis en el 606 836 581.</p>")),
+        ]),
     "logistica": dict(
         nombre="Compraventa Frio - Logistica (carretillas) - 2026-09",
         csv="leads/tanda2_logistica.csv",
