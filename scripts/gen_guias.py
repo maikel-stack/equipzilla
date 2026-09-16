@@ -1058,6 +1058,94 @@ ARTICULOS["plataforma-elevadora-articulada-segunda-mano"] = {
   ],
 }
 
+
+# ── Guía añadida 2026-09-16: «carretillas elevadoras de segunda mano de particulares»
+# (43 impr, pos. 11) como apoyo a «carretilla elevadora segunda mano» (434 impr, cayendo
+# de 8,6 a 11,6). Tabla con las carretillas reales del stock; se regenera con el stock.
+def _tabla_stock(cat):
+    filas = sorted([x for x in MACHINES if x.get("c") == cat], key=lambda x: x["p"])
+    if not filas:
+        return "<p>Ahora mismo no tenemos unidades revisadas de esta categoría en stock. Consulta disponibilidad al asesor.</p>"
+    tr = "".join(
+        "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><b>%s</b></td></tr>" % (
+            x["n"], x.get("s", "—"), x.get("y", "—"),
+            f'{x["h"]:,}'.replace(",", ".") + " h" if x.get("h") else "consultar", eur(x["p"]) + " + IVA")
+        for x in filas)
+    return ("<div class=\"tablewrap\"><table><thead><tr><th>Modelo</th><th>Tipo</th><th>Año</th><th>Horas</th><th>Precio</th></tr></thead>"
+            "<tbody>%s</tbody></table></div><p class=\"nota\">Unidades reales en stock a fecha de %s, revisadas, con horas certificadas y factura. Precios sin IVA.</p>" % (tr, HOY))
+
+ARTICULOS["carretilla-elevadora-segunda-mano-particulares"] = {
+  "kw": "carretillas elevadoras de segunda mano de particulares",
+  "eyebrow": "Guía de compra · carretillas elevadoras",
+  "title": "Carretilla elevadora de segunda mano de particular",
+  "h1": "Carretilla elevadora de segunda mano de particular: qué cambia y cómo comprar sin riesgo",
+  "stand": "Comprar la carretilla a un particular puede salir más barato o mucho más caro: lo que no incluye (factura, IVA, garantía, revisión), lo que hay que exigir, cómo probarla y qué precio de referencia usar. Con nuestras carretillas revisadas en stock para comparar.",
+  "rapida": "A un <b>particular</b> le compras la máquina tal cual está: sin garantía, sin revisión previa, a veces sin factura y con las horas que diga el cuentahoras. El precio puede ser más bajo, pero <b>tú asumes el riesgo completo</b>: la batería agotada de una eléctrica o el motor cansado de una diésel se pagan después. Compensa solo si puedes inspeccionarla con criterio, probarla con carga y exigir factura o contrato de compraventa con número de serie. Si no, la diferencia de precio con una carretilla revisada de un profesional rara vez cubre la primera avería.",
+  "sections": [
+   ("Particular o profesional: lo que de verdad cambia", """
+<div class="tablewrap"><table class="cmp"><thead><tr><th></th><th>Particular</th><th>Profesional (Equipzilla)</th></tr></thead><tbody>
+<tr><td>Factura</td><td>A veces no; contrato privado</td><td>Siempre, con IVA desglosado (deducible)</td></tr>
+<tr><td>Horas</td><td>Las del cuentahoras, sin respaldo</td><td>Certificadas o respaldadas por historial</td></tr>
+<tr><td>Revisión previa</td><td>Ninguna; la haces tú</td><td>Inspección y puesta a punto antes de publicar</td></tr>
+<tr><td>Garantía</td><td>No existe (venta entre particulares)</td><td>Opción de garantía y contrato de mantenimiento</td></tr>
+<tr><td>Documentación (CE, manual, placas)</td><td>Frecuentemente incompleta</td><td>Completa o se indica lo que falta</td></tr>
+<tr><td>Prueba con carga</td><td>Si el vendedor tiene con qué</td><td>En nuestras instalaciones, con carga real</td></tr>
+<tr><td>Financiación</td><td>No</td><td>Sí, con la factura como base</td></tr>
+<tr><td>Transporte</td><td>Lo organizas tú</td><td>Lo presupuestamos y organizamos</td></tr>
+<tr><td>Precio</td><td>Puede ser más bajo</td><td>Incluye revisión, factura y respaldo</td></tr>
+</tbody></table></div>
+<p>La clave: un particular no es peor vendedor por definición, pero <b>no responde de nada después de cobrar</b>. Todo lo que no compruebes antes de pagar, lo pagas tú.</p>"""),
+   ("Lo que hay que exigir a un particular antes de hablar de precio", """
+<ul class="check">
+<li><b>Número de serie y foto de la placa</b>: para comprobar modelo, año y capacidad, y para que conste en el contrato.</li>
+<li><b>Factura de compra original o título de propiedad</b>: sin ella no sabes si quien vende puede vender. Una carretilla financiada o de renting no se puede vender hasta liquidarla.</li>
+<li><b>Contrato de compraventa</b> con número de serie, horas declaradas, precio y fecha, firmado por ambas partes. Si el vendedor no quiere firmarlo, no compres.</li>
+<li><b>Marcado CE y manual</b>: obligatorios para trabajar con ella en la UE.</li>
+<li><b>Historial de mantenimiento o facturas de taller</b>: un particular suele tener al menos las grandes (batería, motor, mástil).</li>
+<li><b>Motivo de la venta y uso que ha tenido</b>: nave propia, alquiler, exterior. Una carretilla que ha vivido fuera tiene el mástil y la eléctrica en otro estado.</li>
+</ul>"""),
+   ("La revisión de 12 puntos para hacerla tú", """
+<div class="checkgroup">Mástil, horquillas y hidráulica · 5 puntos</div>
+<ul class="check">
+<li><b>Cadenas del mástil</b>: tensión igual, sin eslabones agarrotados, sin estiramiento (medir con galga si puedes).</li>
+<li><b>Rodillos y guías</b>: sube y baja con carga; sin saltos, sin ruidos, sin holgura lateral del carro.</li>
+<li><b>Cilindros de elevación e inclinación</b>: vástagos sin rayas, sin fugas. Carga arriba, motor apagado, cinco minutos: no debe bajar ni inclinarse sola.</li>
+<li><b>Horquillas</b>: talón sin desgaste por debajo del 10 % del grosor, sin fisuras, sin dobleces. Es un elemento de seguridad.</li>
+<li><b>Desplazador lateral y mandos</b>: todos los movimientos, sin fugas en el bloque.</li>
+</ul>
+<div class="checkgroup">Motor o batería · 4 puntos</div>
+<ul class="check">
+<li><b>Eléctricas: batería</b>: fecha de fabricación, ciclos, densidad de electrolito si es de plomo, y una jornada de prueba si puedes. Una batería agotada puede costar tanto como la carretilla.</li>
+<li><b>Eléctricas: cargador</b>: incluido, del voltaje correcto y funcionando.</li>
+<li><b>Diésel o GLP: arranque en frío</b>: humos, ruidos, fugas. Pide que esté fría cuando llegues.</li>
+<li><b>Horas frente a desgaste</b>: pedales, asiento, volante, mandos y escalón deben contar la misma historia que el cuentahoras.</li>
+</ul>
+<div class="checkgroup">Chasis y seguridad · 3 puntos</div>
+<ul class="check">
+<li><b>Neumáticos</b>: superelásticos con desgaste hasta la marca, sin arrancamientos; los neumáticos son caros.</li>
+<li><b>Frenos, dirección y freno de mano</b>: prueba en pendiente con carga.</li>
+<li><b>Pórtico, cinturón, luces, claxon, avisador de marcha atrás</b>: sin soldaduras, todo funcionando. Placa de cargas legible.</li>
+</ul>"""),
+   ("Precio de referencia: nuestras carretillas revisadas en stock", _tabla_stock("carr")),
+   ("Los 5 errores que más vemos al comprar a particular", """
+<ol class="steps">
+<li><b>Pagar en efectivo sin contrato</b><p>Sin contrato con número de serie no tienes ni prueba de compra ni protección si la máquina tiene una carga o un problema legal.</p></li>
+<li><b>Comprar una eléctrica sin saber nada de la batería</b><p>Es el error caro. Si no hay datos, descuenta el precio de una batería nueva o pasa.</p></li>
+<li><b>Fiarse del cuentahoras</b><p>Es un número. Contrasta con desgaste y con facturas.</p></li>
+<li><b>No calcular el IVA</b><p>Un particular no emite factura con IVA: para una empresa, el precio «más barato» pierde la deducción, y eso cambia la comparación.</p></li>
+<li><b>Olvidar el transporte y la puesta en marcha</b><p>Revisión, cambio de aceites, neumáticos, transporte. Súmalo antes de comparar con una revisada.</p></li>
+</ol>"""),
+  ],
+  "lm": {"type": "alertas", "cat": "carr", "text": "Ahora ya sabes qué exigir a un particular. Si prefieres comprar con factura, horas certificadas y revisión hecha, activa las alertas y te avisamos solo cuando entre una carretilla revisada o baje un precio."},
+  "faq": [
+   ("¿Es más barato comprar una carretilla elevadora a un particular?", "El precio de venta puede ser más bajo, pero no incluye revisión, garantía ni factura con IVA deducible. Si aparece una avería en batería, motor o mástil, la diferencia desaparece. Compensa solo si puedes inspeccionarla a fondo y el precio descuenta el riesgo."),
+   ("¿Qué documento necesito al comprar a un particular?", "Contrato de compraventa con número de serie, horas, precio y fecha, firmado por ambas partes, junto con la factura de compra original o título de propiedad del vendedor, el marcado CE y el manual."),
+   ("¿Puedo deducir el IVA si compro a un particular?", "No. Un particular no emite factura con IVA. Para una empresa o autónomo, eso reduce la ventaja de precio frente a un profesional."),
+   ("¿Cuántas horas son muchas en una carretilla de segunda mano?", "Depende del uso y el mantenimiento más que del número. En eléctricas importa más la batería; en diésel, el motor y la transmisión. Contrasta siempre horas con desgaste y facturas."),
+   ("¿Qué es lo más caro de reparar en una carretilla?", "En eléctricas, la batería. En diésel o GLP, motor y transmisión. Después, mástil (cadenas, rodillos, cilindros) y neumáticos superelásticos."),
+  ],
+}
+
 def lm_block(lm):
     text = lm["text"]
     if lm["type"] == "alertas":
