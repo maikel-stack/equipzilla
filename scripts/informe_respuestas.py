@@ -38,7 +38,9 @@ import urllib.request
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SALIDA_CSV = os.path.join(RAIZ, "leads", "respuestas_hoy.csv")
 DESTINATARIOS = ["david@equipzilla.com", "maikel@equipzilla.com",
-                 "hector@equipzilla.com", "andres@equipzilla.com"]
+                 "hector@equipzilla.com", "andres@equipzilla.com",
+                 # 16/09: Maikel pide copia a Zilia en todos los envíos diarios.
+                 "zilia@equipzilla.com"]
 VENTANA_H = int(os.environ.get("VENTANA_H", "24"))
 PRUEBA = os.environ.get("PRUEBA") == "1"
 CAMPANA_FRIO = 3789100

@@ -17,7 +17,12 @@ Reglas de la plantilla:
   está registrado en Pipedrive es un NO.
 - **Los leads antiguos que siguen vivos no se caen de la lista** hasta que se cierran o se
   contestan. Los días que llevan esperando salen siempre.
+- **Leads nuevos y seguimientos van separados**, tanto en las tablas como en los números
+  (Maikel, 16/09). Un lead nuevo es quien contesta al paso 1; un seguimiento es todo lo
+  demás, incluidos los interesados de días anteriores que siguen sin contestar.
 - **Abajo, la cifra que manda.** Para Equipzilla es operaciones y GMV, no envíos.
+- **Copia del email diario a** david, maikel, hector, andres y zilia (Maikel, 16/09).
+  La lista vive en `DESTINATARIOS`, en `scripts/informe_respuestas.py`.
 
 ---
 
@@ -34,13 +39,14 @@ Abrir Smartlead · Abrir el pipeline 6 de Pipedrive
 Mi borrador / mi propuesta:
 <texto listo para copiar, o la decisión concreta que hay que tomar>
 
-🆕 Respuestas nuevas
+🆕 Leads nuevos · quien contesta por primera vez (paso 1)
 Score · Quién · Qué dijo · Estado
 
-📁 Interesados que siguen vivos
-Score · Quién · Qué pasó · Días · Contestado
+🔁 Seguimientos · interesados de días anteriores y respuestas a los pasos 2 a 4
+Score · Quién · Qué pasó · Días esperando · Contestado
 
 📊 Números
-Envíos hoy / acumulado · respuestas y % · rebotes y % · leads sin empezar
+Envíos hoy desglosados: leads nuevos (paso 1) y seguimientos (pasos 2 a 4)
+Acumulado · respuestas y % · rebotes y % · leads sin empezar
 Operaciones y GMV del mes contra objetivo
 ```
