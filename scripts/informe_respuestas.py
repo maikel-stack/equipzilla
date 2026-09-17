@@ -319,6 +319,28 @@ def senales_frio():
     return salida
 
 
+# Rangos de centros de datos (AWS, Azure, Google y pasarelas de seguridad).
+# Los antivirus de correo abren cada enlace del mensaje nada más entregarlo.
+DATACENTRO = ("3.", "13.", "15.", "18.", "20.", "34.", "35.", "40.", "51.",
+              "52.", "54.", "64.233.", "66.102.", "67.231.", "104.47.",
+              "148.163.", "185.58.", "195.130.217.", "91.220.42.")
+
+
+def escaner_brevo(ip, horas):
+    """True si el clic lo ha hecho un antivirus de correo, no una persona.
+
+    Dos huellas: la IP es de un centro de datos, o hay varios clics en
+    segundos. El 17/09 tres de los cuatro «clickers» de la campaña #221 eran
+    esto, uno de ellos con tres clics al mismo enlace en cuatro segundos.
+    """
+    ip = (ip or "").strip()
+    if ip and any(ip.startswith(p) for p in DATACENTRO):
+        return True
+    if len(horas) >= 2 and (max(horas) - min(horas)).total_seconds() <= 90:
+        return True
+    return False
+
+
 def senales_brevo():
     """Clics de campañas recientes vía export de destinatarios (el
     globalStats de la API devuelve 0 por un bug conocido)."""
@@ -358,19 +380,35 @@ def senales_brevo():
             texto = bruto.decode("utf-8", "replace") if isinstance(bruto, bytes) else str(bruto)
             lector = csv.DictReader(io.StringIO(texto), delimiter=";")
             for fila in lector:
-                email = (fila.get("EMAIL") or fila.get("email") or "").lower()
+                # Brevo llama a la columna «Email_ID»; con «EMAIL» no encontraba
+                # ninguna y el vigilante llevaba semanas sin ver un solo clic.
+                email = (fila.get("Email_ID") or fila.get("EMAIL") or
+                         fila.get("email") or "").lower()
                 if not email:
                     continue
-                maquinas, clics = set(), 0
-                for k, v in fila.items():
-                    if not v or "http" not in str(v):
+                # El enlace va en el NOMBRE de la columna y la hora del clic en
+                # el valor, no al revés.
+                maquinas, momentos = set(), []
+                for col, v in fila.items():
+                    if not col or not str(col).startswith("http") or not v:
                         continue
                     m = re.search(r"interesa(?:d[oa] en)? la\s+([^&\"?]+)",
-                                  urllib.parse.unquote(str(v)))
+                                  urllib.parse.unquote(str(col)))
                     if m:
                         maquinas.add(m.group(1).strip()[:40])
-                    clics += 1
+                    try:
+                        momentos.append(dt.datetime.strptime(
+                            str(v).strip()[:19], "%d-%m-%Y %H:%M:%S"))
+                    except ValueError:
+                        momentos.append(None)
+                horas = [x for x in momentos if x]
+                clics = len(momentos)
                 if not clics:
+                    continue
+                if horas and max(horas) < corte:
+                    continue          # clics viejos: ya se reportaron su día
+                if escaner_brevo(fila.get("Click_IP", ""), horas):
+                    print(f"  escáner descartado: {email}")
                     continue
                 e = salida.setdefault(email, dict(
                     email=email, nombre=(fila.get("NOMBRE") or "")[:60],
