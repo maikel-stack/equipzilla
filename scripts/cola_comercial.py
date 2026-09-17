@@ -583,10 +583,23 @@ def fila_fuera_crm(email, canal, maquinas, listas, campanas_, ultima, senal, inv
             "—", "—", "—", " · ".join(porque), accion, ""]
 
 
+# Pruebas del formulario que acaban en Pipedrive como tratos reales: el nombre
+# lleva «prueba»/«test» o el contacto es un email nuestro (17/09: 53855 y 53857,
+# «Fernando Prueba Test» con fernando@equipzilla.com, entraron en la cola y en
+# las métricas del mes como dos leads de alquiler).
+ES_PRUEBA = re.compile(r"\b(prueba|pruebas|test|testing|demo)\b", re.I)
+
+
+def es_trato_de_prueba(x):
+    p = x.get("person_id") or {}
+    em = ((p.get("email") or [{}])[0].get("value") or "")
+    return bool(ES_PRUEBA.search(p.get("name") or "")) or not email_valido(em) and "@" in em
+
+
 def construir(dias=60):
     inv = stock()
     nombres_etapa = etapas()
-    abiertos = deals("open")
+    abiertos = [x for x in deals("open") if not es_trato_de_prueba(x)]
     print("Pipedrive: %d tratos abiertos de compraventa" % len(abiertos), flush=True)
     tiempos = tiempos_embudo(abiertos)
     print("tiempos del embudo calculados", flush=True)
