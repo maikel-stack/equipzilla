@@ -86,7 +86,17 @@ NEG = ["vendo", "agricola", "accesorios", "embargadas", "desguaces", "casquero",
        "tractopelle", "vanzare", "olx", "maroc", "prix", "bolivia", "escavadeira", "cuanto cuesta", "tipos de", "tractores", "desbrozadora",
        "tractor", "trabajando", "trituradora", "forestal", "escavador",
        "fratasadora", "fratasadoras", "bagger", "como es", "precio hora",
-       "occasion", "miniexcavatoare", "bauhaus", "camion"]
+       "occasion", "miniexcavatoare", "bauhaus", "camion",
+       "chinas", "super maquina", "por menos de"]
+# Google trata los acentos como caracteres distintos en las negativas: «agricola» no
+# bloquea «agrícola». Medido el 17/09 sobre los términos de 7 días: 420 impresiones y
+# 3 clics se escapaban por esto, 364 de ellas de maquinaria agrícola. Importa poco por
+# el gasto y mucho por el CTR, que es lo que sostiene el ranking.
+ACENTOS = {"agricola": "agrícola", "hormigon": "hormigón", "financiacion": "financiación",
+           "camion": "camión", "cuanto vale": "cuánto vale", "cuanto cuesta": "cuánto cuesta",
+           "como es": "cómo es", "ficha tecnica": "ficha técnica",
+           "caracteristicas tecnicas": "características técnicas"}
+NEG = NEG + [v for k, v in ACENTOS.items() if v not in NEG]
 mutate("campaignCriteria", [{"create": {"campaign": f"customers/{CUENTA}/campaigns/{c}", "negative": True,
                                         "keyword": {"text": n, "matchType": "PHRASE"}}} for c in (SEARCH, SHOPPING) for n in NEG])
 print("hecho")
