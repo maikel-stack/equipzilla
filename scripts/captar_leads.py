@@ -90,6 +90,11 @@ EXCLUIR = re.compile(
     # Vendedores de máquina: concesionarios y distribuidores. Ofrecerles
     # nuestro stock es venderle a la competencia (tanda 2, 15/09).
     r"proveedor de maquinaria|concesionario|maquinaria agr[ií]cola|"
+    # Paquetería y última milla: mueven cajas, no palés, y el buzón llega a
+    # atención al cliente. InPost contestó pidiendo el número de seguimiento
+    # de un envío (17/09). Un almacén con carretilla propia sí es ICP.
+    r"paqueter|mensajer|[uú]ltima milla|courier|punto de recogida|locker|"
+    r"inpost|\bseur\b|\bmrw\b|\bcorreos\b|\bdhl\b|fedex|\btipsa\b|"
     # eléctricas y grandes corporaciones: su buzón genérico contesta con tickets
     r"central t[eé]rmica|endesa|iberdrola|naturgy|repsol|telef[oó]nica", re.I)
 
