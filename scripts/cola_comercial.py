@@ -340,6 +340,33 @@ def segmentos():
     return mapa
 
 
+# Rangos de centros de datos (AWS, Azure, Google y pasarelas de seguridad).
+DATACENTRO = ("3.", "13.", "15.", "18.", "20.", "34.", "35.", "40.", "51.",
+              "52.", "54.", "64.233.", "66.102.", "67.231.", "104.47.",
+              "148.163.", "185.58.", "195.130.217.", "91.220.42.")
+
+
+def escaner_clic(fila):
+    """True si el clic lo hizo un antivirus de correo y no una persona.
+
+    Huellas: IP de centro de datos, o varios clics en menos de 90 segundos.
+    El 17/09, tres de los cuatro «clickers» de la campaña #221 eran esto; uno
+    llevaba semanas encabezando la cola con puntuación 95.
+    """
+    ip = (fila.get("Click_IP") or "").strip()
+    if ip and any(ip.startswith(p) for p in DATACENTRO):
+        return True
+    horas = []
+    for k, v in fila.items():
+        if not k or not str(k).startswith("http") or not v:
+            continue
+        try:
+            horas.append(dt.datetime.strptime(str(v).strip()[:19], "%d-%m-%Y %H:%M:%S"))
+        except ValueError:
+            pass
+    return len(horas) >= 2 and (max(horas) - min(horas)).total_seconds() <= 90
+
+
 def clics_brevo(dias):
     corte = (HOY - dt.timedelta(days=dias)).isoformat()
     segs = segmentos()
@@ -350,6 +377,10 @@ def clics_brevo(dias):
         for r in clickers(c["id"]):
             em = (r.get("Email_ID") or "").strip().lower()
             if not em:
+                continue
+            if escaner_clic(r):
+                # Antivirus de correo: abre cada enlace del mensaje al entregarlo.
+                # Sin esto la cola corona como lead más caliente a un servidor.
                 continue
             miro = [maquina_de_url(k) for k, v in r.items() if k.startswith("http") and (v or "").strip()]
             miro = [x for x in dict.fromkeys(miro) if x and x not in ("web", "WhatsApp")]
