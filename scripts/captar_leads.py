@@ -105,7 +105,8 @@ EMAIL_MALO = re.compile(
     r"\.png$|\.jpg$|\.webp$|\.gif$|"
     # 15/09: correos de relleno de las plantillas web (tu@email.com,
     # su@email.com, nombre@tudominio.com). Se colaron 3 en la tanda 2.
-    r"@(email|tudominio|tuempresa|dominio|midominio|miempresa|correo)\.|"
+    r"@(email|tudominio|tuempresa|dominio|midominio|miempresa|correo|empresa|"
+    r"mysite|misitio|tusitio|ejemplo|example)\.|"
     r"^(tu|su|usuario|ejemplo|nombre|email)@|"
     # Buzones que no llegan a una persona de compras: contestan con ticket
     # (visto con Endesa el 08/09) o son de protección de datos.
@@ -224,18 +225,32 @@ def fase_emails(tope=1200):
     print(f"  guardados {len(datos)} registros en {EMAILS}")
 
 
+LIBRES = {"gmail.com", "hotmail.com", "hotmail.es", "yahoo.es", "yahoo.com",
+          "outlook.com", "outlook.es", "live.com", "icloud.com", "telefonica.net",
+          "movistar.es", "terra.es", "ono.com"}
+
+
 def mejor_email(correos, dominio):
-    """Prefiere una dirección del propio dominio y de perfil comercial."""
+    """Prefiere una dirección del propio dominio y de perfil comercial.
+
+    **Solo del propio dominio o de un proveedor gratuito.** Antes, si en la web
+    no había ningún correo del dominio, se cogía el primero que apareciera, y en
+    el pie de muchas webs el correo que hay es el de quien la hizo. El 18/09 un
+    contacto se quejó de que le escribimos como si fuera una constructora siendo
+    su agencia web (`info@ponteaclick.com` por Nortesan, `info@livecommerce.es`
+    por una ferretería). Escribir a un tercero es peor que no escribir a nadie.
+    """
     propios = [c for c in correos
                if c.lower().endswith("@" + dominio) and not EMAIL_MALO.search(c)]
-    otros = [c for c in correos if not EMAIL_MALO.search(c)]
+    libres = [c for c in correos
+              if c.lower().split("@")[-1] in LIBRES and not EMAIL_MALO.search(c)]
     orden = ("comercial", "ventas", "info", "contacto", "administracion",
              "oficina", "gerencia", "direccion")
     for pref in orden:
         for c in propios:
             if c.lower().startswith(pref):
                 return c
-    return (propios or otros or [""])[0]
+    return (propios or libres or [""])[0]
 
 
 def ya_en_smartlead():
