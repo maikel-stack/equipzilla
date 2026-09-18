@@ -574,7 +574,7 @@ def fila_crm(x, inv, nombres_etapa):
             d_of if d_of is not None else "—", " · ".join(porque), accion, x["id"]]
 
 
-def fila_fuera_crm(email, canal, maquinas, listas, campanas_, ultima, senal, inv, ir=None):
+def fila_fuera_crm(email, canal, maquinas, listas, campanas_, ultima, senal, inv, ir=None, perdido=None):
     nombre, tel, empresa, actividad = datos_contacto(email)
     cats = [c for c in (categoria(m) for m in maquinas) if c]
     cat = cats[0] if cats else ""
@@ -607,6 +607,12 @@ def fila_fuera_crm(email, canal, maquinas, listas, campanas_, ultima, senal, inv
               "Llamar esta semana con las alternativas" if score >= 45 else "Email de seguimiento con su categoría")
     if not ops and cat:
         accion = "Llamar y anotar en Want-to-Buy: no tenemos stock que encaje"
+    if perdido:
+        trato, d_perd, motivo = perdido
+        score = max(score - 30, 0)
+        nivel = "🔵 NURTURE" if score >= 25 else "⚪ LOW"
+        porque.insert(0, "PERDIDO hace %d d (trato %s): %s" % (d_perd, trato, motivo[:45]))
+        accion = "Ya se descartó hace %d d. Reabrir el trato %s solo si esta señal lo justifica" % (d_perd, trato)
     return [score, nivel, canal, "Fuera del CRM", "Sin contactar", "sin asignar", nombre or "—", empresa or "—",
             (actividad or tipo_empresa(empresa, email)) or "—", tel or "sin teléfono", email, miro,
             ETIQUETA.get(cat, "—"), ("hasta %s €" % eur(pref)) if pref else "—", encaja[:110],
@@ -627,10 +633,44 @@ def es_trato_de_prueba(x):
     return bool(ES_PRUEBA.search(p.get("name") or "")) or not email_valido(em) and "@" in em
 
 
+# Motivos de pérdida que significan «esto no era un lead»: si vuelve una señal
+# suya, no se devuelve a la cola.
+NO_ERA_LEAD = re.compile(r"autorespuesta|no es lead|cambio de email|duplicado|error de cualificaci", re.I)
+
+
+def perdidos_recientes(dias=30):
+    """email -> (id de trato, días desde la pérdida, motivo).
+
+    Sin esto, un lead que el equipo acaba de dar por perdido sale de la lista
+    de tratos abiertos y su señal antigua de Brevo o Smartlead lo devuelve a la
+    cola al día siguiente como si fuera una oportunidad nueva (18/09: 6 de los
+    12 WARM eran leads perdidos esa misma semana).
+    """
+    fuera = {}
+    # Todos los perdidos del pipeline, no solo los que el título marca como
+    # compraventa: el trato «SANFER CONSTRUCCIONES VENTA» es una venta perdida
+    # y no lleva la palabra «compra» en el título.
+    from panel_horario import deals_todos
+    recientes = [x for x in deals_todos(estados=("lost",)) if x.get("pipeline_id") in PIPELINES]
+    for x in recientes:
+        lt = str(x.get("lost_time") or "")[:19]
+        if not lt:
+            continue
+        d = dias_desde(lt)
+        if d is None or d > dias:
+            continue
+        em = ((x.get("person_id") or {}).get("email") or [{}])[0].get("value", "").lower()
+        if em and (em not in fuera or d < fuera[em][1]):
+            fuera[em] = (x["id"], d, (x.get("lost_reason") or "sin motivo").strip())
+    return fuera
+
+
 def construir(dias=60):
     inv = stock()
     nombres_etapa = etapas()
     abiertos = [x for x in deals("open") if not es_trato_de_prueba(x)]
+    perdidos = perdidos_recientes()
+    print("Pipedrive: %d perdidos en los últimos 30 días (no vuelven a la cola como nuevos)" % len(perdidos), flush=True)
     print("Pipedrive: %d tratos abiertos de compraventa" % len(abiertos), flush=True)
     tiempos = tiempos_embudo(abiertos)
     print("tiempos del embudo calculados", flush=True)
@@ -651,8 +691,11 @@ def construir(dias=60):
             continue          # el propio equipo clicando en sus campañas no es un lead
         if g["email"] in en_crm:
             continue
+        perd = perdidos.get(g["email"])
+        if perd and NO_ERA_LEAD.search(perd[2]):
+            continue          # ya se marcó como «no era un lead»: no vuelve
         filas.append(fila_fuera_crm(g["email"], "Brevo · clic campaña ABM", g["maquinas"], g["listas"],
-                                    g["campanas"], g["ultima"], dict(clics=g["clics"]), inv))
+                                    g["campanas"], g["ultima"], dict(clics=g["clics"]), inv, perdido=perd))
         n_brevo += 1
     frio, ir = senales_smartlead(dias)
     n_frio = 0
@@ -672,9 +715,12 @@ def construir(dias=60):
             continue
         if EXCLUIR.search(" ".join((s.get("empresa") or "", em))):
             continue
+        perd = perdidos.get(em)
+        if perd and NO_ERA_LEAD.search(perd[2]):
+            continue
         canal = "Smartlead · respuesta frío" if resp else "Smartlead · clic frío"
         f = fila_fuera_crm(em, canal, [texto[:80]] if texto else [], set(), {"Frío Madrid"}, "",
-                           dict(respuesta=resp, clics=s["senales"].count("clic_frio")), inv)
+                           dict(respuesta=resp, clics=s["senales"].count("clic_frio")), inv, perdido=perd)
         if s.get("empresa") and f[7] == "—":
             f[7] = s["empresa"]
         filas.append(f)
