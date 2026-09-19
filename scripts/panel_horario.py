@@ -166,10 +166,24 @@ def clickers(cid, tipo="clickers"):
         time.sleep(3)
         pr = pedir("https://api.brevo.com/v3/processes/%s" % pid, cab)
         if pr.get("status") == "completed":
-            r = urllib.request.Request(pr["export_url"], headers={"user-agent": NAVEGADOR})
-            with urllib.request.urlopen(r, timeout=90) as f:
-                texto = f.read().decode("utf-8", "replace")
-            return [fila for fila in csv.DictReader(io.StringIO(texto), delimiter=";")]
+            # Brevo da el proceso por terminado antes de que el fichero exista;
+            # el 19/09 estuvo horas devolviendo 404 en la descarga. Sin esto, un
+            # fallo de Brevo tumbaba la cola comercial entera y el equipo se
+            # quedaba sin CRM. Se reintenta y, si no aparece, se sigue sin clics.
+            for intento in range(3):
+                try:
+                    r = urllib.request.Request(pr["export_url"],
+                                               headers={"user-agent": NAVEGADOR})
+                    with urllib.request.urlopen(r, timeout=90) as f:
+                        texto = f.read().decode("utf-8", "replace")
+                    return [fila for fila in
+                            csv.DictReader(io.StringIO(texto), delimiter=";")]
+                except Exception as err:
+                    if intento == 2:
+                        print("  aviso: Brevo no entrega el export de la campaña "
+                              f"{cid} ({err}); se sigue sin sus clics")
+                        return []
+                    time.sleep(5)
     return []
 
 
