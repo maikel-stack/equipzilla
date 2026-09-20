@@ -99,4 +99,26 @@ ACENTOS = {"agricola": "agrícola", "hormigon": "hormigón", "financiacion": "fi
 NEG = NEG + [v for k, v in ACENTOS.items() if v not in NEG]
 mutate("campaignCriteria", [{"create": {"campaign": f"customers/{CUENTA}/campaigns/{c}", "negative": True,
                                         "keyword": {"text": n, "matchType": "PHRASE"}}} for c in (SEARCH, SHOPPING) for n in NEG])
+# 5) Enlaces de sitio: cada uno a la página que promete
+# Los 4 enlaces activos («Miniexcavadoras», «Excavadoras 2a mano», «Dumpers de obra» y
+# «Asesoramiento de compra») apuntaban los cuatro a la MISMA página genérica, y además
+# por la ruta /ocasion/ que devuelve 308. Medido el 20/09 sobre 30 días: por esos enlaces
+# pasan 465 clics y 386,21 € (el 71 % del gasto de Search) y salen 3 de las 8 conversiones
+# de la cuenta. Es el cambio de mayor alcance de toda la fase 0.
+SITELINKS = {
+    "398500184077": "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano/miniexcavadoras-segunda-mano",
+    "398500245136": "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano/excavadoras-segunda-mano",
+    "398574061461": "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano/dumpers-segunda-mano",
+    "398500245241": URL_OK,   # «Asesoramiento de compra»: no hay página propia, va a la general sin redirección
+}
+ops = []
+for r in consulta("SELECT asset.id, asset.final_urls, asset.sitelink_asset.link_text FROM campaign_asset WHERE campaign_asset.field_type = 'SITELINK' AND campaign_asset.status = 'ENABLED'"):
+    aid = str(r["asset"]["id"])
+    destino = SITELINKS.get(aid)
+    actual = (r["asset"].get("finalUrls") or [""])[0]
+    if destino and actual.rstrip("/") != destino:
+        ops.append({"update": {"resourceName": f"customers/{CUENTA}/assets/{aid}", "finalUrls": [destino]}, "updateMask": "final_urls"})
+        print(f"  Enlace «{r['asset']['sitelinkAsset']['linkText']}» -> {destino.rsplit('/', 1)[-1]}")
+if ops: mutate("assets", ops)
+
 print("hecho")
