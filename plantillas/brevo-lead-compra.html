@@ -2,33 +2,37 @@
 <body style="margin:0;padding:18px;background:#F4F6F8">
 <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#14181C;max-width:620px;margin:0 auto;background:#FFFFFF;border-radius:12px;padding:22px 24px">
 
-<p style="margin:0 0 4px;font-size:17px"><strong>🛒 Lead de COMPRA{% if params.origen %} · {{params.origen}}{% endif %}</strong></p>
-<p style="margin:0 0 16px;color:#667085;font-size:12.5px">Quiere comprar máquina. Llamar hoy{% if params.submissionid %} · ref. solicitud {{params.submissionid}}{% endif %}</p>
+<p style="margin:0 0 4px;font-size:17px"><strong>&#128722; Lead de COMPRA{% if params.origen %} &middot; {{params.origen}}{% endif %}</strong></p>
+<p style="margin:0 0 16px;color:#667085;font-size:12.5px">Quiere comprar m&aacute;quina. Llamar hoy{% if params.submissionid %} &middot; solicitud {{params.submissionid}}{% endif %}</p>
 
 <div style="background:#17323A;color:#D7E4E4;border-radius:10px;padding:16px 18px;margin:0 0 16px">
-  <div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8FB0B0;margin-bottom:6px">Máquina solicitada</div>
-  <div style="font-size:16px;color:#FFFFFF;font-weight:600">{{params.maquina | default : "Sin máquina concreta — pide asesoramiento"}}</div>
-  {% if params.assetType %}<div style="font-size:13px;margin-top:4px">Categoría: {{params.assetType}}</div>{% endif %}
+  <div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8FB0B0;margin-bottom:6px">M&aacute;quina solicitada</div>
+  <div style="font-size:16px;color:#FFFFFF;font-weight:600">{% if params.maquina %}{{params.maquina}}{% else %}{% if params.assetType %}{{params.assetType}}{% else %}Sin concretar &mdash; pide asesoramiento{% endif %}{% endif %}</div>
+  {% if params.maquina %}{% if params.assetType %}<div style="font-size:13px;margin-top:4px">Categor&iacute;a: {{params.assetType}}</div>{% endif %}{% endif %}
   {% if params.referencia %}<div style="font-size:13px;margin-top:4px">Referencia: {{params.referencia}}</div>{% endif %}
   {% if params.precio %}<div style="font-size:15px;margin-top:8px;color:#FFFFFF"><strong>Precio publicado: {{params.precio}}</strong></div>{% endif %}
-  {% if params.urlMaquina %}<div style="margin-top:12px"><a href="{{params.urlMaquina}}" style="display:inline-block;background:#F3533D;color:#FFFFFF;text-decoration:none;font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px">Ver la ficha de la máquina</a></div>{% endif %}
+  {% if params.urlMaquina %}<div style="margin-top:12px"><a href="{{params.urlMaquina}}" style="display:inline-block;background:#F3533D;color:#FFFFFF;text-decoration:none;font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px">Ver la ficha de la m&aacute;quina</a></div>{% endif %}
 </div>
 
 <div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8A93A0;margin:0 0 6px">Contacto</div>
 <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;font-size:14px;margin:0 0 16px">
-  <tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085;width:42%">Nombre</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4"><strong>{{params.nombreUsuario | default : "—"}}</strong>{% if params.empresa %} <span style="color:#667085">({{params.empresa}})</span>{% endif %}</td></tr>
-  <tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Teléfono</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{% if params.telefonoUsuario %}📞 <a href="tel:{{params.telefonoUsuario}}" style="color:#0A8080;text-decoration:none"><strong>{{params.telefonoUsuario}}</strong></a>{% else %}—{% endif %}</td></tr>
-  <tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Email</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{% if params.emailUsuario %}<a href="mailto:{{params.emailUsuario}}" style="color:#0A8080;text-decoration:none">{{params.emailUsuario}}</a>{% else %}—{% endif %}</td></tr>
+  <tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085;width:42%">Nombre</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4"><strong>{% if params.nombreUsuario %}{{params.nombreUsuario}}{% else %}&mdash;{% endif %}</strong>{% if params.profesional %} <span style="color:#667085">({{params.profesional}})</span>{% endif %}</td></tr>
+  <tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Tel&eacute;fono</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{% if params.telefonoUsuario %}&#128222; <a href="tel:{{params.telefonoUsuario}}" style="color:#0A8080;text-decoration:none"><strong>{{params.telefonoUsuario}}</strong></a>{% else %}&mdash;{% endif %}</td></tr>
+  <tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Email</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{% if params.emailUsuario %}<a href="mailto:{{params.emailUsuario}}" style="color:#0A8080;text-decoration:none">{{params.emailUsuario}}</a>{% else %}&mdash;{% endif %}</td></tr>
   {% if params.city %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Zona</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.city}}</td></tr>{% endif %}
 </table>
 
-{% if params.assetUse or params.plazo or params.financiacion or params.presupuesto or params.entrega %}
-<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8A93A0;margin:0 0 6px">La operación</div>
+{% if params.assetUse or params.altura or params.peso or params.potencia or params.exterior or params.plazo or params.presupuesto or params.financiacion or params.entrega %}
+<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8A93A0;margin:0 0 6px">La operaci&oacute;n</div>
 <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;font-size:14px;margin:0 0 16px">
   {% if params.assetUse %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085;width:42%">Uso previsto</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.assetUse}}</td></tr>{% endif %}
-  {% if params.plazo %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Cuándo la necesita</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.plazo}}</td></tr>{% endif %}
+  {% if params.altura %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Altura (m)</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.altura}}</td></tr>{% endif %}
+  {% if params.peso %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Peso o carga (kg)</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.peso}}</td></tr>{% endif %}
+  {% if params.potencia %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Potencia (KVA)</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.potencia}}</td></tr>{% endif %}
+  {% if params.exterior %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Uso interior / exterior</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.exterior}}</td></tr>{% endif %}
+  {% if params.plazo %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Cu&aacute;ndo la necesita</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.plazo}}</td></tr>{% endif %}
   {% if params.presupuesto %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Presupuesto</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.presupuesto}}</td></tr>{% endif %}
-  {% if params.financiacion %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Financiación</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.financiacion}}</td></tr>{% endif %}
+  {% if params.financiacion %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Financiaci&oacute;n</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.financiacion}}</td></tr>{% endif %}
   {% if params.entrega %}<tr><td style="padding:7px 0;border-bottom:1px solid #EEF1F4;color:#667085">Entrega / transporte</td><td style="padding:7px 0;border-bottom:1px solid #EEF1F4">{{params.entrega}}</td></tr>{% endif %}
 </table>
 {% endif %}
@@ -38,6 +42,6 @@
 <div style="background:#F4F6F8;border-left:3px solid #17323A;border-radius:6px;padding:12px 14px;margin:0 0 16px;font-size:13.5px">{{params.mensaje}}</div>
 {% endif %}
 
-<p style="margin:16px 0 0;font-size:13px;color:#14181C"><strong>Siguiente paso:</strong> llamada en menos de 24 h. Si no coge, WhatsApp con la ficha y precio.</p>
-<p style="margin:14px 0 0;font-size:11.5px;color:#8A93A0;border-top:1px solid #EEF1F4;padding-top:12px">Aviso automático de lead de compra · Equipzilla · 911 238 750 · equipzilla.com</p>
+<p style="margin:16px 0 0;font-size:13px;color:#14181C"><strong>Siguiente paso:</strong> llamada en menos de 24 h. Si no coge, WhatsApp con la ficha y el precio.</p>
+<p style="margin:14px 0 0;font-size:11.5px;color:#8A93A0;border-top:1px solid #EEF1F4;padding-top:12px">Aviso autom&aacute;tico de lead de compra &middot; Equipzilla &middot; 911 238 750 &middot; equipzilla.com</p>
 </div></body></html>
