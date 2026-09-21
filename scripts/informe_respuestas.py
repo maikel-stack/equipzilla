@@ -145,6 +145,8 @@ def texto_respuesta(email):
 
 
 AUTOREPLY = re.compile(r"vacacion|fuera de la oficina|out of office|"
+                       # catalán: avisos de buzón que cierra (21/09)
+                       r"deixar[àa] de donar servei|generat per un robot|"
                        r"no estar[eé] disponible|respuesta autom|ya no est[aá] en uso|"
                        r"nueva direcci[oó]n|automatic reply|"
                        # avisos de buzón que se cierra: no son leads, son un
@@ -239,6 +241,10 @@ def clasificar(texto):
         return "rechazo"
     if AUTOREPLY.search(texto):
         t = texto.lower()
+        # catalán: «deixarà de donar servei», «el nostre nou email» (21/09)
+        if any(x in t for x in ("deixar", "nou email", "nou correu",
+                                "no responeu", "generat per un robot")):
+            return "cambio_email"
         if any(x in t for x in ("ya no est", "nueva direcci", "deshabilitado",
                                 "siguientes correos", "utilicen el correo",
                                 "puedes contactar", "pueden contactar",
