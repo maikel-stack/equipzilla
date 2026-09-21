@@ -1,0 +1,62 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hemos recibido tu solicitud</title></head>
+<body style="margin:0;padding:0;background:#F4F6F8">
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#F4F6F8">
+<tr><td align="center" style="padding:20px 12px">
+<table role="presentation" cellpadding="0" cellspacing="0" width="600" style="max-width:600px;width:100%;background:#FFFFFF;border-radius:12px;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+
+  <tr><td style="background:#17323A;padding:18px 24px">
+    <img src="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@7f009ffee577abee39b7cc1e08a2914606b4cdf6/email_assets/equipzilla-logo.png" width="140" alt="Equipzilla" style="display:block;border:0;height:auto">
+  </td></tr>
+
+  <tr><td style="padding:26px 24px 0;color:#14181C;font-size:15px;line-height:1.6">
+    <p style="margin:0 0 14px;font-size:19px;font-weight:600;color:#14181C">Hemos recibido tu solicitud{% if params.nombreUsuario %}, {{params.nombreUsuario}}{% endif %}</p>
+    <p style="margin:0 0 14px">Gracias por escribirnos. {% if params.maquina %}Nos has preguntado por la <strong>{{params.maquina}}</strong>.{% else %}Nos has pedido información para comprar máquina.{% endif %}</p>
+    <p style="margin:0 0 6px"><strong>Qué pasa ahora:</strong> {% if params.comercial %}{{params.comercial}}{% else %}uno de nosotros{% endif %} te llama en menos de 24 horas laborables para confirmar contigo el estado real de la máquina, las horas de trabajo y cómo la quieres recibir. Si prefieres que te llamemos a una hora concreta, respóndenos a este correo y nos amoldamos.</p>
+  </td></tr>
+
+  {% if params.maquina or params.referencia or params.submissionid or params.city %}
+  <tr><td style="padding:20px 24px 0">
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#F4F6F8;border-radius:10px">
+      <tr><td style="padding:16px 18px;font-size:14px;color:#14181C;line-height:1.6">
+        <div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8A93A0;margin-bottom:8px">Resumen de tu solicitud</div>
+        {% if params.maquina %}<div style="margin-bottom:4px"><strong>{{params.maquina}}</strong></div>{% endif %}
+        {% if params.assetType %}<div style="margin-bottom:4px;color:#667085">Tipo: {{params.assetType}}</div>{% endif %}
+        {% if params.precio %}<div style="margin-bottom:4px">Precio publicado: <strong>{{params.precio}}</strong></div>{% endif %}
+        {% if params.city %}<div style="margin-bottom:4px;color:#667085">Zona de entrega: {{params.city}}</div>{% endif %}
+        {% if params.plazo %}<div style="margin-bottom:4px;color:#667085">Cuándo la necesitas: {{params.plazo}}</div>{% endif %}
+        {% if params.referencia %}<div style="margin-bottom:4px;color:#667085">Referencia: {{params.referencia}}</div>{% endif %}
+        {% if params.submissionid %}<div style="color:#667085">Nº de solicitud: {{params.submissionid}}</div>{% endif %}
+      </td></tr>
+    </table>
+  </td></tr>
+  {% endif %}
+
+  {% if params.urlMaquina %}
+  <tr><td align="center" style="padding:20px 24px 0">
+    <a href="{{params.urlMaquina}}" style="display:inline-block;background:#F3533D;color:#FFFFFF;text-decoration:none;font-size:15px;font-weight:600;padding:13px 28px;border-radius:8px">Ver la ficha de la máquina</a>
+  </td></tr>
+  {% endif %}
+
+  <tr><td style="padding:22px 24px 0;color:#14181C;font-size:15px;line-height:1.6">
+    <p style="margin:0 0 8px"><strong>En esa llamada te resolvemos:</strong></p>
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="font-size:14.5px;color:#14181C;line-height:1.55">
+      <tr><td style="padding:0 0 7px">· Estado real, horas y mantenimiento de la máquina.</td></tr>
+      <tr><td style="padding:0 0 7px">· Qué opciones hay de garantía y de financiación en tu caso.</td></tr>
+      <tr><td style="padding:0 0 7px">· El transporte hasta tu obra o tu nave.</td></tr>
+      <tr><td style="padding:0 0 7px">· Y si esta no acaba de encajar, qué alternativas tenemos ahora mismo.</td></tr>
+    </table>
+  </td></tr>
+
+  <tr><td style="padding:18px 24px 0;color:#14181C;font-size:15px;line-height:1.6">
+    <p style="margin:0">¿Tienes prisa? Responde a este correo o llámanos al <a href="tel:+34911238750" style="color:#0A8080;text-decoration:none"><strong>911 238 750</strong></a>{% if params.comercialMovil %}, o escribe por WhatsApp al <a href="https://wa.me/34{{params.comercialMovil}}" style="color:#0A8080;text-decoration:none"><strong>{{params.comercialMovil}}</strong></a>{% endif %}. Atendemos de lunes a viernes, de 9:00 a 18:00.</p>
+  </td></tr>
+
+  <tr><td style="padding:22px 24px 26px">
+    <p style="margin:0 0 2px;font-size:15px;color:#14181C">Un saludo,</p>
+    <p style="margin:0;font-size:15px;color:#14181C"><strong>{% if params.comercial %}{{params.comercial}}{% else %}El equipo de Equipzilla{% endif %}</strong></p>
+    <p style="margin:6px 0 0;font-size:12.5px;color:#8A93A0">Equipzilla · Compraventa de maquinaria de ocasión · 911 238 750 · equipzilla.com</p>
+  </td></tr>
+
+</table>
+</td></tr></table>
+</body></html>
