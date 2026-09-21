@@ -27,7 +27,7 @@ def send(email, html, subject):
     req = urllib.request.Request("https://api.brevo.com/v3/smtp/email",
         data=json.dumps({
             "sender": {"id": 10, "name": "David de Equipzilla"},
-            "replyTo": {"email": "david@equipzilla.com", "name": "David Devis"},
+            "replyTo": {"email": "clientes@equipzilla.com", "name": "David Devis"},
             "to": [{"email": email}],
             "subject": subject,
             "htmlContent": html,
