@@ -7,7 +7,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ads_metricas import CUENTA, DEV, VERSION, consulta
 from panel_horario import token_google
 
-PRUEBA = "--prueba" in sys.argv
+PRUEBA = "--prueba" in sys.argv or "--informe" in sys.argv
+INFORME = "--informe" in sys.argv
 BASE = f"https://googleads.googleapis.com/{VERSION}/customers/{CUENTA}"
 SEARCH, SHOPPING = 24065940601, 24066002797
 URL_OK = "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano"
@@ -22,6 +23,14 @@ POR_GRUPO = {
     "Dumpers 2a mano": "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano/dumpers-segunda-mano",
     "Minicargadoras 2a mano": "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano/minicargadoras-segunda-mano",
 }
+
+def comprobar_credenciales():
+    """Aviso claro antes de tocar nada, para quien lo ejecute en local."""
+    faltan = [f for f in (DEV, os.path.expanduser("~/.outbound/google_sa.json")) if not os.path.exists(f)]
+    if faltan:
+        raise SystemExit("Falta la credencial: " + ", ".join(os.path.basename(f) for f in faltan) +
+                         "\nSe crean con: python3 scripts/bootstrap_credenciales.py")
+
 
 def mutate(servicio, ops):
     if PRUEBA:
@@ -41,6 +50,32 @@ def rsa(ad_group_id, url, titulos, descripciones, rutas):
             "ad": {"finalUrls": [url], "responsiveSearchAd": {
                 "headlines": [{"text": t} for t in titulos], "descriptions": [{"text": d} for d in descripciones],
                 "path1": rutas[0], "path2": rutas[1]}}}}
+
+if INFORME:
+    print("""
+QUÉ VA A CAMBIAR EN LA CUENTA 3057448284 (y qué no)
+
+  1. Dos anuncios nuevos, en los grupos de Retroexcavadoras y de Plataformas
+     elevadoras. Hoy esos grupos están activos pero no tienen ningún anuncio, así
+     que no aparecen nunca. Retroexcavadoras es la categoría más buscada.
+  2. Cuatro anuncios pasan a apuntar a la página de su categoría. Hoy van a un
+     listado general y por una ruta que redirige.
+  3. Cuatro enlaces de sitio pasan a apuntar a su página. Hoy los cuatro llevan al
+     mismo listado general. Por estos enlaces pasa el 71 % del gasto de Búsqueda.
+  4. La segmentación pasa a «personas en España» en lugar de «en España o
+     interesadas en España», que deja entrar tráfico de fuera.
+  5. Se añaden negativas hasta 57 por campaña, incluidas las variantes con acento.
+
+  NO se toca el presupuesto (sigue en 20 €/día por campaña) ni la estrategia de
+  puja. Todo es reversible desde el historial de cambios de Google Ads.
+
+  Para ejecutarlo de verdad:  python3 scripts/ads_ajustes.py
+  Para ver el detalle sin escribir:  python3 scripts/ads_ajustes.py --prueba
+""")
+    sys.exit(0)
+
+if not PRUEBA:
+    comprobar_credenciales()
 
 # 1) Anuncios para los dos grupos sin anuncio
 retro = rsa(208483399828, URL_EXC,
