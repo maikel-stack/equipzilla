@@ -79,6 +79,9 @@ EXCLUIR = re.compile(
     r"inmueble|tasaci|topograf|proyect[oa]s de ingenier|"
     # Se colaron en la tanda 1 (auditoría del 08/09): no compran máquina
     r"museo|arqueo|enclave|conjunto arqueol|centro de arte|castro de|concello|fundaci|loter|"
+    # 21/09: «Vacceo Integral de Patrimonio» contestó que las máquinas las pone
+    # la constructora que les contrata. Patrimonio y yacimientos no compran.
+    r"patrimonio|yacimiento|restauraci[oó]n de monument|"
     r"vaciado de pisos|vaciado de casas|recogida de muebles|academ|"
     r"ayuntamiento|diputaci|junta de|"
     # Competidores: alquiladores de maquinaria. Les mandábamos nuestros precios.
