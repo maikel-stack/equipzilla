@@ -60,6 +60,20 @@ def alerta(prio, area, texto, accion):
 
 
 # ── FUENTES ──────────────────────────────────────────────────────────
+def es_compraventa(titulo):
+    """Mismo criterio que la cola comercial y que la tabla mensual.
+
+    Antes del 22/09 este módulo solo buscaba la palabra «compra» en el título,
+    así que dejaba fuera los tratos «Prospecto - Respuesta/Clic frío» y
+    «Prospecto - Clic campaña», que son leads de compraventa creados por el
+    agente de Outbound. En septiembre eso son 61 tratos de 70: el Demand Engine
+    contaba 10 leads y Analítica 67 sobre los mismos datos.
+    """
+    import cola_comercial as cc
+    t = re.sub(r"^[0-9a-f-]{36} ?-\s*", "", titulo or "")
+    return bool(cc.COMPRAVENTA.search(t)) and not cc.NO_COMPRAVENTA.search(t)
+
+
 def deals_compraventa():
     """Todos los tratos de compraventa, con sus campos.
 
@@ -67,12 +81,12 @@ def deals_compraventa():
     se distinguen por el título. El pipeline 16 «Compraventa», que tiene las
     etapas correctas, está vacío: es el hallazgo nº1 de la auditoría.
     """
+    import cola_comercial as cc
     fuera = []
     for x in deals_todos():
         if x.get("pipeline_id") == PIPE_COMPRAVENTA:
             fuera.append(x)
-        elif (x.get("pipeline_id") == PIPE_TRANSACCIONAL
-              and re.search(r"compra", x.get("title") or "", re.I)):
+        elif x.get("pipeline_id") == PIPE_TRANSACCIONAL and es_compraventa(x.get("title")):
             fuera.append(x)
     return fuera
 
