@@ -122,3 +122,101 @@ Hay que darle acceso de lectura a:
 
 Con eso, el repaso de los A/B y el cruce con quién está ya en las listas de Brevo
 sale en una tarde.
+
+---
+
+# Repaso del Sheet · 22/09 por la tarde
+
+Ya con acceso de lectura. Cuatro cosas que cambian el plan.
+
+## 1. Un cuarto de la base no se puede enviar
+
+Cruzados los 295 correos contra Brevo, uno a uno:
+
+| estado | clientes |
+|---|---|
+| Enviables | 192 |
+| **En lista negra de Brevo** | **75** |
+| No están en Brevo (habría que darlos de alta) | 22 |
+| Sin correo | 6 |
+
+Por segmento, y aquí está el problema:
+
+| segmento | enviables | en lista negra | total |
+|---|---|---|---|
+| **S1 · oficios e instaladores** | **52** | **25** | 79 |
+| S2 · carretillas | 17 | 8 | 26 |
+| S3 · minis y obra | 26 | 7 | 36 |
+| S4 · particulares | 33 | 6 | 39 |
+| S9 · por cualificar | 21 | 8 | 35 |
+| **Total de campaña** | **149** | **54** | 215 |
+
+**S1, el segmento estrella, se queda en 52 personas.** El umbral de T1 —«S1 ≥ 8 %
+de respuesta»— se jugaría con **cuatro respuestas**. Con eso no se decide nada.
+
+Antes de fijar ningún umbral hay que saber *por qué* están en lista negra: si se
+dieron de baja voluntariamente, no vuelven; si son rebotes acumulados de las
+campañas genéricas, parte se recupera verificando el correo. No es lo mismo, y
+cambia el tamaño de todo el plan.
+
+## 2. La lista A no son 11 llamadas: son 6
+
+De los 11 de prioridad A:
+- **2 son alquiladores** (Gerpasa y Europa Prefabri): van a wholesale con David,
+  como dice el propio plan. Gerpasa además no tiene teléfono en la ficha.
+- **3 son extranjeros**: Globalkiln (Portugal), D&G Industriemontage (Alemania),
+  Maitland & Poate (Reino Unido). ¿Vendemos y transportamos fuera de España? Si
+  la respuesta es no, fuera del calendario; y si es sí, no pueden ir en el mismo
+  correo que promete «transporte a tu obra».
+- **2 de los 11 están en lista negra**: Floresma y Zoom Publicidad. A esos dos
+  solo se les puede llamar.
+
+Quedan **6 llamables para compra**: Malupain, SUD Energies, Zoom Publicidad
+(por teléfono), Dabante, Visa Infraestructuras y Floresma (por teléfono).
+
+## 3. Lo que más me llama la atención, y está en el Sheet sin destacar
+
+De los 15 con señal en campañas de compra, **13 han abierto tres o cuatro
+campañas y ninguno ha hecho clic jamás**. El único que clicó es Malupain. Y dos
+de esos abridores son prioridad A del segmento solar: **Dabante y Visa, cuatro
+campañas abiertas cada uno, cero clics**.
+
+Nos abren y no les mueve nada. Eso no es un problema de segmentación —el
+segmento ya está identificado y nos lee— **es un problema de oferta y de
+mensaje**. Por eso movería **T2 (personalizado contra genérico) al primer
+puesto**: es el test que ataca justo esa pared, y el genérico ya sabemos que no
+funciona con esta gente.
+
+Un matiz honesto: parte de esas aperturas pueden ser escáneres de correo. Con
+tres o cuatro campañas repetidas el patrón aguanta, pero conviene cruzarlo con
+la IP antes de darlo por bueno.
+
+**Y un caso que enseña algo**: en Globalkiln quien abre las campañas no es
+nuestro contacto, es otra persona de la empresa (frota@). Lo mismo pasa en
+Elecnor. El interés de compra está en un buzón distinto del que tenemos fichado.
+
+## 4. El repaso de «Sector real» que pedía Andrés
+
+De los 71 A/B: **62 verificados en web, 9 estimados**. Los 9 estimados son todos
+B, todos de una sola operación y sin web. De esos:
+
+- **Eva** y **Ángela Giraldo** están clasificadas «Particular sin señal
+  profesional» pero puntúan como B. El propio plan manda a los particulares a S4,
+  prioridad C, mailing de precio bajo y sin llamada. O el sector está mal o la
+  prioridad está mal; las dos cosas a la vez no.
+- **Walter, Jose Manuel, Carlos Javier Díaz y Marina** son nombre de pila, sin
+  empresa y sin web. Su sector es una conjetura razonable, no un dato.
+
+Es decir: el 87 % de los A/B está bien fundado y el 13 % descansa sobre una
+suposición. Para una lista de llamadas es más que suficiente; para calibrar el
+score a los 60 días, esos nueve hay que dejarlos fuera del cálculo.
+
+## 5. Dos datos que conviene tener delante en la reunión
+
+- **146 de los 215 de campaña tienen su última operación en 2024 o antes.** Dos
+  tercios llevan año y medio sin operar con nosotros: el contacto puede haber
+  cambiado de empresa. Eso baja las expectativas de respuesta *antes* de fijar
+  umbrales.
+- **A 115 de los 295 se les ofrecería plataformas** — y en la web hay 2 tijeras
+  de las 14 que tenemos. A otros 37 se les ofrecerían casetas, que no tenemos, y
+  a 49 «equipo no identificado», que es nada.
