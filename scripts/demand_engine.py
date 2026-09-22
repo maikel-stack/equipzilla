@@ -39,6 +39,7 @@ ETAPA_OFERTA = (37, 38, 28, 46)     # de aquí en adelante hay oferta enviada
 OBJETIVOS = [("Septiembre", 45, 18, 3, 60000), ("Octubre", 85, 32, 5, 100000),
              ("Noviembre", 105, 38, 8, 160000), ("Diciembre", 115, 40, 9, 180000)]
 META_OPS, META_GMV = 25, 500000
+ANO_META = 2026   # el objetivo es de 2026: una venta de 2025 no cuenta contra él
 CIERRE_OBJ, OFERTA_OBJ = 0.20, 0.40
 
 CAMPOS_CLAVE = {
@@ -145,12 +146,18 @@ def bloque_externo(script, args=()):
 def embudo(deals):
     """El embudo real, medido sobre los tratos de Pipedrive."""
     e = dict(leads=len(deals), ofertas=0, ganadas=0, perdidas=0, abiertas=0,
-             gmv=0.0, con_importe=0)
+             gmv=0.0, con_importe=0, ganadas_historicas=0)
     for x in deals:
         st = x.get("status")
         if st == "won":
-            e["ganadas"] += 1
-            e["gmv"] += float(x.get("value") or 0)
+            # Solo cuentan contra el objetivo las ventas del año del objetivo.
+            # Había una ganada en febrero de 2025 que venía inflando el marcador
+            # y el ratio oferta→venta: se cuenta aparte, como histórico.
+            if (x.get("won_time") or "")[:4] == str(ANO_META):
+                e["ganadas"] += 1
+                e["gmv"] += float(x.get("value") or 0)
+            else:
+                e["ganadas_historicas"] += 1
         elif st == "lost":
             e["perdidas"] += 1
         else:
