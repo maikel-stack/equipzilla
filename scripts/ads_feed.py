@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Qué parte del stock está anunciándose en Shopping, y qué demanda no tiene producto.
+"""Cruce entre lo que Shopping anuncia y lo que la web publica de verdad.
 
-Dos preguntas que la cuenta no responde sola:
+Por qué. Un anuncio de Shopping lleva a la ficha de una máquina concreta. Si esa
+máquina ya no está en la web, el clic está pagado y el comprador aterriza en un
+listado donde no encuentra lo que vio en el anuncio. Medido el 23/09: cuatro de
+las nueve máquinas anunciadas ya no estaban publicadas y se llevaban el 61 % del
+gasto de Shopping.
 
-  1. De las máquinas del catálogo (data/machines.json), ¿cuáles aparecen en
-     Shopping? Lo que no está en el feed no se anuncia, por mucho que se busque.
-  2. De las categorías que la gente busca, ¿cuáles no tenemos en stock? Anunciar
-     una categoría sin producto trae clics que no pueden acabar en venta.
+Fuente de verdad del stock: la propia web (los datos que sirve la página de
+listado), no data/machines.json, que es el catálogo de marketing y no coincide.
 
 Uso: python3 scripts/ads_feed.py
 """
@@ -15,87 +17,96 @@ import os
 import re
 import sys
 import unicodedata
+import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ads_metricas import consulta  # noqa: E402
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CATALOGO = os.path.join(RAIZ, "data", "machines.json")
-
-# categoría → palabras que la identifican en el nombre de la máquina del catálogo
-# El orden importa: se asigna la primera familia que coincide. Las marcas de
-# elevación van primero porque algunos modelos comparten prefijo con las minis
-# (el Manitou 170 AETJL es una plataforma articulada, no una miniexcavadora).
-FAMILIAS = {
-    "plataformas": ["haulotte", "genie", "jlg 1", "jlg 4", "jlg 8", "jlg e", "manitou 1", "multitel", "compact"],
-    "telescopicos": ["magni", "merlo", "jcb 5", "jlg 40"],
-    "carretillas": ["clark", "yale", "hyster", "jungheinrich"],
-    "minicargadoras": ["bobcat", "s70"],
-    "dumpers": ["wacker", "dumper"],
-    "retroexcavadoras": ["retro", "3cx", "4cx", "mixta"],
-    "miniexcavadoras": ["kx 0", "u 1", "u 3", "u 5", "k 008", "dx 27", "dx 35"],
-    "excavadoras": ["dx 1", "dx 2", "dl 4", "kx 060", "kx 080"],
-}
+LISTADO = "https://equipzilla.com/compra/maquinaria/usada/maquinaria-construccion-segunda-mano"
 
 
 def limpia(s):
-    s = "".join(c for c in unicodedata.normalize("NFD", s.lower()) if unicodedata.category(c) != "Mn")
-    return re.sub(r"\s+", " ", s).strip()
+    s = "".join(c for c in unicodedata.normalize("NFD", str(s).lower()) if unicodedata.category(c) != "Mn")
+    return re.sub(r"[^a-z0-9]+", " ", s).strip()
 
 
-def familia(nombre):
+def modelo(nombre):
+    """Núcleo del nombre que identifica la máquina: marca y modelo, sin el tipo."""
     n = limpia(nombre)
-    for fam, claves in FAMILIAS.items():
-        if any(k in n for k in claves):
-            return fam
-    return "otras"
+    for palabra in ("miniexcavadora", "excavadora", "pala cargadora", "minicargadora", "dumper", "oruga"):
+        n = n.replace(palabra, " ")
+    return re.sub(r"\s+", " ", n).strip()
 
 
-def en_shopping():
-    """Títulos de producto que han tenido actividad en Shopping los últimos 30 días."""
-    return {r["segments"].get("productTitle", ""): int(r["metrics"].get("clicks") or 0)
-            for r in consulta(
-                "SELECT segments.product_item_id, segments.product_title, metrics.clicks, "
-                "metrics.cost_micros FROM shopping_performance_view WHERE segments.date DURING LAST_30_DAYS")}
+def en_la_web():
+    """Productos publicados hoy en la web, leídos de los datos que sirve la página."""
+    req = urllib.request.Request(LISTADO, headers={"User-Agent": "Mozilla/5.0 (equipzilla-ads-bot)"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        html = r.read().decode("utf-8", "ignore")
+    m = re.search(r'id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.S)
+    if not m:
+        raise SystemExit("la página ya no trae __NEXT_DATA__: revisar cómo publica el stock")
+    datos, prods = json.loads(m.group(1)), {}
+
+    def recorre(o):
+        if isinstance(o, dict):
+            if "price" in o and any(k in o for k in ("name", "title", "model")):
+                nombre = o.get("name") or o.get("title") or o.get("model")
+                precio = o.get("price")
+                prods[str(nombre)] = precio.get("amount") if isinstance(precio, dict) else precio
+            for v in o.values():
+                recorre(v)
+        elif isinstance(o, list):
+            for v in o:
+                recorre(v)
+
+    recorre(datos)
+    return prods
 
 
-def demanda_por_familia():
-    """Impresiones de búsqueda por familia, de los términos reales."""
-    from ads_demanda import CATEGORIAS, demanda
-    return {c: d["impresiones"] for c, d in demanda(30).items()}
+def en_shopping(dias=30):
+    rango = {7: "LAST_7_DAYS", 30: "LAST_30_DAYS"}.get(dias, "LAST_30_DAYS")
+    out = {}
+    for r in consulta(
+            "SELECT segments.product_item_id, segments.product_title, metrics.impressions, "
+            "metrics.clicks, metrics.cost_micros, metrics.conversions FROM shopping_performance_view "
+            "WHERE segments.date DURING %s" % rango):
+        s, m = r["segments"], r["metrics"]
+        out[s.get("productTitle", "?")] = dict(
+            id=s.get("productItemId", "?"), impresiones=int(m.get("impressions") or 0),
+            clics=int(m.get("clicks") or 0), coste=int(m.get("costMicros") or 0) / 1e6,
+            conv=float(m.get("conversions") or 0))
+    return out
 
 
 if __name__ == "__main__":
-    catalogo = json.load(open(CATALOGO, encoding="utf-8"))
-    activos = en_shopping()
-    activos_limpios = {limpia(t) for t in activos}
-    print(f"Catálogo: {len(catalogo)} máquinas · en Shopping con actividad en 30 días: {len(activos)}\n")
+    web, shop = en_la_web(), en_shopping()
+    modelos_web = {modelo(n) for n in web}
+    print(f"Publicado en la web: {len(web)} productos · anunciado en Shopping (30 d): {len(shop)}\n")
 
-    por_fam = {}
-    for m in catalogo:
-        nombre = m.get("n", "")
-        fam = familia(nombre)
-        anunciada = any(limpia(nombre) in t or t in limpia(nombre) for t in activos_limpios)
-        d = por_fam.setdefault(fam, {"total": 0, "anunciadas": 0, "fuera": []})
-        d["total"] += 1
-        if anunciada:
-            d["anunciadas"] += 1
-        else:
-            d["fuera"].append(f"{nombre} ({m.get('p', '?')} €)")
+    huerfanos, vivos = [], []
+    for titulo, d in sorted(shop.items(), key=lambda x: -x[1]["coste"]):
+        m = modelo(titulo)
+        esta = any(m in w or w in m for w in modelos_web if w and m)
+        (vivos if esta else huerfanos).append((titulo, d))
 
-    dem = demanda_por_familia()
-    print(f"{'familia':<18}{'en stock':>9}{'en Shopping':>13}{'búsquedas 30 d':>16}")
-    for fam, d in sorted(por_fam.items(), key=lambda x: -dem.get(x[0], 0)):
-        print(f"{fam:<18}{d['total']:>9}{d['anunciadas']:>13}{dem.get(fam, 0):>16}")
+    print("ANUNCIADO Y SIN PUBLICAR EN LA WEB (el clic aterriza sin encontrar la máquina):")
+    for t, d in huerfanos:
+        print(f"  {t[:46]:<48} {d['clics']:4} clics {d['coste']:7.2f}€")
+    if not huerfanos:
+        print("  ninguno")
+    gasto_h = sum(d["coste"] for _, d in huerfanos)
+    gasto_t = sum(d["coste"] for _, d in shop.values()) if False else sum(d["coste"] for d in shop.values())
+    if gasto_t:
+        print(f"  → {gasto_h:.2f} € de {gasto_t:.2f} € ({gasto_h / gasto_t * 100:.0f} % del gasto de Shopping)")
 
-    print("\nDemanda sin producto en el catálogo:")
-    vacias = [(i, c) for c, i in dem.items() if i > 1000 and por_fam.get(c, {}).get("total", 0) == 0]
-    for impr, cat in sorted(vacias, reverse=True):
-        print(f"  {cat}: {impr} impresiones al mes y 0 máquinas en stock")
-    if not vacias:
-        print("  ninguna")
+    print("\nANUNCIADO Y PUBLICADO (correcto):")
+    for t, d in vivos:
+        print(f"  {t[:46]:<48} {d['clics']:4} clics {d['coste']:7.2f}€ conv {d['conv']:.0f}")
 
-    print("\nMáquinas en stock que Shopping no anuncia:")
-    for fam, d in sorted(por_fam.items(), key=lambda x: -dem.get(x[0], 0)):
-        if d["fuera"] and dem.get(fam, 0) > 100:
-            print(f"  {fam} ({dem.get(fam, 0)} búsquedas al mes): {', '.join(d['fuera'][:6])}")
+    print("\nPUBLICADO EN LA WEB Y SIN ANUNCIAR EN SHOPPING:")
+    modelos_shop = {modelo(t) for t in shop}
+    for n, p in sorted(web.items(), key=lambda x: -(x[1] or 0)):
+        m = modelo(n)
+        if not any(m in s or s in m for s in modelos_shop if s and m):
+            print(f"  {n[:46]:<48} {p} €")
