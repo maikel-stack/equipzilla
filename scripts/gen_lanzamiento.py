@@ -205,9 +205,9 @@ GRUPOS = {
     # hoja tiene varias Toyota RRE y la foto no da la referencia).
     asunto="Articulada eléctrica de 14 m del 2022 · y cinco máquinas más desde 2.750 €",
     titular="Una articulada eléctrica del 2022 — y cinco máquinas más desde 2.750 €",
-    entrada="Seis unidades nuevas en stock: <strong>tres de altura grande, una tijera "
-            "de entrada y dos de almacén</strong>. Todas revisadas y con el precio puesto "
-            "delante — el que llega primero, elige primero.",
+    entrada="Seis máquinas que acaban de entrar: <strong>tres de altura grande, una tijera "
+            "de entrada y dos de almacén</strong>. Todas de ocasión, revisadas y con el precio "
+            "puesto delante — el que llega primero, elige primero.",
     eyebrow="Elevación y almacén · seis unidades",
     cierre=" <strong>Pregunta por nuestra opci&oacute;n de mantenimiento y garant&iacute;a.</strong>",
     asunto_f2="La articulada eléctrica del 22 sigue disponible — ¿te cuento más?",
