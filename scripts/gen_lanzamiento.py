@@ -101,7 +101,7 @@ GRUPOS = {
            texto="Telescópico de 14 metros: la navaja suiza de la obra. Carga paletizada, horquillas y cesta en una sola máquina."),
       dict(etq="Carretilla eléctrica 2,5 t", titulo="Clark EPX25", foto="clark-epx25-2011.jpg", precio="7.000 €",
            datos=[("Año", "2011"), ("Horas", "801"), ("Capacidad", "2.500 kg"), ("Energía", "Eléctrica")],
-           texto="Contrapesada eléctrica de 2,5 t con 801 horas. Para nave y muelle: sin humos, sin ruido y con el mantenimiento más barato de las tres energías."),
+           texto="Contrapesada eléctrica de 2,5 t con 801 horas. Para nave y muelle: sin humos, sin ruido y con el mantenimiento más económico de las tres energías."),
       dict(etq="Tijera eléctrica 14 m", titulo="Haulotte Compact-14", foto="haulotte-compact-14-2018.jpg", precio="10.500 €",
            datos=[("Año", "2018"), ("Horas", "89"), ("Altura de trabajo", "14 m"), ("Energía", "Eléctrica")],
            texto="Tijera eléctrica del 2018 con 89 horas: prácticamente sin uso. Catorce metros de altura de trabajo para interior y suelo firme."),
@@ -133,7 +133,7 @@ GRUPOS = {
     maquinas=[
       dict(etq="Tijera eléctrica 8 m", titulo="Haulotte Compact 8", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@acda5d67fc16a3785de198577ae8a8125fb1eb65/email_assets/machines/PL-COMPACT8-2012.jpg", precio="3.500 €",
            datos=[("Año", "2012"), ("Horas", "909"), ("Altura de trabajo", "8 m"), ("Energía", "Eléctrica")],
-           texto="La tijera de interior más barata del lote. Mantenimiento, "
+           texto="La tijera de interior más económica del lote. Mantenimiento, "
                  "instalaciones y almacén, con 909 horas de uso real."),
       dict(etq="Tijera eléctrica 10 m", titulo="Haulotte Compact-10N", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@acda5d67fc16a3785de198577ae8a8125fb1eb65/email_assets/machines/PL-COMPACT10N-2016.jpg", precio="4.750 €",
            datos=[("Año", "2016"), ("Horas", "410"), ("Altura de trabajo", "10 m"), ("Energía", "Eléctrica")],
@@ -214,7 +214,7 @@ GRUPOS = {
     maquinas=[
       dict(etq="Tijera eléctrica 8 m", titulo="JLG 1930ES", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/EL-1930ES-543H.jpg", precio="2.750 €",
            datos=[("Año", "2007"), ("Horas", "543"), ("Altura", "8 m")],
-           texto="La más barata del lote y la que más se usa: interior de nave, "
+           texto="La más económica del lote y la que más se usa: interior de nave, "
                  "mantenimiento y montaje. Eléctrica, entra por una puerta normal."),
       dict(etq="Retráctil 6,3 m", titulo="BT Reflex", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/CR-BTREFLEX.jpg", precio="6.200 €",
            datos=[("Año", "2015"), ("Horas", "4.758"), ("Elevación", "6,3 m")],

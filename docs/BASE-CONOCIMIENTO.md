@@ -180,6 +180,10 @@ en captarlos aún.
    **nunca al repositorio público**.
 10. **SLA de respuesta: menos de 15 minutos** para toda petición de compra
     entrante, con precio orientativo y siguiente paso.
+11. **Nunca «barata».** De nuestras máquinas se dice **«la más económica»**,
+    nunca «la más barata»: barato suena a mala, y lo que vendemos son
+    unidades revisadas a buen precio. Aplica a campañas, WhatsApp, guiones
+    de llamada y fichas. (Pedido por Maikel el 23/09.)
 
 ## 7 · Máquina de captación (qué existe y dónde)
 
