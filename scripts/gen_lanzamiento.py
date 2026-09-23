@@ -195,6 +195,48 @@ GRUPOS = {
            texto="La grande del lote: 8 toneladas con pluma de ajuste variable para "
                  "cargar camión y trabajar junto a estructuras. Del 2023."),
     ]),
+  "salida2309": dict(
+    # Campaña del 23/09 para listas 38 (elevación) + 30 y 40 (carretillas).
+    # Fotos del paquete de Maikel del 23/09, fijadas al commit 38570b4 para que
+    # no cambien cuando se suban las siguientes. Datos y precios contra la hoja
+    # de stock de David del 23/09.
+    # PENDIENTE DE CONFIRMAR: la tijera JLG 1930ES (hay dos en la hoja, 2007 con
+    # 543 h a 2.750 € y 2008 con 80 h a 3.000 €) y la retráctil BT Reflex (la
+    # hoja tiene varias Toyota RRE y la foto no da la referencia).
+    asunto="Articulada eléctrica de 14 m del 2022 · y cinco máquinas más desde 2.750 €",
+    titular="Una articulada eléctrica del 2022 — y cinco máquinas más desde 2.750 €",
+    entrada="Seis unidades nuevas en stock: <strong>tres de altura grande, una tijera "
+            "de entrada y dos de almacén</strong>. Todas revisadas y con el precio puesto "
+            "delante — el que llega primero, elige primero.",
+    eyebrow="Elevación y almacén · seis unidades",
+    cierre=" <strong>Pregunta por nuestra opci&oacute;n de mantenimiento y garant&iacute;a.</strong>",
+    asunto_f2="La articulada eléctrica del 22 sigue disponible — ¿te cuento más?",
+    maquinas=[
+      dict(etq="Tijera eléctrica 8 m", titulo="JLG 1930ES", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/EL-1930ES-543H.jpg", precio="2.750 €",
+           datos=[("Año", "2007"), ("Horas", "543"), ("Altura", "8 m")],
+           texto="La más barata del lote y la que más se usa: interior de nave, "
+                 "mantenimiento y montaje. Eléctrica, entra por una puerta normal."),
+      dict(etq="Retráctil 6,3 m", titulo="BT Reflex", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/CR-BTREFLEX.jpg", precio="6.200 €",
+           datos=[("Año", "2015"), ("Horas", "4.758"), ("Elevación", "6,3 m")],
+           texto="Para pasillo estrecho y estantería alta. La retráctil que dobla "
+                 "el almacenaje sin tocar la nave."),
+      dict(etq="Carretilla eléctrica 2,5 t", titulo="Clark EPX25", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/CL-EPX25-2011.jpg", precio="7.000 €",
+           datos=[("Año", "2011"), ("Horas", "801"), ("Capacidad", "2.500 kg")],
+           texto="Solo 801 horas: ha trabajado poco. Eléctrica, sin humos ni ruido, "
+                 "para nave, taller y carga interior."),
+      dict(etq="Articulada eléctrica 14 m", titulo="LGMG A14JE", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/EL-A14JE-2022.jpg", precio="29.800 €",
+           datos=[("Año", "2022"), ("Altura", "14 m"), ("Motor", "Eléctrica")],
+           texto="Del 2022 y eléctrica: catorce metros con brazo articulado para "
+                 "salvar obstáculos, y sin emisiones para trabajar en interior."),
+      dict(etq="Articulada diésel 20 m", titulo="JLG 600AJ", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/EL-600AJ-2007.jpg", precio="30.300 €",
+           datos=[("Año", "2007"), ("Altura", "20 m"), ("Motor", "Diésel 4x4")],
+           texto="Veinte metros de alcance con tracción para terreno de obra. "
+                 "El brazo articulado llega donde la tijera no sube."),
+      dict(etq="Tijera diésel 18 m · 4x4", titulo="LGMG SR1623D", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/EL-SR1623D-2021.jpg", precio="43.500 €",
+           datos=[("Año", "2021"), ("Altura", "18 m"), ("Tracción", "4x4")],
+           texto="La grande del lote: dieciocho metros de tijera con 4x4 y del 2021. "
+                 "Plataforma amplia para trabajar varios en altura."),
+    ]),
 }
 
 
