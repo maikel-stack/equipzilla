@@ -203,8 +203,8 @@ GRUPOS = {
     # PENDIENTE DE CONFIRMAR: la tijera JLG 1930ES (hay dos en la hoja, 2007 con
     # 543 h a 2.750 € y 2008 con 80 h a 3.000 €) y la retráctil BT Reflex (la
     # hoja tiene varias Toyota RRE y la foto no da la referencia).
-    asunto="Articulada eléctrica de 14 m del 2022 · y cinco máquinas más desde 2.750 €",
-    titular="Una articulada eléctrica del 2022 — y cinco máquinas más desde 2.750 €",
+    asunto="Articulada eléctrica de 14 m del 2022 · y cinco máquinas más desde 3.000 €",
+    titular="Una articulada eléctrica del 2022 — y cinco máquinas más desde 3.000 €",
     entrada="Seis máquinas que acaban de entrar: <strong>tres de altura grande, una tijera "
             "de entrada y dos de almacén</strong>. Todas de ocasión, revisadas y con el precio "
             "puesto delante — el que llega primero, elige primero.",
@@ -212,10 +212,10 @@ GRUPOS = {
     cierre=" <strong>Pregunta por nuestra opci&oacute;n de mantenimiento y garant&iacute;a.</strong>",
     asunto_f2="La articulada eléctrica del 22 sigue disponible — ¿te cuento más?",
     maquinas=[
-      dict(etq="Tijera eléctrica 8 m", titulo="JLG 1930ES", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/EL-1930ES-543H.jpg", precio="2.750 €",
-           datos=[("Año", "2007"), ("Horas", "543"), ("Altura", "8 m")],
+      dict(etq="Tijera eléctrica 8 m", titulo="JLG 1930ES", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/EL-1930ES-543H.jpg", precio="3.000 €",
+           datos=[("Año", "2008"), ("Horas", "80"), ("Altura", "8 m")],
            texto="La más económica del lote y la que más se usa: interior de nave, "
-                 "mantenimiento y montaje. Eléctrica, entra por una puerta normal."),
+                 "mantenimiento y montaje. Eléctrica, con 80 horas y entra por una puerta normal."),
       dict(etq="Retráctil 6,3 m", titulo="BT Reflex", foto="https://cdn.jsdelivr.net/gh/maikel-stack/equipzilla@38570b448319e1c4d62aafb160e8a49a90ace0a1/email_assets/machines/CR-BTREFLEX.jpg", precio="6.200 €",
            datos=[("Año", "2015"), ("Horas", "4.758"), ("Elevación", "6,3 m")],
            texto="Para pasillo estrecho y estantería alta. La retráctil que dobla "
