@@ -111,6 +111,12 @@ EMAIL_MALO = re.compile(
     r"@(email|tudominio|tuempresa|dominio|midominio|miempresa|correo|empresa|"
     r"mysite|misitio|tusitio|ejemplo|example)\.|"
     r"^(tu|su|usuario|ejemplo|nombre|email)@|"
+    # 24/09: los que quedaban en la campana de Madrid, todos sin MX y por
+    # tanto rebote duro seguro: email@emailcliente.com, needhelp@potisen.com
+    # y 555-555-5555micorreo@serviciodecorreo.com (telefono de relleno pegado
+    # al correo de relleno).
+    r"@(emailcliente|serviciodecorreo|potisen|tudominioaqui)\.|"
+    r"^[0-9-]{4,}|"
     # Buzones que no llegan a una persona de compras: contestan con ticket
     # (visto con Endesa el 08/09) o son de protección de datos.
     r"^(atencion|atencional|oficinadeprivacidad|protecciondedatos|lopd)", re.I)
