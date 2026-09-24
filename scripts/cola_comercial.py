@@ -346,6 +346,30 @@ DATACENTRO = ("3.", "13.", "15.", "18.", "20.", "34.", "35.", "40.", "51.",
               "148.163.", "185.58.", "195.130.217.", "91.220.42.")
 
 
+# Dominios cuyos «clics» son siempre de un antivirus de correo, no de una
+# persona. Los confirma el agente de Base de datos campaña a campaña con su
+# criterio (clic antes de 90 s del envío y clic en todas las campañas) y los
+# publica en su reporte; esta lista es la copia operativa.
+#
+# Origen: reportes/bbdd/2026-09-21.md (casaametller.net, avot.es) y
+# reportes/bbdd/2026-09-24.md (los cuatro de la campaña #224). La detección por
+# IP y por ráfaga de escaner_clic() no los cazaba: avot.es entró en la cola el
+# 23/09 como HOT con puntuación 85 y Casa Ametller estuvo seis días entre los
+# «HOT sin dueño» que este agente reportó el 17/09.
+#
+# Para añadir uno: que BBDD lo confirme en su reporte y se añade aquí.
+DOMINIOS_ESCANER = {
+    "casaametller.net", "avot.es", "igunapharma.com", "evconfort.com",
+    "grupomalasa.com", "petrotec.com",
+}
+
+
+def es_escaner_conocido(email):
+    """True si el email pertenece a un dominio marcado como escáner por BBDD."""
+    e = (email or "").strip().lower()
+    return "@" in e and e.rsplit("@", 1)[-1] in DOMINIOS_ESCANER
+
+
 def escaner_clic(fila):
     """True si el clic lo hizo un antivirus de correo y no una persona.
 
@@ -633,6 +657,24 @@ def es_trato_de_prueba(x):
     return bool(ES_PRUEBA.search(p.get("name") or "")) or not email_valido(em) and "@" in em
 
 
+def es_trato_de_escaner(x):
+    """Trato creado a partir del clic de un antivirus de correo.
+
+    El filtro por dominio no basta en las señales: el proceso que convierte los
+    clics de campaña en tratos no aplica la lista, así que el clic ya viene
+    convertido en un trato de Pipedrive y entra en la cola por la puerta de los
+    tratos, no por la de las señales. El 24/09, avot.es aparecía como HOT con 85
+    puntos por el trato 53924, creado el 23/09 desde un clic suyo.
+    """
+    p = x.get("person_id") or {}
+    em = ((p.get("email") or [{}])[0].get("value") or "")
+    return es_escaner_conocido(em) and bool(re.search(r"clic campa|clic fr", tit_limpio(x), re.I))
+
+
+def tit_limpio(x):
+    return re.sub(r"^[0-9a-f-]{36} ?-\s*", "", x.get("title") or "")
+
+
 # Motivos de pérdida que significan «esto no era un lead»: si vuelve una señal
 # suya, no se devuelve a la cola.
 NO_ERA_LEAD = re.compile(r"autorespuesta|no es lead|cambio de email|duplicado|error de cualificaci", re.I)
@@ -668,7 +710,8 @@ def perdidos_recientes(dias=30):
 def construir(dias=60):
     inv = stock()
     nombres_etapa = etapas()
-    abiertos = [x for x in deals("open") if not es_trato_de_prueba(x)]
+    abiertos = [x for x in deals("open")
+                if not es_trato_de_prueba(x) and not es_trato_de_escaner(x)]
     perdidos = perdidos_recientes()
     print("Pipedrive: %d perdidos en los últimos 30 días (no vuelven a la cola como nuevos)" % len(perdidos), flush=True)
     print("Pipedrive: %d tratos abiertos de compraventa" % len(abiertos), flush=True)
@@ -689,6 +732,8 @@ def construir(dias=60):
     for g in clics.values():
         if not email_valido(g["email"]):
             continue          # el propio equipo clicando en sus campañas no es un lead
+        if es_escaner_conocido(g["email"]):
+            continue          # antivirus de correo confirmado por BBDD
         if g["email"] in en_crm:
             continue
         perd = perdidos.get(g["email"])
@@ -711,7 +756,7 @@ def construir(dias=60):
                 texto = ""
             if ir.clasificar(texto) in ("rechazo", "autoreply", "cambio_email"):
                 continue
-        if not email_valido(em):
+        if not email_valido(em) or es_escaner_conocido(em):
             continue
         if EXCLUIR.search(" ".join((s.get("empresa") or "", em))):
             continue
