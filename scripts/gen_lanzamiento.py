@@ -157,43 +157,44 @@ GRUPOS = {
                  "20 metros: sin góndola ni transporte especial entre obras."),
     ]),
   "minis": dict(
-    # Campaña del jueves 17/09 para listas 39 (excavadoras y mini) + 43 (dumper
-    # y palas). Datos y precios validados contra la hoja de stock de David el
-    # 17/09 (filas KB210, KB298, DX279PT, KB284PT, KB176, KB212PT). Fotos del
-    # stock propio, sin referencias de proveedor.
-    asunto="Kubota 2024 con 250 horas · miniexcavadoras desde 13.900 €",
-    titular="Una Kubota del 2024 con 250 horas — y cinco minis más desde 13.900 €",
-    entrada="Seis miniexcavadoras de 1 a 8 toneladas, <strong>todas del 2023 y 2024</strong> "
-            "y con pocas horas. Cinco Kubota y una Develon, revisadas y con el precio "
-            "puesto delante — el que llega primero, elige primero.",
-    eyebrow="Movimiento de tierras · Kubota y Develon",
+    # Campaña del jueves 24/09 para listas 39 (excavadoras y mini) + 43 (dumper y
+    # palas). Lote rehecho el 24/09: solo máquinas que están a la vez en la hoja
+    # de stock de David y publicadas en la web (las Kubota KX 016-4 G, K 008-5 y
+    # KX 030-4 GL, la U 50-5 y la Develon DX 27 ya no están en la web). Datos y
+    # precios validados en la hoja el 24/09. Fotos del stock propio.
+    asunto="Kubota de 3,8 t del 2023 por 32.500 € · y cinco máquinas de obra más",
+    titular="Una Kubota de 3,8 toneladas del 2023 por 32.500 € — y cinco máquinas de obra más",
+    entrada="Cuatro Kubota del 2022 y 2023 con pocas horas, una excavadora Doosan de "
+            "14 toneladas y la pala cargadora DL 420. <strong>Revisadas y disponibles</strong>, "
+            "con el precio puesto delante — el que llega primero, elige primero.",
+    eyebrow="Movimiento de tierras · Kubota y Doosan",
     cierre=" <strong>Pregunta por nuestra opci&oacute;n de mantenimiento y garant&iacute;a.</strong>",
-    asunto_f2="La Kubota del 24 sigue disponible — ¿te cuento más?",
+    asunto_f2="La Kubota de 3,8 t sigue disponible — ¿te cuento más?",
     maquinas=[
-      dict(etq="Miniexcavadora 1 t", titulo="Kubota K 008-5", foto="KB210.jpg", precio="13.900 €",
-           datos=[("Año", "2023"), ("Horas", "700"), ("Peso", "1 t")],
-           texto="La mini que entra por una puerta de 70 cm. Zanjas en jardín, "
-                 "reformas e interior de nave. El precio de entrada del lote."),
-      dict(etq="Miniexcavadora 0,8 t · 2024", titulo="Kubota KX 016-4 G", foto="KB298.jpg", precio="18.900 €",
-           datos=[("Año", "2024"), ("Horas", "250"), ("Peso", "0,8 t")],
-           texto="Del 2024 y con solo 250 horas: prácticamente nueva, a precio de "
-                 "usado. Ancho de orugas ajustable para pasar por donde no pasa otra."),
-      dict(etq="Miniexcavadora 2,7 t · giro cero", titulo="Develon DX 27 Z-7", foto="DX279PT.jpg", precio="31.900 €",
-           datos=[("Año", "2023"), ("Horas", "650"), ("Peso", "2,7 t · giro cero")],
-           texto="Giro cero para trabajar pegado a pared o entre coches aparcados. "
-                 "650 horas y la potencia de la serie 7."),
-      dict(etq="Miniexcavadora 3 t", titulo="Kubota KX 030-4 GL", foto="KB284PT.jpg", precio="35.900 €",
-           datos=[("Año", "2023"), ("Horas", "700"), ("Peso", "3 t")],
-           texto="Las 3 toneladas son el tamaño más pedido de nuestra base: "
-                 "obra urbana, urbanización y saneamiento. Con 700 horas."),
-      dict(etq="Miniexcavadora 5 t", titulo="Kubota U 50-5", foto="KB176.jpg", precio="44.500 €",
-           datos=[("Año", "2023"), ("Horas", "1.150"), ("Peso", "5 t")],
-           texto="Cinco toneladas de giro corto: fuerza de excavación de máquina "
-                 "grande sin invadir el carril de al lado."),
+      dict(etq="Miniexcavadora 3,8 t", titulo="Kubota KX 037-4 GL", foto="KB187.jpg", precio="32.500 €",
+           datos=[("Año", "2023"), ("Horas", "1.150"), ("Peso", "3,8 t")],
+           texto="El tamaño más pedido de nuestra base: obra urbana, urbanización y "
+                 "saneamiento. Del 2023 y con 1.150 horas: la más económica del lote."),
+      dict(etq="Miniexcavadora 8 t", titulo="Kubota KX 080-4", foto="KB121.jpg", precio="56.900 €",
+           datos=[("Año", "2022"), ("Horas", "2.150"), ("Peso", "8 t")],
+           texto="Ocho toneladas de Kubota: la mini grande para zanja profunda y "
+                 "carga de camión, con consumo contenido."),
+      dict(etq="Miniexcavadora 6 t", titulo="Kubota KX 060-5", foto="KB203OQ.jpg", precio="65.900 €",
+           datos=[("Año", "2023"), ("Horas", "1.100"), ("Peso", "6 t")],
+           texto="La serie 5 de Kubota en 6 toneladas, del 2023 y con 1.100 horas. "
+                 "Para quien se queda corto con una 3,5 t y no quiere una de 8."),
       dict(etq="Miniexcavadora 8 t · pluma ajustable", titulo="Kubota KX 080-4 V", foto="KB212PT.jpg", precio="71.900 €",
            datos=[("Año", "2023"), ("Horas", "1.750"), ("Peso", "8 t · pluma ajustable")],
-           texto="La grande del lote: 8 toneladas con pluma de ajuste variable para "
-                 "cargar camión y trabajar junto a estructuras. Del 2023."),
+           texto="Ocho toneladas con pluma de ajuste variable para cargar camión y "
+                 "trabajar junto a estructuras. Del 2023."),
+      dict(etq="Excavadora 14 t", titulo="Doosan DX 140 LCR-5", foto="DX1499OQPT.jpg", precio="87.500 €",
+           datos=[("Año", "2020"), ("Horas", "2.900"), ("Peso", "14 t · giro corto")],
+           texto="Giro corto de 14 toneladas: potencia de excavadora media en obra "
+                 "con poco espacio. 2.900 horas."),
+      dict(etq="Pala cargadora 23 t", titulo="Doosan DL 420 CVT-7", foto="DL42010.jpg", precio="197.900 €",
+           datos=[("Año", "2023"), ("Horas", "1.700"), ("Cuchara", "4,5 m³")],
+           texto="La pala de cantera y planta de áridos: 23 toneladas, transmisión CVT "
+                 "y solo 1.700 horas. Del 2023."),
     ]),
   "salida2309": dict(
     # Campaña del 23/09 para listas 38 (elevación) + 30 y 40 (carretillas).
@@ -371,8 +372,11 @@ def construir_f2(g):
 
 
 if __name__ == "__main__":
+    import sys
     os.makedirs(SALIDA, exist_ok=True)
-    for nombre, g in GRUPOS.items():
+    # Con argumentos, solo esos grupos: los HTML de campañas ya enviadas no se tocan.
+    pedidos = sys.argv[1:] or list(GRUPOS)
+    for nombre, g in ((n, GRUPOS[n]) for n in pedidos):
         for sufijo, html in (("", construir(g)), ("-f2", construir_f2(g))):
             ruta = os.path.join(SALIDA, f"lanzamiento-{nombre}{sufijo}.html")
             with open(ruta, "w") as f:
