@@ -111,6 +111,25 @@ def revisa_feed():
               "David y Lorenzo (Merchant Center)")
 
 
+def revisa_segmentos():
+    """Un canal y un dispositivo que se lleva mucho dinero sin convertir nada."""
+    agg = {}
+    for r in consulta("SELECT campaign.advertising_channel_type, segments.device, metrics.clicks, "
+                      "metrics.cost_micros, metrics.conversions FROM campaign WHERE segments.date DURING LAST_30_DAYS"):
+        k = (r["campaign"]["advertisingChannelType"], r["segments"]["device"])
+        m = r["metrics"]
+        d = agg.setdefault(k, {"clics": 0, "coste": 0.0, "conv": 0.0})
+        d["clics"] += int(m.get("clicks") or 0)
+        d["coste"] += int(m.get("costMicros") or 0) / 1e6
+        d["conv"] += float(m.get("conversions") or 0)
+    total = sum(d["coste"] for d in agg.values())
+    for (canal, disp), d in sorted(agg.items(), key=lambda x: -x[1]["coste"]):
+        if d["conv"] == 0 and d["coste"] > 100:
+            avisa(f"{canal.title()} en {disp.lower()} gasta sin convertir",
+                  f"{d['coste']:.0f} € y {d['clics']} clics en 30 días, cero conversiones "
+                  f"({d['coste'] / total * 100:.0f} % del gasto de la cuenta)", "Director")
+
+
 def revisa_llamadas():
     for r in consulta("SELECT campaign.name, metrics.phone_calls, metrics.phone_impressions "
                       "FROM campaign WHERE segments.date DURING LAST_30_DAYS"):
@@ -127,6 +146,7 @@ if __name__ == "__main__":
     revisa_cuota()
     revisa_grupos_sin_anuncio()
     revisa_urls()
+    revisa_segmentos()
     revisa_llamadas()
     revisa_feed()
     print()
