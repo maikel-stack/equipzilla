@@ -253,15 +253,28 @@ def persona(pid):
     return _PERSONAS[pid]
 
 
+# Notas que escribe un agente, no una persona del equipo. Van firmadas.
+NOTA_DE_AGENTE = re.compile(r"^\s*\[(agente|crm ·|outbound ·|seguimiento ·)", re.I)
+
+
 def ultima_actualizacion(x):
-    """Qué fue lo último que se hizo en el trato y cuándo."""
+    """Qué fue lo último que se hizo en el trato y cuándo.
+
+    Las notas del propio agente no cuentan. Si contaran, la nota de cadencia
+    que este agente escribe cada mañana daría al trato el bono de «movido
+    hoy/ayer» (+15 de score) sin que nadie haya llamado al cliente, y el trato
+    subiría a HOT solo porque le hemos escrito nosotros. Fue lo que hizo
+    oscilar las HOT entre 18 y 15 durante la semana del 21/09.
+    """
     candidatos = []
     if x.get("notes_count"):
-        n = pipedrive("/notes", deal_id=x["id"], limit=1, sort="update_time DESC").get("data") or []
-        if n:
-            txt = re.sub(r"<[^>]+>", " ", n[0].get("content") or "")
-            txt = re.sub(r"\s+", " ", txt).strip()
-            candidatos.append((n[0].get("update_time") or "", "nota: " + txt[:70]))
+        n = pipedrive("/notes", deal_id=x["id"], limit=5, sort="update_time DESC").get("data") or []
+        for z in n:
+            txt = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", z.get("content") or "")).strip()
+            if NOTA_DE_AGENTE.match(txt):
+                continue
+            candidatos.append((z.get("update_time") or "", "nota: " + txt[:70]))
+            break
         time.sleep(0.15)
     if x.get("last_activity_id") and x.get("last_activity_date"):
         a = pipedrive("/deals/%d/activities" % x["id"], limit=1, done=1).get("data") or []
@@ -347,21 +360,29 @@ DATACENTRO = ("3.", "13.", "15.", "18.", "20.", "34.", "35.", "40.", "51.",
 
 
 # Dominios cuyos «clics» son siempre de un antivirus de correo, no de una
-# persona. Los confirma el agente de Base de datos campaña a campaña con su
-# criterio (clic antes de 90 s del envío y clic en todas las campañas) y los
-# publica en su reporte; esta lista es la copia operativa.
+# persona. Los mantiene el agente de Base de datos en
+# `data/escaneres_dominios.json`, con el motivo de cada uno y su criterio (clic
+# antes de 90 s del envío, varios enlaces en el mismo segundo, o clics en todas
+# las campañas sin apertura humana). Aquí solo se leen: para añadir o quitar uno
+# se edita ese fichero, no este código.
 #
-# Origen: reportes/bbdd/2026-09-21.md (casaametller.net, avot.es) y
-# reportes/bbdd/2026-09-24.md (los cuatro de la campaña #224). La detección por
-# IP y por ráfaga de escaner_clic() no los cazaba: avot.es entró en la cola el
-# 23/09 como HOT con puntuación 85 y Casa Ametller estuvo seis días entre los
-# «HOT sin dueño» que este agente reportó el 17/09.
-#
-# Para añadir uno: que BBDD lo confirme en su reporte y se añade aquí.
-DOMINIOS_ESCANER = {
-    "casaametller.net", "avot.es", "igunapharma.com", "evconfort.com",
-    "grupomalasa.com", "petrotec.com",
-}
+# Por qué existe: avot.es entró en la cola el 23/09 como HOT con 85 puntos y
+# Casa Ametller estuvo seis días entre los «HOT sin dueño» que este agente
+# reportó el 17/09. La detección por IP y por ráfaga de escaner_clic() no los
+# cazaba.
+ESCANERES = os.path.join(RAIZ, "data", "escaneres_dominios.json")
+
+
+def _dominios_escaner():
+    try:
+        return set(json.load(open(ESCANERES)).get("dominios") or {})
+    except Exception as err:
+        print("[aviso: no se pudo leer %s (%s): la cola sale sin el filtro de "
+              "escáneres por dominio]" % (ESCANERES, err))
+        return set()
+
+
+DOMINIOS_ESCANER = _dominios_escaner()
 
 
 def es_escaner_conocido(email):
@@ -565,8 +586,9 @@ def fila_crm(x, inv, nombres_etapa):
     du = dias_desde(cuando) if cuando else 99
     if du is not None and du <= 2:
         score += 15; porque.append("movido hoy/ayer")
-    elif du is not None and du > 14:
-        score -= 10; porque.append("%d días sin tocar" % du)
+    elif du is not None and du > 7:
+        score -= 10 if du <= 14 else 20
+        porque.append("%d días sin tocar" % du)
     if est == "Sin contactar":
         score += 10; porque.append("SIN CONTACTAR")
     if re.search(r"clic fr", titulo, re.I):

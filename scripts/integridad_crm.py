@@ -56,17 +56,61 @@ def norm_tel(t):
     return d[-9:] if len(d) >= 9 else ""
 
 
-def ultima_senal(x):
-    """Lo más reciente que le ha pasado al trato, sin contar update_time.
+# Notas escritas por un agente, no por una persona del equipo. Van firmadas.
+NOTA_DE_AGENTE = re.compile(r"^\s*\[(agente|crm ·|outbound ·|seguimiento ·)", re.I)
 
-    update_time cambia por cualquier edición, incluidas las del propio agente,
-    así que un trato que nadie trabaja parecería vivo solo porque le dejamos
-    una nota.
+
+def ultima_senal(x):
+    """Lo más reciente que le ha pasado al trato, y qué fue.
+
+    Tres cosas que costó aprender, todas el 25/09:
+
+    1. `update_time` no vale: cambia por cualquier edición, incluidas las del
+       propio agente, así que un trato que nadie trabaja parece vivo solo
+       porque le dejamos una nota.
+    2. `last_activity_date` tampoco: es la fecha de la actividad más reciente
+       RELATIVA al trato, y puede estar en el futuro si hay una tarea
+       programada. El trato 52683 daba «−3 días» porque tenía una tarea para
+       el 28/09. Solo valen las actividades marcadas como hechas.
+    3. Las notas SÍ cuentan, pero solo las de personas. El equipo comercial
+       registra las llamadas como nota («llamó pero no contesta») más que como
+       actividad, así que ignorarlas hacía aparecer como parados tratos que sí
+       se estaban trabajando: el 24/09 reporté 52805 y 53596 con 9 y 14 días
+       cuando los dos tenían nota del equipo del 23/09. Las notas del propio
+       agente se descartan para no autoengañarse.
     """
-    c = [str(v)[:19] for v in (x.get("last_activity_date"), x.get("stage_change_time"),
-                               x.get("last_outgoing_mail_time"), x.get("last_incoming_mail_time"),
-                               x.get("add_time")) if v]
-    return max(c) if c else ""
+    cand = []
+    for campo, etiqueta in ((x.get("stage_change_time"), "cambio de etapa"),
+                            (x.get("last_outgoing_mail_time"), "email enviado"),
+                            (x.get("last_incoming_mail_time"), "email del cliente"),
+                            (x.get("add_time"), "alta del trato")):
+        if campo:
+            cand.append((str(campo)[:19], etiqueta))
+    if x.get("done_activities_count"):
+        try:
+            a = pipedrive("/deals/%d/activities" % x["id"], limit=1, done=1).get("data") or []
+            time.sleep(0.1)
+            if a and a[0].get("marked_as_done_time"):
+                cand.append((str(a[0]["marked_as_done_time"])[:19],
+                             "%s: %s" % (a[0].get("type") or "actividad", (a[0].get("subject") or "")[:40])))
+        except Exception:
+            pass
+    if x.get("notes_count"):
+        try:
+            for n in pipedrive("/notes", deal_id=x["id"], limit=5, sort="add_time DESC").get("data") or []:
+                txt = re.sub(r"<[^>]+>", " ", n.get("content") or "").strip()
+                if NOTA_DE_AGENTE.match(txt):
+                    continue                      # nota nuestra: no cuenta como trabajo
+                cand.append((str(n.get("add_time"))[:19], "nota: " + re.sub(r"\s+", " ", txt)[:44]))
+                break
+            time.sleep(0.1)
+        except Exception:
+            pass
+    ahora = AHORA.isoformat()[:19]
+    cand = [c for c in cand if c[0] <= ahora] or cand   # nada del futuro
+    if not cand:
+        return "", ""
+    return max(cand)
 
 
 def primer_contacto(x):
@@ -149,16 +193,17 @@ def main():
     # 2. sin actividad > 7 días
     parados = []
     for x in abiertos:
-        u = ultima_senal(x)
+        u, que = ultima_senal(x)
         d = (AHORA - ts(u)).days if ts(u) else 999
         if d > 7:
             parados.append((d, x["id"], tit(x)[:52], etapas.get(x["stage_id"], "?"),
-                            (x.get("user_id") or {}).get("name"), x["_cv"]))
+                            (x.get("user_id") or {}).get("name"), x["_cv"], que))
     parados.sort(reverse=True)
     print("\nsin actividad > 7 días: %d (compra %d)" % (len(parados), sum(1 for p in parados if p[5])))
     for p in parados:
         if p[5]:
-            print("   COMPRA  %4d d  %-6s %-52s %s · %s" % (p[0], p[1], p[2], p[3], p[4]))
+            print("   COMPRA  %4d d  %-6s %-46s %-22s %-9s último: %s"
+                  % (p[0], p[1], p[2][:46], p[3][:22], (p[4] or "")[:9], p[6]))
     print("   alquiler: %d, el más viejo %d d" % (sum(1 for p in parados if not p[5]),
                                                   max([p[0] for p in parados if not p[5]] or [0])))
 
