@@ -1,0 +1,14 @@
+{
+  "descripcion": "Dominios cuyos clics en campañas de Brevo son escáneres de enlaces (antivirus / pasarela de correo), no personas. Mantiene el Agente BBDD; cola_comercial.py y el vigilante deben excluirlos de HOT y de la cola. Criterio para entrar: clic antes de 90 s tras el envío de la campaña, varios enlaces en el mismo segundo, o clics en todas las campañas sin abrir de forma humana.",
+  "criterio_segundos": 90,
+  "actualizado": "2026-09-25",
+  "dominios": {
+    "casaametller.net": "clica en todas las campañas desde agosto (#203-#224), 27 s y 12 s tras el envío, varios enlaces",
+    "avot.es": "clica en todas las campañas (#203-#224), 87 s y 14 s tras el envío; entró como HOT-85 el 23/09",
+    "bowe.com": "clic antes de la hora de envío registrada de la #221",
+    "petrotec.com": "#224: 5 enlaces a 12 s del envío, varios en el mismo segundo",
+    "evconfort.com": "#224: clic a 15 s del envío; ya había clicado en campañas anteriores",
+    "grupomalasa.com": "#224: clic a 16 s del envío; ya había clicado en campañas anteriores",
+    "igunapharma.com": "#224: clic a 23 s del envío; ya había clicado en campañas anteriores"
+  }
+}
