@@ -24,7 +24,14 @@ from ads_metricas import consulta  # noqa: E402
 SEARCH = 24065940601
 
 
-def serie(dias=14):
+def consolidado(fila):
+    """Google no cierra la cuota del día en curso ni la del anterior: la devuelve a 0
+    aunque haya impresiones. Incluir esos días hundía la media y me hizo reportar el
+    26/09 una caída de cuota que no existía. Se descartan."""
+    return not (fila["cuota"] == 0 and fila["impresiones"] > 0)
+
+
+def serie(dias=14, solo_consolidado=True):
     rango = {7: "LAST_7_DAYS", 14: "LAST_14_DAYS", 30: "LAST_30_DAYS"}.get(dias, "LAST_14_DAYS")
     filas = []
     for r in consulta(
@@ -41,6 +48,10 @@ def serie(dias=14):
             cuota=float(m.get("searchImpressionShare") or 0) * 100,
             presu=float(m.get("searchBudgetLostImpressionShare") or 0) * 100,
             rank=float(m.get("searchRankLostImpressionShare") or 0) * 100))
+    descartadas = [f for f in filas if not consolidado(f)]
+    if solo_consolidado and descartadas:
+        print("(sin consolidar, fuera del cálculo: " + ", ".join(f["fecha"] for f in descartadas) + ")")
+        filas = [f for f in filas if consolidado(f)]
     return filas
 
 
